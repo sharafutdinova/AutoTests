@@ -14,7 +14,7 @@ GET http://localhost:4111/api/v1/accounts/2/transactions
 Content-Type: application/json
 Authorization: Basic QWxzdTpUZXN0MTIzIQ==
 
-### Positive test User can transfer 9999 to another user account
+### Positive test User can transfer 9999.99 to another user account
 POST http://localhost:4111/api/v1/accounts/transfer
 Content-Type: application/json
 Authorization: Basic QWxzdTpUZXN0MTIzIQ==
@@ -22,7 +22,7 @@ Authorization: Basic QWxzdTpUZXN0MTIzIQ==
 {
   "senderAccountId": 1,
   "receiverAccountId": 3,
-  "amount": 9999
+  "amount": 9999.99
 }
 
 ### Positive test User can transfer value equals to balance to self account
@@ -44,7 +44,7 @@ Authorization: Basic QWxzdTpUZXN0MTIzIQ==
 {
   "senderAccountId": 1,
   "receiverAccountId": 2,
-  "amount": 1
+  "amount": 0.01
 }
 
 ### Negative test User cannot transfer value is more than balance in account
@@ -88,7 +88,7 @@ Authorization: Basic QWxzdTpUZXN0MTIzIQ==
 {
   "senderAccountId": 1,
   "receiverAccountId": 2,
-  "amount": -1
+  "amount": -0.01
 }
 
 ### Negative test User cannot transfer value more than 10000
@@ -99,7 +99,7 @@ Authorization: Basic QWxzdTpUZXN0MTIzIQ==
 {
   "senderAccountId": 1,
   "receiverAccountId": 2,
-  "amount": 10001
+  "amount": 10000.01
 }
 
 ### Negative test User cannot transfer value to not exists account
