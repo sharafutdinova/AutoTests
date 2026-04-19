@@ -10,6 +10,6 @@ import models.BaseModel;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ChangeNameRequest extends BaseModel {
+public class UpdateProfileRequest extends BaseModel {
     private String name;
 }

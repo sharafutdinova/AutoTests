@@ -11,7 +11,7 @@ import models.Customer;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ChangeNameResponse extends BaseModel {
+public class UpdateProfileResponse extends BaseModel {
     private Customer customer;
     private String message;
 }

@@ -2,29 +2,24 @@ package iteration2;
 
 import generators.RandomData;
 import models.Messages;
-import models.Transaction;
-import models.TransactionTypes;
-import models.UserRole;
 import models.accounts.*;
 import models.admin.CreateUserRequest;
+import models.comparison.TransactionsComparing;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import requests.accounts.CreateAccountRequester;
-import requests.accounts.DepositRequester;
-import requests.accounts.GetAccountTransactionsRequester;
-import requests.admin.AdminCreateUserRequester;
+import requests.skeleton.Endpoint;
+import requests.skeleton.requesters.CrudRequester;
+import requests.skeleton.requesters.ValidatedCrudRequester;
+import requests.steps.UserSteps;
+import requests.steps.AdminSteps;
 import specs.RequestSpecs;
 import specs.ResponseSpecs;
 
-import java.util.Comparator;
 import java.util.stream.Stream;
 
-import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DepositTest extends BaseTest {
     /*
@@ -35,29 +30,15 @@ public class DepositTest extends BaseTest {
     @ParameterizedTest
     @ValueSource(doubles = {5000, 4999.99, 0.01})
     public void userCanDepositTest(Double amount) {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-        CreateAccountResponse createAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
+        CreateAccountResponse createAccountResponse = UserSteps.createAccount(userRequest);
 
         DepositRequest depositRequest = DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
-        DepositResponse depositResponse = new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
-        softly.assertThat(depositRequest.getBalance()).isEqualTo(depositResponse.getBalance());
-        Transaction lastTransaction = depositResponse.getTransactions().stream().max(Comparator.comparing(Transaction::getId)).get();
-        softly.assertThat(TransactionTypes.TRANSACTION_TYPE_FOR_DEPOSIT.getDescription()).isEqualTo(lastTransaction.getType());
-        softly.assertThat(depositRequest.getBalance()).isEqualTo(lastTransaction.getAmount());
+        DepositResponse depositResponse = new ValidatedCrudRequester<DepositResponse>(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.DEPOSIT,
+                ResponseSpecs.requestReturnsOK()).post(depositRequest);
 
-        GetAccountTransactionsRequest getAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getAccountTransactionsResponse = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        softly.assertThat(TransactionsComparing.validateDepositTransaction(depositRequest, depositResponse)).isTrue();
+        GetAccountTransactionsResponse getAccountTransactionsResponse = UserSteps.getAccountTransactions(userRequest, createAccountResponse.getId());
         softly.assertThat(depositResponse.getTransactions()).isEqualTo(getAccountTransactionsResponse.getTransactions());
     }
 
@@ -76,71 +57,37 @@ public class DepositTest extends BaseTest {
     @ParameterizedTest
     @MethodSource("negativeCasesForDepositTest")
     public void userCanNotDepositTest(Double amount, String errorMessage) {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-        CreateAccountResponse createAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
+        CreateAccountResponse createAccountResponse = UserSteps.createAccount(userRequest);
 
         DepositRequest depositRequest = DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
-        new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsBadRequest(errorMessage)).post(depositRequest);
 
-        GetAccountTransactionsRequest getAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getAccountTransactionsResponse = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
-        softly.assertThat(0).isEqualTo(getAccountTransactionsResponse.getTransactions().size());
+        GetAccountTransactionsResponse getAccountTransactionsResponse = UserSteps.getAccountTransactions(userRequest, createAccountResponse.getId());
+        softly.assertThat(getAccountTransactionsResponse.getTransactions().size()).isZero();
     }
 
     @Test
     public void userCanNotDepositToNotExistsAccountTest() {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-        int accountId = 1000;
-        double amount = 550;
-        DepositRequest depositRequest = DepositRequest.builder().id(accountId).balance(amount).build();
-        new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        int notExistsAccountId = 10000;
+        double amount = RandomData.getDepositAmount();
+        DepositRequest depositRequest = DepositRequest.builder().id(notExistsAccountId).balance(amount).build();
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage())).post(depositRequest);
     }
 
     @Test
     public void userCanNotDepositToAnotherUserAccountTest() {
-        CreateUserRequest baseUserRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(baseUserRequest);
+        CreateUserRequest anotherUserRequest = AdminSteps.createUser();
+        CreateAccountResponse createAccountResponse = UserSteps.createAccount(anotherUserRequest);
 
-        CreateUserRequest anotherUserRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(anotherUserRequest);
-        CreateAccountResponse createAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(anotherUserRequest.getUsername(), anotherUserRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-
-        double amount = 550;
+        double amount = RandomData.getDepositAmount();
         DepositRequest depositRequest = DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
-        new DepositRequester(RequestSpecs.authAsUser(baseUserRequest.getUsername(), baseUserRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage())).post(depositRequest);
+        AdminSteps.deleteUserByCreateUserRequest(anotherUserRequest);
     }
 }

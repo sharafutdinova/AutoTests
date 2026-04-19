@@ -4,26 +4,22 @@ import generators.RandomData;
 import models.Messages;
 import models.Transaction;
 import models.TransactionTypes;
-import models.UserRole;
 import models.accounts.*;
 import models.admin.CreateUserRequest;
+import models.comparison.ModelAssertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import requests.accounts.CreateAccountRequester;
-import requests.accounts.DepositRequester;
-import requests.accounts.GetAccountTransactionsRequester;
-import requests.accounts.TransferRequester;
-import requests.admin.AdminCreateUserRequester;
+import requests.skeleton.Endpoint;
+import requests.skeleton.requesters.CrudRequester;
+import requests.skeleton.requesters.ValidatedCrudRequester;
+import requests.steps.UserSteps;
+import requests.steps.AdminSteps;
 import specs.RequestSpecs;
 import specs.ResponseSpecs;
 
-import java.util.Comparator;
 import java.util.stream.Stream;
-
-import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TransferTest extends BaseTest {
     /*
@@ -41,103 +37,51 @@ public class TransferTest extends BaseTest {
     @ParameterizedTest
     @MethodSource("positiveCasesForTransferTest")
     public void userCanTransferTest(double amount) {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-        CreateAccountResponse createSenderAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
+        CreateAccountResponse createSenderAccountResponse = UserSteps.createAccount(userRequest);
         int maxAmountForDeposit = 5000;
-        DepositRequest depositRequest = DepositRequest.builder().id(createSenderAccountResponse.getId()).balance(maxAmountForDeposit).build();
-        new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
-        new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
-        CreateAccountResponse createReceiverAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
+        for (int i = 0; i < 3; i++) {
+            UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), maxAmountForDeposit);
+            UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), maxAmountForDeposit);
+        }
+        CreateAccountResponse createReceiverAccountResponse = UserSteps.createAccount(userRequest);
 
         TransferRequest transferRequest = TransferRequest.builder().amount(amount)
                 .senderAccountId(createSenderAccountResponse.getId())
                 .receiverAccountId(createReceiverAccountResponse.getId()).build();
-        TransferResponse transferResponse = new TransferRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(transferRequest).extract().body().as(TransferResponse.class);
-        softly.assertThat(transferRequest.getSenderAccountId()).isEqualTo(transferResponse.getSenderAccountId());
-        softly.assertThat(transferRequest.getReceiverAccountId()).isEqualTo(transferResponse.getReceiverAccountId());
-        softly.assertThat(transferRequest.getAmount()).isEqualTo(transferResponse.getAmount());
+        TransferResponse transferResponse = new ValidatedCrudRequester<TransferResponse>(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.TRANSFER,
+                ResponseSpecs.requestReturnsOK()).post(transferRequest);
+
+        ModelAssertions.assertThatModels(transferRequest,transferResponse).match();
         softly.assertThat(Messages.TRANSFER_SUCCESSFUL.getMessage()).isEqualTo(transferResponse.getMessage());
-
-        GetAccountTransactionsRequest getReceiverAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createReceiverAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getReceiverTransactions = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getReceiverAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
-        Transaction lastReceiverTransaction = getReceiverTransactions.getTransactions().stream().max(Comparator.comparing(Transaction::getId)).get();
-        softly.assertThat(transferRequest.getAmount()).isEqualTo(lastReceiverTransaction.getAmount());
-        softly.assertThat(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_IN.getDescription()).isEqualTo(lastReceiverTransaction.getType());
-
-        GetAccountTransactionsRequest getSenderAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createSenderAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getSenderTransactions = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
-        Transaction lastSenderTransaction = getSenderTransactions.getTransactions().stream().max(Comparator.comparing(Transaction::getId)).get();
-        softly.assertThat(transferRequest.getAmount()).isEqualTo(lastSenderTransaction.getAmount());
-        softly.assertThat(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_OUT.getDescription()).isEqualTo(lastSenderTransaction.getType());
+        Transaction lastReceiverTransaction = UserSteps.getAccountLastTransactions(userRequest,createReceiverAccountResponse.getId());
+        softly.assertThat(lastReceiverTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_IN, transferRequest.getAmount())).isTrue();
+        Transaction lastSenderTransaction = UserSteps.getAccountLastTransactions(userRequest,createSenderAccountResponse.getId());
+        softly.assertThat(lastSenderTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_OUT, transferRequest.getAmount())).isTrue();
     }
 
     @Test
     public void userCanTransferValueEqualToBalanceToAnotherUserAccountTest() {
-        CreateUserRequest baseUserRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        CreateUserRequest anotherUserRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(baseUserRequest);
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(anotherUserRequest);
-        CreateAccountResponse createSenderAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(baseUserRequest.getUsername(), baseUserRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-        CreateAccountResponse createReceiverAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(anotherUserRequest.getUsername(), anotherUserRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-        int amountForDeposit = 5000;
-        DepositRequest depositRequest = DepositRequest.builder().id(createSenderAccountResponse.getId()).balance(amountForDeposit).build();
-        new DepositRequester(RequestSpecs.authAsUser(baseUserRequest.getUsername(), baseUserRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
+        CreateUserRequest anotherUserRequest = AdminSteps.createUser();
+        CreateAccountResponse createSenderAccountResponse = UserSteps.createAccount(userRequest);
+        CreateAccountResponse createReceiverAccountResponse = UserSteps.createAccount(anotherUserRequest);
+        double amountForDeposit = RandomData.getDepositAmount();
+        UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), amountForDeposit);
+
         TransferRequest transferRequest = TransferRequest.builder().amount(amountForDeposit)
                 .senderAccountId(createSenderAccountResponse.getId())
                 .receiverAccountId(createReceiverAccountResponse.getId()).build();
-        TransferResponse transferResponse = new TransferRequester(RequestSpecs.authAsUser(baseUserRequest.getUsername(), baseUserRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(transferRequest).extract().body().as(TransferResponse.class);
-        softly.assertThat(transferRequest.getSenderAccountId()).isEqualTo(transferResponse.getSenderAccountId());
-        softly.assertThat(transferRequest.getReceiverAccountId()).isEqualTo(transferResponse.getReceiverAccountId());
-        softly.assertThat(transferRequest.getAmount()).isEqualTo(transferResponse.getAmount());
+        TransferResponse transferResponse = new ValidatedCrudRequester<TransferResponse>(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.TRANSFER,
+                ResponseSpecs.requestReturnsOK()).post(transferRequest);
+
+        ModelAssertions.assertThatModels(transferRequest,transferResponse).match();
         softly.assertThat(Messages.TRANSFER_SUCCESSFUL.getMessage()).isEqualTo(transferResponse.getMessage());
-
-        GetAccountTransactionsRequest getReceiverAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createReceiverAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getReceiverTransactions = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(anotherUserRequest.getUsername(), anotherUserRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getReceiverAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
-        Transaction lastReceiverTransaction = getReceiverTransactions.getTransactions().stream().max(Comparator.comparing(Transaction::getId)).get();
-        softly.assertThat(transferRequest.getAmount()).isEqualTo(lastReceiverTransaction.getAmount());
-        softly.assertThat(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_IN.getDescription()).isEqualTo(lastReceiverTransaction.getType());
-
-        GetAccountTransactionsRequest getSenderAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createSenderAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getSenderTransactions = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(baseUserRequest.getUsername(), baseUserRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
-        Transaction lastSenderTransaction = getSenderTransactions.getTransactions().stream().max(Comparator.comparing(Transaction::getId)).get();
-        softly.assertThat(transferRequest.getAmount()).isEqualTo(lastSenderTransaction.getAmount());
-        softly.assertThat(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_OUT.getDescription()).isEqualTo(lastSenderTransaction.getType());
+        Transaction lastReceiverTransaction = UserSteps.getAccountLastTransactions(anotherUserRequest,createReceiverAccountResponse.getId());
+        softly.assertThat(lastReceiverTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_IN, transferRequest.getAmount())).isTrue();
+        Transaction lastSenderTransaction = UserSteps.getAccountLastTransactions(userRequest,createSenderAccountResponse.getId());
+        softly.assertThat(lastSenderTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_OUT, transferRequest.getAmount())).isTrue();
+        AdminSteps.deleteUserByCreateUserRequest(anotherUserRequest);
     }
 
     /*
@@ -155,220 +99,122 @@ public class TransferTest extends BaseTest {
     @ParameterizedTest
     @MethodSource("negativeCasesForTransferTest")
     public void userCanNotTransferInvalidAmountTest(double amount, String errorMessage) {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-        CreateAccountResponse createSenderAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
+        CreateAccountResponse createSenderAccountResponse = UserSteps.createAccount(userRequest);
         int maxAmountForDeposit = 5000;
-        DepositRequest depositRequest = DepositRequest.builder().id(createSenderAccountResponse.getId()).balance(maxAmountForDeposit).build();
-        new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
-        new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
-        CreateAccountResponse createReceiverAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-        GetAccountTransactionsRequest getSenderAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createSenderAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        for (int i = 0; i < 3; i++) {
+            UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), maxAmountForDeposit);
+            UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), maxAmountForDeposit);
+        }
+        CreateAccountResponse createReceiverAccountResponse = UserSteps.createAccount(userRequest);
+        GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = UserSteps.getAccountTransactions(userRequest, createSenderAccountResponse.getId());
 
         TransferRequest transferRequest = TransferRequest.builder().amount(amount)
                 .senderAccountId(createSenderAccountResponse.getId())
                 .receiverAccountId(createReceiverAccountResponse.getId()).build();
-        new TransferRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.TRANSFER,
                 ResponseSpecs.requestReturnsBadRequest(errorMessage)).post(transferRequest);
 
-        GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = UserSteps.getAccountTransactions(userRequest, createSenderAccountResponse.getId());
         softly.assertThat(getSenderAccountTransactionsResponseBefore).isEqualTo(getSenderAccountTransactionsResponseAfter);
-
-        GetAccountTransactionsRequest getReceiverAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createReceiverAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getReceiverAccountTransactionsResponse = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getReceiverAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        GetAccountTransactionsResponse getReceiverAccountTransactionsResponse = UserSteps.getAccountTransactions(userRequest, createReceiverAccountResponse.getId());
         softly.assertThat(0).isEqualTo(getReceiverAccountTransactionsResponse.getTransactions().size());
     }
 
     @Test
     public void userCanNotTransferValueGreaterThanBalanceTest() {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-        CreateAccountResponse createSenderAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-        double amountForDeposit = 550.00;
-        DepositRequest depositRequest = DepositRequest.builder().id(createSenderAccountResponse.getId()).balance(amountForDeposit).build();
-        new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
-        CreateAccountResponse createReceiverAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-        GetAccountTransactionsRequest getSenderAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createSenderAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        CreateAccountResponse createSenderAccountResponse = UserSteps.createAccount(userRequest);
+        CreateAccountResponse createReceiverAccountResponse = UserSteps.createAccount(userRequest);
+        double amountForDeposit = RandomData.getDepositAmount();
+        UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), amountForDeposit);
+        GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = UserSteps.getAccountTransactions(userRequest, createSenderAccountResponse.getId());
 
         TransferRequest transferRequest = TransferRequest.builder().amount(amountForDeposit + 1)
                 .senderAccountId(createSenderAccountResponse.getId())
                 .receiverAccountId(createReceiverAccountResponse.getId()).build();
-        new TransferRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.TRANSFER,
                 ResponseSpecs.requestReturnsBadRequest(Messages.TRANSFER_INVALID.getMessage())).post(transferRequest);
 
-        GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = UserSteps.getAccountTransactions(userRequest, createSenderAccountResponse.getId());
         softly.assertThat(getSenderAccountTransactionsResponseBefore).isEqualTo(getSenderAccountTransactionsResponseAfter);
-
-        GetAccountTransactionsRequest getReceiverAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createReceiverAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getReceiverAccountTransactionsResponse = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getReceiverAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        GetAccountTransactionsResponse getReceiverAccountTransactionsResponse = UserSteps.getAccountTransactions(userRequest, createReceiverAccountResponse.getId());
         softly.assertThat(0).isEqualTo(getReceiverAccountTransactionsResponse.getTransactions().size());
     }
 
     @Test
     public void userCanNotTransferToTheSameAccountTest() {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-        CreateAccountResponse createSenderAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-        int maxAmountForDeposit = 5000;
-        DepositRequest depositRequest = DepositRequest.builder().id(createSenderAccountResponse.getId()).balance(maxAmountForDeposit).build();
-        new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
-        GetAccountTransactionsRequest getSenderAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createSenderAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        CreateAccountResponse createSenderAccountResponse = UserSteps.createAccount(userRequest);
+        double depositAmount = RandomData.getDepositAmount();
+        UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), depositAmount);
+        GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = UserSteps.getAccountTransactions(userRequest, createSenderAccountResponse.getId());
 
-        TransferRequest transferRequest = TransferRequest.builder().amount(maxAmountForDeposit)
+        TransferRequest transferRequest = TransferRequest.builder().amount(depositAmount)
                 .senderAccountId(createSenderAccountResponse.getId())
                 .receiverAccountId(createSenderAccountResponse.getId()).build();
-        new TransferRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.TRANSFER,
                 ResponseSpecs.requestReturnsBadRequest(Messages.TRANSFER_INVALID.getMessage())).post(transferRequest);
 
-        GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = UserSteps.getAccountTransactions(userRequest, createSenderAccountResponse.getId());
         softly.assertThat(getSenderAccountTransactionsResponseBefore).isEqualTo(getSenderAccountTransactionsResponseAfter);
     }
 
     @Test
     public void userCanNotTransferFromNotExistsAccountTest() {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-        CreateAccountResponse createSenderAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-        int amountForDeposit = 5000;
-        DepositRequest depositRequest = DepositRequest.builder().id(createSenderAccountResponse.getId()).balance(amountForDeposit).build();
-        new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
-        GetAccountTransactionsRequest getSenderAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createSenderAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
-        int notExistsAccountId = 500;
+        CreateAccountResponse createSenderAccountResponse = UserSteps.createAccount(userRequest);
+        double amountForDeposit = RandomData.getDepositAmount();
+        UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), amountForDeposit);
+        GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = UserSteps.getAccountTransactions(userRequest, createSenderAccountResponse.getId());
+
+        int notExistsAccountId = 9999;
         TransferRequest transferRequest = TransferRequest.builder().amount(amountForDeposit)
                 .senderAccountId(createSenderAccountResponse.getId() + notExistsAccountId)
                 .receiverAccountId(createSenderAccountResponse.getId()).build();
-        new TransferRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.TRANSFER,
                 ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage())).post(transferRequest);
 
-        GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = UserSteps.getAccountTransactions(userRequest, createSenderAccountResponse.getId());
         softly.assertThat(getSenderAccountTransactionsResponseBefore).isEqualTo(getSenderAccountTransactionsResponseAfter);
     }
 
     @Test
     public void userCanNotTransferToNotExistsAccountTest() {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-        CreateAccountResponse createSenderAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-        int amountForDeposit = 5000;
-        DepositRequest depositRequest = DepositRequest.builder().id(createSenderAccountResponse.getId()).balance(amountForDeposit).build();
-        new DepositRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
-        GetAccountTransactionsRequest getSenderAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createSenderAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
-        int notExistsAccountId = 500;
+        CreateAccountResponse createSenderAccountResponse = UserSteps.createAccount(userRequest);
+        double amountForDeposit = RandomData.getDepositAmount();
+        UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), amountForDeposit);
+        GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = UserSteps.getAccountTransactions(userRequest, createSenderAccountResponse.getId());
+
+        int notExistsAccountId = 9999;
         TransferRequest transferRequest = TransferRequest.builder().amount(amountForDeposit)
                 .senderAccountId(createSenderAccountResponse.getId())
                 .receiverAccountId(createSenderAccountResponse.getId() + notExistsAccountId).build();
-        new TransferRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.TRANSFER,
                 ResponseSpecs.requestReturnsBadRequest(Messages.TRANSFER_INVALID.getMessage())).post(transferRequest);
 
-        GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getSenderAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = UserSteps.getAccountTransactions(userRequest, createSenderAccountResponse.getId());
         softly.assertThat(getSenderAccountTransactionsResponseBefore).isEqualTo(getSenderAccountTransactionsResponseAfter);
     }
 
     @Test
     public void userCanNotTransferFromAnotherUserAccountTest() {
-        CreateUserRequest baseUserRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        CreateUserRequest anotherUserRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(baseUserRequest);
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(anotherUserRequest);
-        CreateAccountResponse createReceiverAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(baseUserRequest.getUsername(), baseUserRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-        CreateAccountResponse createSenderAccountResponse = new CreateAccountRequester(RequestSpecs.authAsUser(anotherUserRequest.getUsername(), anotherUserRequest.getPassword()),
-                ResponseSpecs.entityWasCreated())
-                .post(null).extract().body().as(CreateAccountResponse.class);
-        int amountForDeposit = 5000;
-        DepositRequest depositRequest = DepositRequest.builder().id(createSenderAccountResponse.getId()).balance(amountForDeposit).build();
-        new DepositRequester(RequestSpecs.authAsUser(anotherUserRequest.getUsername(), anotherUserRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(depositRequest).extract().body().as(DepositResponse.class);
+        CreateUserRequest anotherUserRequest = AdminSteps.createUser();
+        CreateAccountResponse createReceiverAccountResponse = UserSteps.createAccount(userRequest);
+        CreateAccountResponse createSenderAccountResponse = UserSteps.createAccount(anotherUserRequest);
+        double amountForDeposit = RandomData.getDepositAmount();
+        UserSteps.deposit(anotherUserRequest, createSenderAccountResponse.getId(), amountForDeposit);
 
         TransferRequest transferRequest = TransferRequest.builder().amount(amountForDeposit)
                 .senderAccountId(createSenderAccountResponse.getId())
                 .receiverAccountId(createReceiverAccountResponse.getId()).build();
-       new TransferRequester(RequestSpecs.authAsUser(baseUserRequest.getUsername(), baseUserRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.TRANSFER,
                 ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage())).post(transferRequest);
 
-        GetAccountTransactionsRequest getReceiverAccountTransactionsRequest = GetAccountTransactionsRequest.builder().accountId(createReceiverAccountResponse.getId()).build();
-        GetAccountTransactionsResponse getReceiverAccountTransactions = new GetAccountTransactionsRequester(RequestSpecs.authAsUser(baseUserRequest.getUsername(), baseUserRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk()).post(getReceiverAccountTransactionsRequest).extract().as(GetAccountTransactionsResponse.class);
+        GetAccountTransactionsResponse getReceiverAccountTransactions = UserSteps.getAccountTransactions(userRequest, createReceiverAccountResponse.getId());
         softly.assertThat(0).isEqualTo(getReceiverAccountTransactions.getTransactions().size());
+        AdminSteps.deleteUserByCreateUserRequest(anotherUserRequest);
     }
 }

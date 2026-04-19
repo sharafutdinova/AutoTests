@@ -1,18 +1,18 @@
 package iteration2;
 
 import generators.RandomData;
-import models.*;
-import models.admin.CreateUserRequest;
-import models.admin.CreateUserResponse;
-import models.customer.ChangeNameRequest;
-import models.customer.ChangeNameResponse;
+import models.comparison.UserNameComparing;
+import models.customer.UpdateProfileRequest;
+import models.customer.UpdateProfileResponse;
 import models.customer.GetUserResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import requests.admin.AdminCreateUserRequester;
-import requests.customer.ChangeNameRequester;
-import requests.customer.GetUserRequester;
+import requests.skeleton.Endpoint;
+import requests.skeleton.requesters.CrudRequester;
+import requests.skeleton.requesters.ValidatedCrudRequester;
+import requests.steps.UserSteps;
+import models.Messages;
 import specs.RequestSpecs;
 import specs.ResponseSpecs;
 
@@ -20,73 +20,79 @@ public class ChangeUserNameTest extends BaseTest {
     /*
     User can change name to name contains two words
     User can change name to name contains two words with length 1
-    User can change name to the same name
     User can change name to name contains two words with russian letters
      */
     @ParameterizedTest
     @ValueSource(strings = {"Alsu Sharaf", "A S", "Алсу Шараф"})
     public void userCanChangeNameTest(String name) {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-
-        ChangeNameRequest changeNameRequest = ChangeNameRequest.builder()
+        UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
                 .name(name)
                 .build();
-        ChangeNameResponse changeNameResponse = new ChangeNameRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk())
-                .post(changeNameRequest).extract().body().as(ChangeNameResponse.class);
+        UpdateProfileResponse updateProfileResponse = new ValidatedCrudRequester<UpdateProfileResponse>
+                (RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                        Endpoint.UPDATE_CUSTOMER_PROFILE,
+                        ResponseSpecs.requestReturnsOK())
+                .update(updateProfileRequest);
 
-        softly.assertThat(changeNameRequest.getName()).isEqualTo(changeNameResponse.getCustomer().getName());
-        softly.assertThat(userRequest.getUsername()).isEqualTo(changeNameResponse.getCustomer().getUsername());
-        softly.assertThat(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage()).isEqualTo(changeNameResponse.getMessage());
-
-        GetUserResponse getUserResponse = new GetUserRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk())
-                .post(null).extract().body().as(GetUserResponse.class);
-
-        softly.assertThat(changeNameRequest.getName()).isEqualTo(getUserResponse.getName());
+        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileResponse)).isTrue();
+        softly.assertThat(updateProfileRequest.getName()).isEqualTo(getUserResponse.getName());
         softly.assertThat(userRequest.getUsername()).isEqualTo(getUserResponse.getUsername());
     }
 
     @Test
     public void userCanChangeNameToTheSameNameTest() {
-        String newName = "ALSU shafar";
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest);
-
-        ChangeNameRequest changeNameRequest = ChangeNameRequest.builder()
+        String newName = RandomData.getName();
+        UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
                 .name(newName)
                 .build();
-        ChangeNameResponse changeNameResponseFirst = new ChangeNameRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk())
-                .post(changeNameRequest).extract().body().as(ChangeNameResponse.class);
-        softly.assertThat(changeNameRequest.getName()).isEqualTo(changeNameResponseFirst.getCustomer().getName());
-        softly.assertThat(userRequest.getUsername()).isEqualTo(changeNameResponseFirst.getCustomer().getUsername());
-        softly.assertThat(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage()).isEqualTo(changeNameResponseFirst.getMessage());
+        UpdateProfileResponse updateProfileResponseFirst = new ValidatedCrudRequester<UpdateProfileResponse>
+                (RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                        Endpoint.UPDATE_CUSTOMER_PROFILE,
+                        ResponseSpecs.requestReturnsOK())
+                .update(updateProfileRequest);
 
-        ChangeNameResponse changeNameResponseSecond = new ChangeNameRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk())
-                .post(changeNameRequest).extract().body().as(ChangeNameResponse.class);
-        softly.assertThat(changeNameResponseFirst).isEqualTo(changeNameResponseSecond);
+        softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileResponseFirst)).isTrue();
 
-        GetUserResponse getUserResponse = new GetUserRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk())
-                .post(null).extract().body().as(GetUserResponse.class);
+        UpdateProfileResponse updateProfileResponseSecond = new ValidatedCrudRequester<UpdateProfileResponse>
+                (RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                        Endpoint.UPDATE_CUSTOMER_PROFILE,
+                        ResponseSpecs.requestReturnsOK())
+                .update(updateProfileRequest);
 
-        softly.assertThat(changeNameRequest.getName()).isEqualTo(getUserResponse.getName());
+        softly.assertThat(updateProfileResponseFirst).isEqualTo(updateProfileResponseSecond);
+        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        softly.assertThat(updateProfileRequest.getName()).isEqualTo(getUserResponse.getName());
         softly.assertThat(userRequest.getUsername()).isEqualTo(getUserResponse.getUsername());
+    }
+
+    @Test
+    public void userCanChangeNameSeveralTimesTest() {
+        String firstName = RandomData.getName();
+        UpdateProfileRequest updateProfileRequestFirst = UpdateProfileRequest.builder()
+                .name(firstName)
+                .build();
+        UpdateProfileResponse updateProfileResponseFirst = new ValidatedCrudRequester<UpdateProfileResponse>
+                (RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                        Endpoint.UPDATE_CUSTOMER_PROFILE,
+                        ResponseSpecs.requestReturnsOK())
+                .update(updateProfileRequestFirst);
+
+        softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequestFirst, updateProfileResponseFirst)).isTrue();
+
+        String secondName = RandomData.getName();
+        UpdateProfileRequest updateProfileRequestSecond = UpdateProfileRequest.builder()
+                .name(secondName)
+                .build();
+        UpdateProfileResponse updateProfileResponseSecond = new ValidatedCrudRequester<UpdateProfileResponse>
+                (RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                        Endpoint.UPDATE_CUSTOMER_PROFILE,
+                        ResponseSpecs.requestReturnsOK())
+                .update(updateProfileRequestSecond);
+
+        softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequestSecond, updateProfileResponseSecond)).isTrue();
+        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        softly.assertThat(secondName).isEqualTo(getUserResponse.getName());
     }
 
     /*
@@ -101,57 +107,33 @@ public class ChangeUserNameTest extends BaseTest {
     @ParameterizedTest
     @ValueSource(strings = {"", "   ", "Alsu1 test2", "Alsu!@#$%%^&*() test_+/,<>?}{[]';/.!", "Alsutest", "Alsu  test", "Alsu_test"})
     public void userCannotChangeNameToInvalidValueTest(String name) {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest).extract().body().as(CreateUserResponse.class);
+        GetUserResponse getUserResponseBefore = UserSteps.getUserResponse(userRequest);
 
-        GetUserResponse getUserResponseBefore = new GetUserRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk())
-                .post(null).extract().body().as(GetUserResponse.class);
-
-        ChangeNameRequest changeNameRequest = ChangeNameRequest.builder()
+        UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
                 .name(name)
                 .build();
-        new ChangeNameRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.UPDATE_CUSTOMER_PROFILE,
                 ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
-                .post(changeNameRequest);
+                .update(updateProfileRequest);
 
-        GetUserResponse getUserResponseAfter = new GetUserRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk())
-                .post(null).extract().body().as(GetUserResponse.class);
+        GetUserResponse getUserResponseAfter = UserSteps.getUserResponse(userRequest);
         softly.assertThat(getUserResponseBefore).isEqualTo(getUserResponseAfter);
     }
 
     @Test
     public void userCannotChangeNameToNullTest() {
-        CreateUserRequest userRequest = CreateUserRequest.builder()
-                .username(RandomData.getUserName())
-                .password(RandomData.getPassword())
-                .role(UserRole.USER.toString())
-                .build();
-        new AdminCreateUserRequester(RequestSpecs.adminSpec(),
-                ResponseSpecs.entityWasCreated())
-                .post(userRequest).extract().body().as(CreateUserResponse.class);
+        GetUserResponse getUserResponseBefore = UserSteps.getUserResponse(userRequest);
 
-        GetUserResponse getUserResponseBefore = new GetUserRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk())
-                .post(null).extract().body().as(GetUserResponse.class);
-
-        ChangeNameRequest changeNameRequest = ChangeNameRequest.builder()
+        UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
                 .name(null)
                 .build();
-        new ChangeNameRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.UPDATE_CUSTOMER_PROFILE,
                 ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
-                .post(changeNameRequest);
+                .update(updateProfileRequest);
 
-        GetUserResponse getUserResponseAfter = new GetUserRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
-                ResponseSpecs.requestReturnsOk())
-                .post(null).extract().body().as(GetUserResponse.class);
+        GetUserResponse getUserResponseAfter = UserSteps.getUserResponse(userRequest);
         softly.assertThat(getUserResponseBefore).isEqualTo(getUserResponseAfter);
     }
 }

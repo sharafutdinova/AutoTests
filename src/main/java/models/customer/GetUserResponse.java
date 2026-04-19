@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import models.Account;
 import models.BaseModel;
 
 import java.util.List;
@@ -18,5 +19,5 @@ public class GetUserResponse extends BaseModel {
     private String password;
     private String name;
     private String role;
-    private List<String> accounts;
+    private List<Account> accounts;
 }
