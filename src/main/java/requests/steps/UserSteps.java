@@ -1,9 +1,11 @@
 package requests.steps;
 
+import models.Account;
 import models.Transaction;
 import models.accounts.*;
 import models.admin.CreateUserRequest;
 import models.customer.GetUserResponse;
+import models.customer.GetAccountsResponse;
 import requests.skeleton.Endpoint;
 import requests.skeleton.requesters.CrudRequester;
 import requests.skeleton.requesters.ValidatedCrudRequester;
@@ -11,8 +13,6 @@ import specs.RequestSpecs;
 import specs.ResponseSpecs;
 
 import java.util.Comparator;
-
-import static javax.swing.UIManager.get;
 
 public class UserSteps {
 
@@ -50,5 +50,17 @@ public class UserSteps {
                 Endpoint.ACCOUNT_TRANSACTIONS,
                 ResponseSpecs.requestReturnsOK()).get(getAccountTransactionsRequest.getParams());
         return accountTransactionsResponse.getTransactions().stream().max(Comparator.comparing(Transaction::getId)).get();
+    }
+
+    public static GetAccountsResponse getCustomerAccounts(CreateUserRequest userRequest) {
+        GetAccountsResponse getAccountsResponse = new ValidatedCrudRequester<GetAccountsResponse>(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.CUSTOMER_ACCOUNTS,
+                ResponseSpecs.requestReturnsOK()).get();
+        return getAccountsResponse;
+    }
+
+    public static Account getCustomerAccount(CreateUserRequest userRequest, long id) {
+        GetAccountsResponse getAccountsResponse = getCustomerAccounts(userRequest);
+        return getAccountsResponse.getAccounts().stream().filter(account1 -> account1.getId() == id).findFirst().get();
     }
 }

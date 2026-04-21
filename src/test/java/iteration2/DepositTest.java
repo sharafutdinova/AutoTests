@@ -1,10 +1,13 @@
 package iteration2;
 
 import generators.RandomData;
+import models.Account;
 import models.Messages;
+import models.TransactionTypes;
 import models.accounts.*;
 import models.admin.CreateUserRequest;
 import models.comparison.TransactionsComparing;
+import models.customer.GetAccountsResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -40,6 +43,13 @@ public class DepositTest extends BaseTest {
         softly.assertThat(TransactionsComparing.validateDepositTransaction(depositRequest, depositResponse)).isTrue();
         GetAccountTransactionsResponse getAccountTransactionsResponse = UserSteps.getAccountTransactions(userRequest, createAccountResponse.getId());
         softly.assertThat(depositResponse.getTransactions()).isEqualTo(getAccountTransactionsResponse.getTransactions());
+        softly.assertThat(getAccountTransactionsResponse.getTransactions().size()).isEqualTo(1);
+        softly.assertThat(getAccountTransactionsResponse.getTransactions().getFirst().getAmount()).isEqualTo(amount);
+        softly.assertThat(getAccountTransactionsResponse.getTransactions().getFirst().getType()).isEqualTo(TransactionTypes.TRANSACTION_TYPE_FOR_DEPOSIT.getDescription());
+
+        Account account = UserSteps.getCustomerAccount(userRequest, createAccountResponse.getId());
+        softly.assertThat(account.getBalance()).isEqualTo(amount);
+        softly.assertThat(account.getTransactions().size()).isEqualTo(1);
     }
 
     /*
@@ -66,6 +76,10 @@ public class DepositTest extends BaseTest {
 
         GetAccountTransactionsResponse getAccountTransactionsResponse = UserSteps.getAccountTransactions(userRequest, createAccountResponse.getId());
         softly.assertThat(getAccountTransactionsResponse.getTransactions().size()).isZero();
+
+        Account account = UserSteps.getCustomerAccount(userRequest, createAccountResponse.getId());
+        softly.assertThat(account.getBalance()).isZero();
+        softly.assertThat(account.getTransactions().size()).isZero();
     }
 
     @Test
@@ -76,6 +90,8 @@ public class DepositTest extends BaseTest {
         new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage())).post(depositRequest);
+        GetAccountsResponse getAccountsResponse = UserSteps.getCustomerAccounts(userRequest);
+        softly.assertThat(getAccountsResponse.getAccounts().size()).isZero();
     }
 
     @Test
@@ -88,6 +104,12 @@ public class DepositTest extends BaseTest {
         new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage())).post(depositRequest);
+
+        GetAccountTransactionsResponse getUserAccountTransactionsResponse = UserSteps.getAccountTransactions(anotherUserRequest, createAccountResponse.getId());
+        softly.assertThat(getUserAccountTransactionsResponse.getTransactions().size()).isZero();
+        Account account = UserSteps.getCustomerAccount(anotherUserRequest, createAccountResponse.getId());
+        softly.assertThat(account.getBalance()).isZero();
+        softly.assertThat(account.getTransactions().size()).isZero();
         AdminSteps.deleteUserByCreateUserRequest(anotherUserRequest);
     }
 }

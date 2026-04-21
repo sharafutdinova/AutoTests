@@ -36,8 +36,8 @@ public class ChangeUserNameTest extends BaseTest {
 
         GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
         softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileResponse)).isTrue();
-        softly.assertThat(updateProfileRequest.getName()).isEqualTo(getUserResponse.getName());
-        softly.assertThat(userRequest.getUsername()).isEqualTo(getUserResponse.getUsername());
+        softly.assertThat(getUserResponse.getName()).isEqualTo(updateProfileRequest.getName());
+        softly.assertThat(getUserResponse.getUsername()).isEqualTo(userRequest.getUsername());
     }
 
     @Test
@@ -60,10 +60,10 @@ public class ChangeUserNameTest extends BaseTest {
                         ResponseSpecs.requestReturnsOK())
                 .update(updateProfileRequest);
 
-        softly.assertThat(updateProfileResponseFirst).isEqualTo(updateProfileResponseSecond);
+        softly.assertThat(updateProfileResponseSecond).isEqualTo(updateProfileResponseFirst);
         GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
-        softly.assertThat(updateProfileRequest.getName()).isEqualTo(getUserResponse.getName());
-        softly.assertThat(userRequest.getUsername()).isEqualTo(getUserResponse.getUsername());
+        softly.assertThat(getUserResponse.getName()).isEqualTo(updateProfileRequest.getName());
+        softly.assertThat(getUserResponse.getUsername()).isEqualTo(userRequest.getUsername());
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ChangeUserNameTest extends BaseTest {
 
         softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequestSecond, updateProfileResponseSecond)).isTrue();
         GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
-        softly.assertThat(secondName).isEqualTo(getUserResponse.getName());
+        softly.assertThat(getUserResponse.getName()).isEqualTo(secondName);
     }
 
     /*
@@ -118,7 +118,7 @@ public class ChangeUserNameTest extends BaseTest {
                 .update(updateProfileRequest);
 
         GetUserResponse getUserResponseAfter = UserSteps.getUserResponse(userRequest);
-        softly.assertThat(getUserResponseBefore).isEqualTo(getUserResponseAfter);
+        softly.assertThat(getUserResponseAfter).isEqualTo(getUserResponseBefore);
     }
 
     @Test
@@ -134,6 +134,6 @@ public class ChangeUserNameTest extends BaseTest {
                 .update(updateProfileRequest);
 
         GetUserResponse getUserResponseAfter = UserSteps.getUserResponse(userRequest);
-        softly.assertThat(getUserResponseBefore).isEqualTo(getUserResponseAfter);
+        softly.assertThat(getUserResponseAfter).isEqualTo(getUserResponseBefore);
     }
 }
