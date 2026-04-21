@@ -6,6 +6,7 @@ import models.accounts.*;
 import models.admin.CreateUserRequest;
 import models.customer.GetUserResponse;
 import models.customer.GetAccountsResponse;
+import models.customer.UpdateProfileRequest;
 import requests.skeleton.Endpoint;
 import requests.skeleton.requesters.CrudRequester;
 import requests.skeleton.requesters.ValidatedCrudRequester;
@@ -62,5 +63,15 @@ public class UserSteps {
     public static Account getCustomerAccount(CreateUserRequest userRequest, long id) {
         GetAccountsResponse getAccountsResponse = getCustomerAccounts(userRequest);
         return getAccountsResponse.getAccounts().stream().filter(account1 -> account1.getId() == id).findFirst().get();
+    }
+
+    public static void changeName(CreateUserRequest userRequest, String newName) {
+        UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
+                .name(newName)
+                .build();
+        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                Endpoint.UPDATE_CUSTOMER_PROFILE,
+                ResponseSpecs.requestReturnsOK())
+                .update(updateProfileRequest);
     }
 }

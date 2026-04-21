@@ -1,4 +1,4 @@
-package iteration2;
+package iteration2.api;
 
 import generators.RandomData;
 import models.Account;
@@ -41,7 +41,6 @@ public class TransferTest extends BaseTest {
         CreateAccountResponse createSenderAccountResponse = UserSteps.createAccount(userRequest);
         int maxAmountForDeposit = 5000;
         for (int i = 0; i < 3; i++) {
-            UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), maxAmountForDeposit);
             UserSteps.deposit(userRequest, createSenderAccountResponse.getId(), maxAmountForDeposit);
         }
         CreateAccountResponse createReceiverAccountResponse = UserSteps.createAccount(userRequest);

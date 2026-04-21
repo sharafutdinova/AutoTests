@@ -38,10 +38,12 @@ public class RandomData {
     }
 
     public static double getDepositAmount() {
-        return RandomUtils.nextDouble(1, 5000);
+        double random = RandomUtils.nextDouble(1, 5000);
+        return Math.round(random * 100) / 100.0;
     }
 
     public static double getTransferAmount() {
-        return RandomUtils.nextDouble(1, 10000);
+        double random = RandomUtils.nextDouble(1, 10000);
+        return Math.round(random * 100) / 100.0;
     }
 }
