@@ -1,25 +1,28 @@
 package iteration2.api;
 
-import generators.RandomData;
-import models.Account;
-import models.Messages;
-import models.TransactionTypes;
-import models.accounts.*;
-import models.admin.CreateUserRequest;
-import models.comparison.TransactionsComparing;
-import models.customer.GetAccountsResponse;
+import api.generators.RandomData;
+import api.models.Account;
+import api.models.Messages;
+import api.models.TransactionTypes;
+import api.models.accounts.CreateAccountResponse;
+import api.models.accounts.DepositRequest;
+import api.models.accounts.DepositResponse;
+import api.models.accounts.GetAccountTransactionsResponse;
+import api.models.admin.CreateUserRequest;
+import api.models.comparison.TransactionsComparing;
+import api.models.customer.GetAccountsResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import requests.skeleton.Endpoint;
-import requests.skeleton.requesters.CrudRequester;
-import requests.skeleton.requesters.ValidatedCrudRequester;
-import requests.steps.UserSteps;
-import requests.steps.AdminSteps;
-import specs.RequestSpecs;
-import specs.ResponseSpecs;
+import api.requests.skeleton.Endpoint;
+import api.requests.skeleton.requesters.CrudRequester;
+import api.requests.skeleton.requesters.ValidatedCrudRequester;
+import api.requests.steps.UserSteps;
+import api.requests.steps.AdminSteps;
+import api.specs.RequestSpecs;
+import api.specs.ResponseSpecs;
 
 import java.util.stream.Stream;
 

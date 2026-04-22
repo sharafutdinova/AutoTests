@@ -1,20 +1,20 @@
 package iteration2.api;
 
-import generators.RandomData;
-import models.comparison.UserNameComparing;
-import models.customer.UpdateProfileRequest;
-import models.customer.UpdateProfileResponse;
-import models.customer.GetUserResponse;
+import api.generators.RandomData;
+import api.models.comparison.UserNameComparing;
+import api.models.customer.UpdateProfileRequest;
+import api.models.customer.UpdateProfileResponse;
+import api.models.customer.GetUserResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import requests.skeleton.Endpoint;
-import requests.skeleton.requesters.CrudRequester;
-import requests.skeleton.requesters.ValidatedCrudRequester;
-import requests.steps.UserSteps;
-import models.Messages;
-import specs.RequestSpecs;
-import specs.ResponseSpecs;
+import api.requests.skeleton.Endpoint;
+import api.requests.skeleton.requesters.CrudRequester;
+import api.requests.skeleton.requesters.ValidatedCrudRequester;
+import api.requests.steps.UserSteps;
+import api.models.Messages;
+import api.specs.RequestSpecs;
+import api.specs.ResponseSpecs;
 
 public class ChangeUserNameTest extends BaseTest {
     /*

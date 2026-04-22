@@ -1,23 +1,23 @@
 package iteration1.api;
 
-import configs.Config;
-import models.admin.CreateUserRequest;
-import models.authentification.LoginUserRequest;
+import api.configs.Config;
+import api.models.admin.CreateUserRequest;
+import api.models.authentification.LoginUserRequest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import requests.skeleton.Endpoint;
-import requests.skeleton.requesters.CrudRequester;
-import requests.steps.AdminSteps;
-import specs.RequestSpecs;
-import specs.ResponseSpecs;
+import api.requests.skeleton.Endpoint;
+import api.requests.skeleton.requesters.CrudRequester;
+import api.requests.steps.AdminSteps;
+import api.specs.RequestSpecs;
+import api.specs.ResponseSpecs;
 
 public class LoginUserTest extends BaseTest {
 
     @Test
     public void adminCanGenerateAuthTokenTest() {
         LoginUserRequest userRequest = LoginUserRequest.builder()
-                .username(Config.getProperty("adminUserName"))
-                .password(Config.getProperty("adminPassword"))
+                .username(Config.getProperty("admin.username"))
+                .password(Config.getProperty("admin.password"))
                 .build();
 
         new CrudRequester(RequestSpecs.unauthSpec(),
