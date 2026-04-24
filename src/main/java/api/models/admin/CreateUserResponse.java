@@ -1,5 +1,6 @@
 package api.models.admin;
 
+import api.models.Account;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,5 +19,5 @@ public class CreateUserResponse extends BaseModel {
     private String password;
     private String name;
     private String role;
-    private List<String> accounts;
+    private List<Account> accounts;
 }

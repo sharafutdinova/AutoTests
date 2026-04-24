@@ -16,7 +16,7 @@ import api.models.Messages;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 
-public class ChangeUserNameTest extends BaseTest {
+public class ChangeUserNameTest extends BaseAPITest {
     /*
     User can change name to name contains two words
     User can change name to name contains two words with length 1

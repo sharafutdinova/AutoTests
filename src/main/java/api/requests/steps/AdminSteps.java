@@ -49,7 +49,6 @@ public class AdminSteps {
         return new ValidatedCrudRequester<CreateUserResponse>(
                 RequestSpecs.adminSpec(),
                 Endpoint.ADMIN_USER,
-                ResponseSpecs.requestReturnsOK())
-                .getAll(CreateUserResponse[].class);
+                ResponseSpecs.requestReturnsOK()).getAll(CreateUserResponse[].class);
     }
 }

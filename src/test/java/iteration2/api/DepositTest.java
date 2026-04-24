@@ -27,7 +27,7 @@ import api.specs.ResponseSpecs;
 import java.util.stream.Stream;
 
 
-public class DepositTest extends BaseTest {
+public class DepositTest extends BaseAPITest {
     /*
     User can deposit 5000
     User can deposit 4999.99

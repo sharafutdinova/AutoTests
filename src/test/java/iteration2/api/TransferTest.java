@@ -25,7 +25,7 @@ import api.specs.ResponseSpecs;
 
 import java.util.stream.Stream;
 
-public class TransferTest extends BaseTest {
+public class TransferTest extends BaseAPITest {
     /*
     User can transfer 10000 to self account
     User can transfer 9999.99 to self account
