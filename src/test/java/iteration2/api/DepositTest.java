@@ -36,7 +36,7 @@ public class DepositTest extends BaseAPITest {
     @ParameterizedTest
     @ValueSource(doubles = {5000, 4999.99, 0.01})
     public void userCanDepositTest(Double amount) {
-        CreateAccountResponse createAccountResponse = UserSteps.createAccount(userRequest);
+        CreateAccountResponse createAccountResponse = userSteps.createAccount();
 
         DepositRequest depositRequest = DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
         DepositResponse depositResponse = new ValidatedCrudRequester<DepositResponse>(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
@@ -44,13 +44,13 @@ public class DepositTest extends BaseAPITest {
                 ResponseSpecs.requestReturnsOK()).post(depositRequest);
 
         softly.assertThat(TransactionsComparing.validateDepositTransaction(depositRequest, depositResponse)).isTrue();
-        GetAccountTransactionsResponse getAccountTransactionsResponse = UserSteps.getAccountTransactions(userRequest, createAccountResponse.getId());
+        GetAccountTransactionsResponse getAccountTransactionsResponse = userSteps.getAccountTransactions(createAccountResponse.getId());
         softly.assertThat(depositResponse.getTransactions()).isEqualTo(getAccountTransactionsResponse.getTransactions());
         softly.assertThat(getAccountTransactionsResponse.getTransactions().size()).isEqualTo(1);
         softly.assertThat(getAccountTransactionsResponse.getTransactions().getFirst().getAmount()).isEqualTo(amount);
         softly.assertThat(getAccountTransactionsResponse.getTransactions().getFirst().getType()).isEqualTo(TransactionTypes.TRANSACTION_TYPE_FOR_DEPOSIT.getDescription());
 
-        Account account = UserSteps.getCustomerAccount(userRequest, createAccountResponse.getId());
+        Account account = userSteps.getCustomerAccount(createAccountResponse.getId());
         softly.assertThat(account.getBalance()).isEqualTo(amount);
         softly.assertThat(account.getTransactions().size()).isEqualTo(1);
     }
@@ -70,17 +70,17 @@ public class DepositTest extends BaseAPITest {
     @ParameterizedTest
     @MethodSource("negativeCasesForDepositTest")
     public void userCanNotDepositTest(Double amount, String errorMessage) {
-        CreateAccountResponse createAccountResponse = UserSteps.createAccount(userRequest);
+        CreateAccountResponse createAccountResponse = userSteps.createAccount();
 
         DepositRequest depositRequest = DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
         new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsBadRequest(errorMessage)).post(depositRequest);
 
-        GetAccountTransactionsResponse getAccountTransactionsResponse = UserSteps.getAccountTransactions(userRequest, createAccountResponse.getId());
+        GetAccountTransactionsResponse getAccountTransactionsResponse = userSteps.getAccountTransactions(createAccountResponse.getId());
         softly.assertThat(getAccountTransactionsResponse.getTransactions().size()).isZero();
 
-        Account account = UserSteps.getCustomerAccount(userRequest, createAccountResponse.getId());
+        Account account = userSteps.getCustomerAccount(createAccountResponse.getId());
         softly.assertThat(account.getBalance()).isZero();
         softly.assertThat(account.getTransactions().size()).isZero();
     }
@@ -93,14 +93,15 @@ public class DepositTest extends BaseAPITest {
         new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage())).post(depositRequest);
-        GetAccountsResponse getAccountsResponse = UserSteps.getCustomerAccounts(userRequest);
+        GetAccountsResponse getAccountsResponse = userSteps.getCustomerAccounts();
         softly.assertThat(getAccountsResponse.getAccounts().size()).isZero();
     }
 
     @Test
     public void userCanNotDepositToAnotherUserAccountTest() {
         CreateUserRequest anotherUserRequest = AdminSteps.createUser();
-        CreateAccountResponse createAccountResponse = UserSteps.createAccount(anotherUserRequest);
+        UserSteps anotherUserSteps = new UserSteps(anotherUserRequest);
+        CreateAccountResponse createAccountResponse = anotherUserSteps.createAccount();
 
         double amount = RandomData.getDepositAmount();
         DepositRequest depositRequest = DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
@@ -108,9 +109,9 @@ public class DepositTest extends BaseAPITest {
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage())).post(depositRequest);
 
-        GetAccountTransactionsResponse getUserAccountTransactionsResponse = UserSteps.getAccountTransactions(anotherUserRequest, createAccountResponse.getId());
+        GetAccountTransactionsResponse getUserAccountTransactionsResponse = anotherUserSteps.getAccountTransactions(createAccountResponse.getId());
         softly.assertThat(getUserAccountTransactionsResponse.getTransactions().size()).isZero();
-        Account account = UserSteps.getCustomerAccount(anotherUserRequest, createAccountResponse.getId());
+        Account account = anotherUserSteps.getCustomerAccount(createAccountResponse.getId());
         softly.assertThat(account.getBalance()).isZero();
         softly.assertThat(account.getTransactions().size()).isZero();
         AdminSteps.deleteUserByCreateUserRequest(anotherUserRequest);

@@ -34,7 +34,7 @@ public class ChangeUserNameTest extends BaseAPITest {
                         ResponseSpecs.requestReturnsOK())
                 .update(updateProfileRequest);
 
-        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponse = userSteps.getUserResponse();
         softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileResponse)).isTrue();
         softly.assertThat(getUserResponse.getName()).isEqualTo(updateProfileRequest.getName());
         softly.assertThat(getUserResponse.getUsername()).isEqualTo(userRequest.getUsername());
@@ -61,7 +61,7 @@ public class ChangeUserNameTest extends BaseAPITest {
                 .update(updateProfileRequest);
 
         softly.assertThat(updateProfileResponseSecond).isEqualTo(updateProfileResponseFirst);
-        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponse = userSteps.getUserResponse();
         softly.assertThat(getUserResponse.getName()).isEqualTo(updateProfileRequest.getName());
         softly.assertThat(getUserResponse.getUsername()).isEqualTo(userRequest.getUsername());
     }
@@ -91,7 +91,7 @@ public class ChangeUserNameTest extends BaseAPITest {
                 .update(updateProfileRequestSecond);
 
         softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequestSecond, updateProfileResponseSecond)).isTrue();
-        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponse = userSteps.getUserResponse();
         softly.assertThat(getUserResponse.getName()).isEqualTo(secondName);
     }
 
@@ -107,7 +107,7 @@ public class ChangeUserNameTest extends BaseAPITest {
     @ParameterizedTest
     @ValueSource(strings = {"", "   ", "Alsu1 test2", "Alsu!@#$%%^&*() test_+/,<>?}{[]';/.!", "Alsutest", "Alsu  test", "Alsu_test"})
     public void userCannotChangeNameToInvalidValueTest(String name) {
-        GetUserResponse getUserResponseBefore = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponseBefore = userSteps.getUserResponse();
 
         UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
                 .name(name)
@@ -117,13 +117,13 @@ public class ChangeUserNameTest extends BaseAPITest {
                 ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
                 .update(updateProfileRequest);
 
-        GetUserResponse getUserResponseAfter = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponseAfter = userSteps.getUserResponse();
         softly.assertThat(getUserResponseAfter).isEqualTo(getUserResponseBefore);
     }
 
     @Test
     public void userCannotChangeNameToNullTest() {
-        GetUserResponse getUserResponseBefore = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponseBefore = userSteps.getUserResponse();
 
         UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
                 .name(null)
@@ -133,7 +133,7 @@ public class ChangeUserNameTest extends BaseAPITest {
                 ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
                 .update(updateProfileRequest);
 
-        GetUserResponse getUserResponseAfter = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponseAfter = userSteps.getUserResponse();
         softly.assertThat(getUserResponseAfter).isEqualTo(getUserResponseBefore);
     }
 }

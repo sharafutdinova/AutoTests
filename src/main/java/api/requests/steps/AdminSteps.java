@@ -41,7 +41,7 @@ public class AdminSteps {
     }
 
     public static void deleteUserByCreateUserRequest(CreateUserRequest createUserRequest) {
-        long id = UserSteps.getUserResponse(createUserRequest).getId();
+        long id = new UserSteps(createUserRequest).getUserResponse().getId();
         deleteUserById(id);
     }
 

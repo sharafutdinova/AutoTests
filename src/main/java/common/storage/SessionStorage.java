@@ -16,7 +16,7 @@ public class SessionStorage {
 
     public static void addUsers(List<CreateUserRequest> users) {
         for (CreateUserRequest user : users) {
-            INSTANCE.userStepMap.put(user, new UserSteps(user.getUsername(), user.getPassword()));
+            INSTANCE.userStepMap.put(user, new UserSteps(user));
         }
     }
 
