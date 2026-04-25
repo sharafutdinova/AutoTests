@@ -23,25 +23,20 @@ public class TransferPage extends BasePage<TransferPage> {
 
     public TransferPage performTransfer(String senderAccount, String recipientName, String recipientAccount, double amount) {
         accountSelect.selectOptionContainingText(senderAccount);
-        recipientNameInput.shouldBe(Condition.enabled).clear();
-        recipientNameInput.sendKeys(recipientName);
-        accountNumberInput.shouldBe(Condition.enabled).clear();
-        accountNumberInput.sendKeys(recipientAccount);
-        amountInput.shouldBe(Condition.enabled).clear();
-        amountInput.sendKeys(String.valueOf(amount));
-        confirmCheckbox.click();
-        transferButton.click();
+        sendKeys(recipientNameInput, recipientName);
+        sendKeys(accountNumberInput, recipientAccount);
+        sendKeys(amountInput, String.valueOf(amount));
+        confirmCheckbox.shouldBe(Condition.enabled).click();
+        transferButton.shouldBe(Condition.enabled).click();
         return this;
     }
 
     public TransferPage performTransfer(String senderAccount, String recipientAccount, double amount) {
         accountSelect.selectOptionContainingText(senderAccount);
-        accountNumberInput.shouldBe(Condition.enabled).clear();
-        accountNumberInput.sendKeys(recipientAccount);
-        amountInput.shouldBe(Condition.enabled).clear();
-        amountInput.sendKeys(String.valueOf(amount));
-        confirmCheckbox.click();
-        transferButton.click();
+        sendKeys(accountNumberInput, recipientAccount);
+        sendKeys(amountInput, String.valueOf(amount));
+        confirmCheckbox.shouldBe(Condition.enabled).click();
+        transferButton.shouldBe(Condition.enabled).click();
         return this;
     }
 
@@ -51,30 +46,27 @@ public class TransferPage extends BasePage<TransferPage> {
     }
 
     public TransferPage enterRecipientName(String recipientName) {
-        recipientNameInput.shouldBe(Condition.enabled).clear();
-        recipientNameInput.sendKeys(recipientName);
+        sendKeys(recipientNameInput, recipientName);
         return this;
     }
 
     public TransferPage enterRecipientAccount(String recipientAccount) {
-        accountNumberInput.shouldBe(Condition.enabled).clear();
-        accountNumberInput.sendKeys(recipientAccount);
+        sendKeys(accountNumberInput, recipientAccount);
         return this;
     }
 
     public TransferPage enterAmount(double amount) {
-        amountInput.shouldBe(Condition.enabled).clear();
-        amountInput.sendKeys(String.valueOf(amount));
+        sendKeys(amountInput, String.valueOf(amount));
         return this;
     }
 
     public TransferPage confirm() {
-        confirmCheckbox.click();
+        confirmCheckbox.shouldBe(Condition.enabled).click();
         return this;
     }
 
     public TransferPage clickToTransfer() {
-        transferButton.click();
+        transferButton.shouldBe(Condition.enabled).click();
         return this;
     }
 }

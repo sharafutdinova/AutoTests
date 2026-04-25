@@ -13,8 +13,8 @@ public class LoginPage extends BasePage<LoginPage> {
     }
 
     public LoginPage login(String username, String password) {
-        usernameInput.sendKeys(username);
-        passwordInput.sendKeys(password);
+        sendKeys(usernameInput, username);
+        sendKeys(passwordInput, password);
         button.click();
         return this;
     }

@@ -20,9 +20,8 @@ public class DepositPage extends BasePage<DepositPage> {
 
     public DepositPage performDeposit(String accountNumber, double amount) {
         accountSelect.selectOptionContainingText(accountNumber);
-        amountInput.shouldBe(Condition.visible, Condition.enabled).clear();
-        amountInput.sendKeys(String.valueOf(amount));
-        depositButton.click();
+        sendKeys(amountInput, String.valueOf(amount));
+        depositButton.shouldBe(Condition.enabled).click();
         return this;
     }
 
@@ -31,13 +30,12 @@ public class DepositPage extends BasePage<DepositPage> {
         return this;
     }
     public DepositPage enterAmount(double amount) {
-        amountInput.shouldBe(Condition.visible, Condition.enabled).clear();
-        amountInput.sendKeys(String.valueOf(amount));
+        sendKeys(amountInput, String.valueOf(amount));
         return this;
     }
 
     public DepositPage clickToDeposit() {
-        depositButton.click();
+        depositButton.shouldBe(Condition.enabled).click();
         return this;
     }
 }

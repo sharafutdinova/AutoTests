@@ -2,15 +2,14 @@ package ui.pages;
 
 import api.models.admin.CreateUserRequest;
 import api.specs.RequestSpecs;
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selectors;
-import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.*;
+import common.utils.RetryUtils;
 import lombok.Getter;
 import org.openqa.selenium.Alert;
 import ui.elements.BaseElement;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static com.codeborne.selenide.Selenide.*;
@@ -56,5 +55,14 @@ public abstract class BasePage<T extends BasePage> {
 
     protected <T extends BaseElement> List<T> generatePageElements(ElementsCollection elementsCollection, Function<SelenideElement, T> constructor) {
         return elementsCollection.stream().map(constructor).toList();
+    }
+
+    public void sendKeys(SelenideElement element, String keysToSend) {
+        element.shouldBe(Condition.visible, Condition.enabled).clear();
+        element.sendKeys(String.valueOf(keysToSend));
+    }
+
+    public void sendKeysWithRetry(SelenideElement element, String keysToSend) {
+        RetryUtils.sendKeysRetry(element, keysToSend, Optional.empty(), Optional.empty());
     }
 }

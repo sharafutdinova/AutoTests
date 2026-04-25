@@ -1,8 +1,8 @@
 package ui.pages;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
-import common.utils.RetryUtils;
 import lombok.Getter;
 
 import java.util.Optional;
@@ -20,8 +20,8 @@ public class EditProfilePage extends BasePage<EditProfilePage> {
     }
 
     public EditProfilePage changeName(String newName) {
-        RetryUtils.sendKeysRetry(newNameInput, newName, Optional.empty(), Optional.empty());
-        saveButton.click();
+        sendKeysWithRetry(newNameInput, newName);
+        saveButton.shouldBe(Condition.enabled).click();
         return this;
     }
 }

@@ -23,8 +23,8 @@ public class AdminPanel extends BasePage<AdminPanel> {
     }
 
     public AdminPanel createUser(String username, String password) {
-        usernameInput.sendKeys(username);
-        passwordInput.sendKeys(password);
+        sendKeys(usernameInput, username);
+        sendKeys(passwordInput, password);
         addUserButton.click();
         return this;
     }
