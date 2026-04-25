@@ -2,7 +2,6 @@ package api.models.admin;
 
 import lombok.*;
 import api.models.BaseModel;
-import api.models.Customer;
 
 import java.util.List;
 
@@ -12,5 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class GetUsersResponse extends BaseModel {
-    private List<Customer> users;
+    private List<CreateUserResponse> users;
 }

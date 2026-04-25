@@ -1,8 +1,8 @@
 package api.models.customer;
 
+import api.models.admin.CreateUserResponse;
 import lombok.*;
 import api.models.BaseModel;
-import api.models.Customer;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -10,6 +10,6 @@ import api.models.Customer;
 @NoArgsConstructor
 @Builder
 public class UpdateProfileResponse extends BaseModel {
-    private Customer customer;
+    private CreateUserResponse customer;
     private String message;
 }

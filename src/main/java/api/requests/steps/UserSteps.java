@@ -1,11 +1,9 @@
 package api.requests.steps;
 
-import api.models.Account;
 import api.models.Transaction;
 import api.models.accounts.*;
 import api.models.admin.CreateUserRequest;
 import api.models.customer.GetUserResponse;
-import api.models.customer.GetAccountsResponse;
 import api.models.customer.UpdateProfileRequest;
 import api.requests.skeleton.Endpoint;
 import api.requests.skeleton.requesters.CrudRequester;
@@ -14,6 +12,7 @@ import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 
 import java.util.Comparator;
+import java.util.List;
 
 public class UserSteps {
     private String username;
@@ -60,16 +59,16 @@ public class UserSteps {
         return accountTransactionsResponse.getTransactions().stream().max(Comparator.comparing(Transaction::getId)).get();
     }
 
-    public GetAccountsResponse getCustomerAccounts() {
-        GetAccountsResponse getAccountsResponse = new ValidatedCrudRequester<GetAccountsResponse>(RequestSpecs.authAsUser(this.username, this.password),
+    public List<CreateAccountResponse> getCustomerAccounts() {
+        return new ValidatedCrudRequester<CreateAccountResponse>(
+                RequestSpecs.authAsUser(this.username, this.password),
                 Endpoint.CUSTOMER_ACCOUNTS,
-                ResponseSpecs.requestReturnsOK()).get();
-        return getAccountsResponse;
+                ResponseSpecs.requestReturnsOK()).getAll(CreateAccountResponse[].class);
     }
 
-    public Account getCustomerAccount(long id) {
-        GetAccountsResponse getAccountsResponse = getCustomerAccounts();
-        return getAccountsResponse.getAccounts().stream().filter(account1 -> account1.getId() == id).findFirst().get();
+    public CreateAccountResponse getCustomerAccount(long id) {
+        List<CreateAccountResponse> getAccountsResponse = getCustomerAccounts();
+        return getAccountsResponse.stream().filter(account1 -> account1.getId() == id).findFirst().get();
     }
 
     public void changeName(String newName) {

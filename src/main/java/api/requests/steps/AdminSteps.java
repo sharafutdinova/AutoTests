@@ -48,7 +48,7 @@ public class AdminSteps {
     public static List<CreateUserResponse> getAllUsers() {
         return new ValidatedCrudRequester<CreateUserResponse>(
                 RequestSpecs.adminSpec(),
-                Endpoint.ADMIN_USER,
+                Endpoint.ADMIN_USERS,
                 ResponseSpecs.requestReturnsOK()).getAll(CreateUserResponse[].class);
     }
 }

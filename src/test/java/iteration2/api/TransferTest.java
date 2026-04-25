@@ -1,7 +1,6 @@
 package iteration2.api;
 
 import api.generators.RandomData;
-import api.models.Account;
 import api.models.Messages;
 import api.models.Transaction;
 import api.models.TransactionTypes;
@@ -47,7 +46,7 @@ public class TransferTest extends BaseAPITest {
             userSteps.deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
         }
         CreateAccountResponse createReceiverAccountResponse = userSteps.createAccount();
-        Account senderAccountBefore = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountBefore = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
 
         TransferRequest transferRequest = TransferRequest.builder().amount(amount)
                 .senderAccountId(createSenderAccountResponse.getId())
@@ -63,9 +62,9 @@ public class TransferTest extends BaseAPITest {
         Transaction lastSenderTransaction = userSteps.getAccountLastTransactions(createSenderAccountResponse.getId());
         softly.assertThat(lastSenderTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_OUT, transferRequest.getAmount())).isTrue();
 
-        Account receiverAccount = userSteps.getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = userSteps.getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isEqualTo(amount);
-        Account senderAccountAfter = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountAfter = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(senderAccountBefore.getBalance() - amount);
     }
 
@@ -92,9 +91,9 @@ public class TransferTest extends BaseAPITest {
         Transaction lastSenderTransaction = userSteps.getAccountLastTransactions(createSenderAccountResponse.getId());
         softly.assertThat(lastSenderTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_OUT, transferRequest.getAmount())).isTrue();
 
-        Account receiverAccount = anotherUserSteps.getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = anotherUserSteps.getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isEqualTo(amountForDeposit);
-        Account senderAccount = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccount = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccount.getBalance()).isZero();
         AdminSteps.deleteUserByCreateUserRequest(anotherUserRequest);
     }
@@ -121,7 +120,7 @@ public class TransferTest extends BaseAPITest {
         }
         CreateAccountResponse createReceiverAccountResponse = userSteps.createAccount();
         GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = userSteps.getAccountTransactions(createSenderAccountResponse.getId());
-        Account senderAccountBefore = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountBefore = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
 
         TransferRequest transferRequest = TransferRequest.builder().amount(amount)
                 .senderAccountId(createSenderAccountResponse.getId())
@@ -135,9 +134,9 @@ public class TransferTest extends BaseAPITest {
         GetAccountTransactionsResponse getReceiverAccountTransactionsResponse = userSteps.getAccountTransactions(createReceiverAccountResponse.getId());
         softly.assertThat(0).isEqualTo(getReceiverAccountTransactionsResponse.getTransactions().size());
 
-        Account receiverAccount = userSteps.getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = userSteps.getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isZero();
-        Account senderAccountAfter = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountAfter = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(senderAccountBefore.getBalance());
     }
 
@@ -148,7 +147,7 @@ public class TransferTest extends BaseAPITest {
         double amountForDeposit = RandomData.getDepositAmount();
         userSteps.deposit(createSenderAccountResponse.getId(), amountForDeposit);
         GetAccountTransactionsResponse getSenderAccountTransactionsResponseBefore = userSteps.getAccountTransactions(createSenderAccountResponse.getId());
-        Account senderAccountBefore = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountBefore = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
 
         TransferRequest transferRequest = TransferRequest.builder().amount(amountForDeposit + 1)
                 .senderAccountId(createSenderAccountResponse.getId())
@@ -162,9 +161,9 @@ public class TransferTest extends BaseAPITest {
         GetAccountTransactionsResponse getReceiverAccountTransactionsResponse = userSteps.getAccountTransactions(createReceiverAccountResponse.getId());
         softly.assertThat(0).isEqualTo(getReceiverAccountTransactionsResponse.getTransactions().size());
 
-        Account receiverAccount = userSteps.getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = userSteps.getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isZero();
-        Account senderAccountAfter = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountAfter = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(senderAccountBefore.getBalance());
     }
 
@@ -184,7 +183,7 @@ public class TransferTest extends BaseAPITest {
 
         GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = userSteps.getAccountTransactions(createSenderAccountResponse.getId());
         softly.assertThat(getSenderAccountTransactionsResponseBefore).isEqualTo(getSenderAccountTransactionsResponseAfter);
-        Account senderAccountAfter = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountAfter = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(depositAmount);
         softly.assertThat(senderAccountAfter.getTransactions().size()).isEqualTo(1);
     }
@@ -204,7 +203,7 @@ public class TransferTest extends BaseAPITest {
 
         GetAccountTransactionsResponse getReceiverAccountTransactionsResponse = userSteps.getAccountTransactions(createReceiverAccountResponse.getId());
         softly.assertThat(getReceiverAccountTransactionsResponse.getTransactions().size()).isZero();
-        Account receiverAccount = userSteps.getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = userSteps.getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isZero();
     }
 
@@ -225,7 +224,7 @@ public class TransferTest extends BaseAPITest {
 
         GetAccountTransactionsResponse getSenderAccountTransactionsResponseAfter = userSteps.getAccountTransactions(createSenderAccountResponse.getId());
         softly.assertThat(getSenderAccountTransactionsResponseAfter).isEqualTo(getSenderAccountTransactionsResponseBefore);
-        Account senderAccount = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccount = userSteps.getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccount.getBalance()).isEqualTo(amountForDeposit);
     }
 
@@ -251,9 +250,9 @@ public class TransferTest extends BaseAPITest {
         GetAccountTransactionsResponse getSenderAccountTransactionsAfter = anotherUserSteps.getAccountTransactions(createSenderAccountResponse.getId());
         softly.assertThat(getSenderAccountTransactionsAfter).isEqualTo(getSenderAccountTransactionsBefore);
 
-        Account receiverAccount = userSteps.getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = userSteps.getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isZero();
-        Account senderAccount = anotherUserSteps.getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccount = anotherUserSteps.getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccount.getBalance()).isEqualTo(amountForDeposit);
         AdminSteps.deleteUserByCreateUserRequest(anotherUserRequest);
     }
