@@ -5,8 +5,6 @@ import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import lombok.Getter;
 
-import java.util.Optional;
-
 import static com.codeborne.selenide.Selenide.$;
 
 @Getter

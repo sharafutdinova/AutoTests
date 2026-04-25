@@ -36,7 +36,7 @@ public class DepositUiTest extends BaseUiTest {
     @UserSession
     public void userCanNotDepositInvalidValueTest() {
         CreateAccountResponse createAccountResponse = SessionStorage.getSteps().createAccount();
-        Double amount = 6000.00;
+        double amount = 6000.00;
         new DepositPage().open().performDeposit(createAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(BankAlert.DEPOSIT_LESS_OR_EQUAL_5000.getMessage());
 
@@ -64,7 +64,7 @@ public class DepositUiTest extends BaseUiTest {
     @Test
     @UserSession
     public void userCanNotDepositWithoutSelectingAccountTest() {
-        Double amount = 6000.00;
+        double amount = 6000.00;
         new DepositPage().open().enterAmount(amount)
                 .clickToDeposit()
                 .checkAlertMessageAndAccept(BankAlert.SELECT_AN_ACCOUNT.getMessage());

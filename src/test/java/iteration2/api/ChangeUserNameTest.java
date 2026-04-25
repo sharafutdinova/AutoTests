@@ -11,7 +11,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import api.requests.skeleton.Endpoint;
 import api.requests.skeleton.requesters.CrudRequester;
 import api.requests.skeleton.requesters.ValidatedCrudRequester;
-import api.requests.steps.UserSteps;
 import api.models.Messages;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;

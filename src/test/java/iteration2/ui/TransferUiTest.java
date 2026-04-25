@@ -101,7 +101,7 @@ public class TransferUiTest extends BaseUiTest {
         String newName = RandomData.getName();
         SessionStorage.getSteps().changeName(newName);
 
-        Double amount = RandomData.getTransferAmount();
+        double amount = RandomData.getTransferAmount();
         new TransferPage().open().performTransfer(createSenderAccountResponse.getAccountNumber(), createReceiverAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(BankAlert.RECIPIENT_NAME_DOES_NOT_MATCH_THE_REGISTERED_NAME.getMessage());
 
@@ -124,7 +124,7 @@ public class TransferUiTest extends BaseUiTest {
         String newName = RandomData.getName();
         SessionStorage.getSteps().changeName(newName);
 
-        Double amount = RandomData.getTransferAmount();
+        double amount = RandomData.getTransferAmount();
         String username = SessionStorage.getUser().getUsername();
         new TransferPage().open().performTransfer(createSenderAccountResponse.getAccountNumber(), username, createReceiverAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(BankAlert.RECIPIENT_NAME_DOES_NOT_MATCH_THE_REGISTERED_NAME.getMessage());
@@ -141,7 +141,7 @@ public class TransferUiTest extends BaseUiTest {
         CreateAccountResponse createSenderAccountResponse = SessionStorage.getSteps().createAccount();
         CreateAccountResponse createReceiverAccountResponse = SessionStorage.getSteps().createAccount();
 
-        Double amount = RandomData.getTransferAmount();
+        double amount = RandomData.getTransferAmount();
         new TransferPage().open().performTransfer(createSenderAccountResponse.getAccountNumber(), SessionStorage.getUser().getUsername(), createReceiverAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(BankAlert.ERROR_INVALID_TRANSFER.getMessage());
 
@@ -156,7 +156,7 @@ public class TransferUiTest extends BaseUiTest {
     public void userCanNotTransferWithoutSelectingSenderAccountTest() {
         CreateAccountResponse createReceiverAccountResponse = SessionStorage.getSteps().createAccount();
 
-        Double amount = RandomData.getDepositAmount();
+        double amount = RandomData.getDepositAmount();
         new TransferPage().open()
                 .enterRecipientName(SessionStorage.getUser().getUsername())
                 .enterRecipientAccount(createReceiverAccountResponse.getAccountNumber())
@@ -176,7 +176,7 @@ public class TransferUiTest extends BaseUiTest {
         int maxAmountForDeposit = 5000;
         SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
 
-        Double amount = RandomData.getDepositAmount();
+        double amount = RandomData.getDepositAmount();
         new TransferPage().open()
                 .selectAccount(createSenderAccountResponse.getAccountNumber())
                 .enterRecipientName(SessionStorage.getUser().getUsername())
@@ -219,7 +219,7 @@ public class TransferUiTest extends BaseUiTest {
         int maxAmountForDeposit = 5000;
         SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
 
-        Double amount = RandomData.getDepositAmount();
+        double amount = RandomData.getDepositAmount();
         new TransferPage().open()
                 .selectAccount(createSenderAccountResponse.getAccountNumber())
                 .enterRecipientName(SessionStorage.getUser().getUsername())

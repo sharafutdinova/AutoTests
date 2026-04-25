@@ -9,7 +9,6 @@ import org.openqa.selenium.Alert;
 import ui.elements.BaseElement;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 import static com.codeborne.selenide.Selenide.*;
@@ -63,6 +62,6 @@ public abstract class BasePage<T extends BasePage> {
     }
 
     public void sendKeysWithRetry(SelenideElement element, String keysToSend) {
-        RetryUtils.sendKeysRetry(element, keysToSend, Optional.empty(), Optional.empty());
+        RetryUtils.sendKeysRetry(element, keysToSend, 3, 500);
     }
 }

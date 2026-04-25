@@ -56,7 +56,7 @@ public class UserSteps {
         GetAccountTransactionsResponse accountTransactionsResponse = new ValidatedCrudRequester<GetAccountTransactionsResponse>(RequestSpecs.authAsUser(this.username, this.password),
                 Endpoint.ACCOUNT_TRANSACTIONS,
                 ResponseSpecs.requestReturnsOK()).get(getAccountTransactionsRequest.getParams());
-        return accountTransactionsResponse.getTransactions().stream().max(Comparator.comparing(Transaction::getId)).get();
+        return accountTransactionsResponse.getTransactions().stream().max(Comparator.comparing(Transaction::getId)).orElse(null);
     }
 
     public List<CreateAccountResponse> getCustomerAccounts() {
@@ -68,7 +68,7 @@ public class UserSteps {
 
     public CreateAccountResponse getCustomerAccount(long id) {
         List<CreateAccountResponse> getAccountsResponse = getCustomerAccounts();
-        return getAccountsResponse.stream().filter(account1 -> account1.getId() == id).findFirst().get();
+        return getAccountsResponse.stream().filter(account1 -> account1.getId() == id).findFirst().orElse(null);
     }
 
     public void changeName(String newName) {

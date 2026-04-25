@@ -30,7 +30,7 @@ public class CreateUserTest extends BaseUiTest {
 
         CreateUserResponse createdUser = AdminSteps.getAllUsers().stream()
                 .filter(user -> user.getUsername().equals(newUser.getUsername()))
-                .findFirst().get();
+                .findFirst().orElse(null);
 
         ModelAssertions.assertThatModels(newUser, createdUser).match();
     }
