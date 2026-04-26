@@ -5,6 +5,7 @@ import api.models.admin.CreateUserRequest;
 import api.models.admin.CreateUserResponse;
 import api.models.UserRole;
 import api.models.comparison.ModelAssertions;
+import api.requests.steps.AdminSteps;
 import baseTests.BaseTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,6 +36,7 @@ public class CreateUserTest extends BaseTest {
                 .post(createUserRequest);
 
         ModelAssertions.assertThatModels(createUserRequest, createUserResponse).match();
+        AdminSteps.deleteUserByCreateUserRequest(createUserRequest);
     }
 
     public static Stream<Arguments> userInvalidData() {

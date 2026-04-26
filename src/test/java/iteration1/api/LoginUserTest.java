@@ -35,5 +35,6 @@ public class LoginUserTest extends BaseTest {
                 ResponseSpecs.requestReturnsOK())
                 .post(LoginUserRequest.builder().username(userRequest.getUsername()).password(userRequest.getPassword()).build())
                 .header("Authorization", Matchers.notNullValue());
+        AdminSteps.deleteUserByCreateUserRequest(userRequest);
     }
 }

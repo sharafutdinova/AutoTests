@@ -3,6 +3,7 @@ package common.utils;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.ex.ElementNotFound;
 import org.openqa.selenium.NotFoundException;
 
 import java.util.Objects;
@@ -22,11 +23,7 @@ public class RetryUtils {
             if (condition.test(result)) {
                 return result;
             }
-            try {
-                Thread.sleep(delayMillis);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            Selenide.sleep(delayMillis);
         }
         throw new RuntimeException("Retry Failed");
     }
@@ -41,11 +38,7 @@ public class RetryUtils {
             attempts++;
             element.shouldBe(Condition.visible, Condition.enabled).clear();
             element.sendKeys(value);
-            try {
-                Thread.sleep(delayMillis);
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Retry Failed " + e);
-            }
+            Selenide.sleep(delayMillis);
         }
         while (attempts < maxAttempts && !Objects.equals(element.getValue(), value));
     }
@@ -55,23 +48,22 @@ public class RetryUtils {
             String optionValue,
             int maxAttempts,
             long delayMillis) {
-        int attempts = 0;
-        boolean isExists = false;
-        element.shouldBe(Condition.visible, Condition.enabled);
-        while (attempts < maxAttempts && !isExists) {
-            attempts++;
-            isExists = element.getOptions().stream().anyMatch(option -> option.getText().contains(optionValue));
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
+                // Пытаемся выбрать опцию, содержащую заданный текст
+                element.selectOptionContainingText(optionValue);
+                return;
+            } catch (ElementNotFound | RuntimeException e) {
+                if (attempt == maxAttempts) {
+                    throw new NotFoundException(
+                            String.format("Option '%s' not found after %d attempts and page refreshes.", optionValue, maxAttempts),
+                            e
+                    );
+                }
                 Selenide.refresh();
-                Thread.sleep(delayMillis);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                element.shouldBe(Condition.visible, Condition.enabled);
+                Selenide.sleep(delayMillis);
             }
-        }
-        if (isExists) {
-            element.selectOptionContainingText(optionValue);
-        } else {
-            throw new NotFoundException("Option " + optionValue + " not found during " + attempts + " attempts");
         }
     }
 }

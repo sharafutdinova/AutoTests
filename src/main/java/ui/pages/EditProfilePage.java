@@ -3,6 +3,7 @@ package ui.pages;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import common.utils.RetryUtils;
 import lombok.Getter;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -18,7 +19,7 @@ public class EditProfilePage extends BasePage<EditProfilePage> {
     }
 
     public EditProfilePage changeName(String newName) {
-        sendKeysWithRetry(newNameInput, newName);
+        RetryUtils.sendKeysRetry(newNameInput, newName, 3, 500);
         saveButton.shouldBe(Condition.enabled).click();
         return this;
     }

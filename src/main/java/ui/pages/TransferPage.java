@@ -27,7 +27,7 @@ public class TransferPage extends BasePage<TransferPage> {
     }
 
     public TransferPage performTransfer(String senderAccount, String recipientName, String recipientAccount, double amount) {
-        selectOption(accountSelect, senderAccount);
+        RetryUtils.selectOptionRetry(accountSelect, senderAccount, 3, 1000);
         sendKeys(recipientNameInput, recipientName);
         sendKeys(accountNumberInput, recipientAccount);
         sendKeys(amountInput, String.valueOf(amount));
@@ -37,7 +37,7 @@ public class TransferPage extends BasePage<TransferPage> {
     }
 
     public TransferPage performTransfer(String senderAccount, String recipientAccount, double amount) {
-        selectOption(accountSelect, senderAccount);
+        RetryUtils.selectOptionRetry(accountSelect, senderAccount, 3, 1000);
         sendKeys(accountNumberInput, recipientAccount);
         sendKeys(amountInput, String.valueOf(amount));
         confirmCheckbox.shouldBe(Condition.enabled).click();
@@ -46,7 +46,7 @@ public class TransferPage extends BasePage<TransferPage> {
     }
 
     public TransferPage selectAccount(String accountNumber) {
-        selectOption(accountSelect, accountNumber);
+        RetryUtils.selectOptionRetry(accountSelect, accountNumber, 3, 1000);
         return this;
     }
 
