@@ -1,6 +1,7 @@
 package common.utils;
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.NotFoundException;
 
@@ -61,6 +62,7 @@ public class RetryUtils {
             attempts++;
             isExists = element.getOptions().stream().anyMatch(option -> option.getText().contains(optionValue));
             try {
+                Selenide.refresh();
                 Thread.sleep(delayMillis);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -69,7 +71,6 @@ public class RetryUtils {
         if (isExists) {
             element.selectOptionContainingText(optionValue);
         } else {
-            System.out.println("Option elements " + element.getOptions().stream().map(SelenideElement::getText).toList());
             throw new NotFoundException("Option " + optionValue + " not found during " + attempts + " attempts");
         }
     }
