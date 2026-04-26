@@ -1,5 +1,6 @@
 package iteration2.ui;
 
+import baseTests.BaseUiTest;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import api.generators.RandomData;

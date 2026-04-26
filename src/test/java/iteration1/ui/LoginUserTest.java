@@ -1,5 +1,6 @@
 package iteration1.ui;
 
+import baseTests.BaseUiTest;
 import com.codeborne.selenide.Condition;
 import api.models.admin.CreateUserRequest;
 import common.annotations.Browsers;

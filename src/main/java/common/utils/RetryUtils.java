@@ -2,6 +2,7 @@ package common.utils;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
+import org.openqa.selenium.NotFoundException;
 
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -46,6 +47,30 @@ public class RetryUtils {
             }
         }
         while (attempts < maxAttempts && !Objects.equals(element.getValue(), value));
-        System.out.println(attempts);
+    }
+
+    public static void selectOptionRetry(
+            SelenideElement element,
+            String optionValue,
+            int maxAttempts,
+            long delayMillis) {
+        int attempts = 0;
+        boolean isExists = false;
+        element.shouldBe(Condition.visible, Condition.enabled);
+        while (attempts < maxAttempts && !isExists) {
+            attempts++;
+            isExists = element.getOptions().stream().anyMatch(option -> option.getText().contains(optionValue));
+            try {
+                Thread.sleep(delayMillis);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (isExists) {
+            element.selectOptionContainingText(optionValue);
+        } else {
+            System.out.println("Option elements " + element.getOptions().stream().map(SelenideElement::getText).toList());
+            throw new NotFoundException("Option " + optionValue + " not found during " + attempts + " attempts");
+        }
     }
 }

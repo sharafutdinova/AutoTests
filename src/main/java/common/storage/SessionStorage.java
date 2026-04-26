@@ -20,6 +20,10 @@ public class SessionStorage {
         }
     }
 
+    public static void addUser(CreateUserRequest user) {
+        INSTANCE.userStepMap.put(user, new UserSteps(user));
+    }
+
     public static CreateUserRequest getUser(int index) {
         return new ArrayList<>(INSTANCE.userStepMap.keySet()).get(index);
     }

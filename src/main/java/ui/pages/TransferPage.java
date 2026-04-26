@@ -1,9 +1,14 @@
 package ui.pages;
 
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Selectors;
-import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.*;
+import common.utils.RetryUtils;
 import lombok.Getter;
+import org.openqa.selenium.NoAlertPresentException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 import static com.codeborne.selenide.Selenide.$;
 
@@ -22,26 +27,26 @@ public class TransferPage extends BasePage<TransferPage> {
     }
 
     public TransferPage performTransfer(String senderAccount, String recipientName, String recipientAccount, double amount) {
-        accountSelect.selectOptionContainingText(senderAccount);
+        selectOption(accountSelect, senderAccount);
         sendKeys(recipientNameInput, recipientName);
         sendKeys(accountNumberInput, recipientAccount);
         sendKeys(amountInput, String.valueOf(amount));
         confirmCheckbox.shouldBe(Condition.enabled).click();
-        transferButton.shouldBe(Condition.enabled).click();
+        clickToTransferWithRetry();
         return this;
     }
 
     public TransferPage performTransfer(String senderAccount, String recipientAccount, double amount) {
-        accountSelect.selectOptionContainingText(senderAccount);
+        selectOption(accountSelect, senderAccount);
         sendKeys(accountNumberInput, recipientAccount);
         sendKeys(amountInput, String.valueOf(amount));
         confirmCheckbox.shouldBe(Condition.enabled).click();
-        transferButton.shouldBe(Condition.enabled).click();
+        clickToTransferWithRetry();
         return this;
     }
 
     public TransferPage selectAccount(String accountNumber) {
-        accountSelect.selectOptionContainingText(accountNumber);
+        selectOption(accountSelect, accountNumber);
         return this;
     }
 
@@ -65,8 +70,26 @@ public class TransferPage extends BasePage<TransferPage> {
         return this;
     }
 
+    public void clickToTransferWithRetry() {
+        RetryUtils.retry(
+                () -> {
+                    transferButton.click();
+                    try {
+                        WebDriverWait wait = new WebDriverWait(WebDriverRunner.getWebDriver(), Duration.ofMillis(1000));
+                        wait.until(ExpectedConditions.alertIsPresent());
+                        return true;
+                    } catch (NoAlertPresentException | TimeoutException e) {
+                        return false;
+                    }
+                },
+                obj -> obj.equals(true),
+                3,
+                1000
+        );
+    }
+
     public TransferPage clickToTransfer() {
-        transferButton.shouldBe(Condition.enabled).click();
+        clickToTransferWithRetry();
         return this;
     }
 }

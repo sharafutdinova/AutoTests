@@ -7,8 +7,10 @@ import api.models.accounts.CreateAccountResponse;
 import api.models.accounts.DepositRequest;
 import api.models.accounts.DepositResponse;
 import api.models.accounts.GetAccountTransactionsResponse;
-import api.models.admin.CreateUserRequest;
 import api.models.comparison.TransactionsComparing;
+import baseTests.BaseTest;
+import common.annotations.UserApiSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -17,7 +19,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import api.requests.skeleton.Endpoint;
 import api.requests.skeleton.requesters.CrudRequester;
 import api.requests.skeleton.requesters.ValidatedCrudRequester;
-import api.requests.steps.UserSteps;
 import api.requests.steps.AdminSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 
-public class DepositTest extends BaseAPITest {
+public class DepositTest extends BaseTest {
     /*
     User can deposit 5000
     User can deposit 4999.99
@@ -34,22 +35,26 @@ public class DepositTest extends BaseAPITest {
      */
     @ParameterizedTest
     @ValueSource(doubles = {5000, 4999.99, 0.01})
+    @UserApiSession
     public void userCanDepositTest(Double amount) {
-        CreateAccountResponse createAccountResponse = userSteps.createAccount();
+        CreateAccountResponse createAccountResponse = SessionStorage.getSteps().createAccount();
 
         DepositRequest depositRequest = DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
-        DepositResponse depositResponse = new ValidatedCrudRequester<DepositResponse>(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        DepositResponse depositResponse = new ValidatedCrudRequester<DepositResponse>
+                (RequestSpecs.authAsUser(SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsOK()).post(depositRequest);
 
         softly.assertThat(TransactionsComparing.validateDepositTransaction(depositRequest, depositResponse)).isTrue();
-        GetAccountTransactionsResponse getAccountTransactionsResponse = userSteps.getAccountTransactions(createAccountResponse.getId());
-        softly.assertThat(depositResponse.getTransactions()).isEqualTo(getAccountTransactionsResponse.getTransactions());
-        softly.assertThat(getAccountTransactionsResponse.getTransactions().size()).isEqualTo(1);
-        softly.assertThat(getAccountTransactionsResponse.getTransactions().getFirst().getAmount()).isEqualTo(amount);
-        softly.assertThat(getAccountTransactionsResponse.getTransactions().getFirst().getType()).isEqualTo(TransactionTypes.TRANSACTION_TYPE_FOR_DEPOSIT.getDescription());
+        GetAccountTransactionsResponse getAccountTransactions = SessionStorage.getSteps()
+                .getAccountTransactions(createAccountResponse.getId());
+        softly.assertThat(depositResponse.getTransactions()).isEqualTo(getAccountTransactions.getTransactions());
+        softly.assertThat(getAccountTransactions.getTransactions().size()).isEqualTo(1);
+        softly.assertThat(getAccountTransactions.getTransactions().getFirst().getAmount()).isEqualTo(amount);
+        softly.assertThat(getAccountTransactions.getTransactions().getFirst().getType())
+                .isEqualTo(TransactionTypes.TRANSACTION_TYPE_FOR_DEPOSIT.getDescription());
 
-        CreateAccountResponse account = userSteps.getCustomerAccount(createAccountResponse.getId());
+        CreateAccountResponse account = SessionStorage.getSteps().getCustomerAccount(createAccountResponse.getId());
         softly.assertThat(account.getBalance()).isEqualTo(amount);
         softly.assertThat(account.getTransactions().size()).isEqualTo(1);
     }
@@ -68,51 +73,55 @@ public class DepositTest extends BaseAPITest {
 
     @ParameterizedTest
     @MethodSource("negativeCasesForDepositTest")
+    @UserApiSession
     public void userCanNotDepositTest(Double amount, String errorMessage) {
-        CreateAccountResponse createAccountResponse = userSteps.createAccount();
+        CreateAccountResponse createAccountResponse = SessionStorage.getSteps().createAccount();
 
         DepositRequest depositRequest = DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
-        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsBadRequest(errorMessage)).post(depositRequest);
 
-        GetAccountTransactionsResponse getAccountTransactionsResponse = userSteps.getAccountTransactions(createAccountResponse.getId());
-        softly.assertThat(getAccountTransactionsResponse.getTransactions().size()).isZero();
+        GetAccountTransactionsResponse getAccountTransactions = SessionStorage.getSteps()
+                .getAccountTransactions(createAccountResponse.getId());
+        softly.assertThat(getAccountTransactions.getTransactions().size()).isZero();
 
-        CreateAccountResponse account = userSteps.getCustomerAccount(createAccountResponse.getId());
+        CreateAccountResponse account = SessionStorage.getSteps().getCustomerAccount(createAccountResponse.getId());
         softly.assertThat(account.getBalance()).isZero();
         softly.assertThat(account.getTransactions().size()).isZero();
     }
 
     @Test
+    @UserApiSession
     public void userCanNotDepositToNotExistsAccountTest() {
         int notExistsAccountId = 10000;
         double amount = RandomData.getDepositAmount();
         DepositRequest depositRequest = DepositRequest.builder().id(notExistsAccountId).balance(amount).build();
-        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage())).post(depositRequest);
-        List<CreateAccountResponse> getAccountsResponse = userSteps.getCustomerAccounts();
+        List<CreateAccountResponse> getAccountsResponse = SessionStorage.getSteps().getCustomerAccounts();
         softly.assertThat(getAccountsResponse.size()).isZero();
     }
 
     @Test
+    @UserApiSession
     public void userCanNotDepositToAnotherUserAccountTest() {
-        CreateUserRequest anotherUserRequest = AdminSteps.createUser();
-        UserSteps anotherUserSteps = new UserSteps(anotherUserRequest);
-        CreateAccountResponse createAccountResponse = anotherUserSteps.createAccount();
+        SessionStorage.addUser(AdminSteps.createUser());
+        int anotherUserId = 1;
+        CreateAccountResponse createAccountResponse = SessionStorage.getSteps(anotherUserId).createAccount();
 
         double amount = RandomData.getDepositAmount();
         DepositRequest depositRequest = DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
-        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
                 Endpoint.DEPOSIT,
                 ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage())).post(depositRequest);
 
-        GetAccountTransactionsResponse getUserAccountTransactionsResponse = anotherUserSteps.getAccountTransactions(createAccountResponse.getId());
-        softly.assertThat(getUserAccountTransactionsResponse.getTransactions().size()).isZero();
-        CreateAccountResponse account = anotherUserSteps.getCustomerAccount(createAccountResponse.getId());
+        GetAccountTransactionsResponse getAccountTransactions = SessionStorage.getSteps(anotherUserId)
+                .getAccountTransactions(createAccountResponse.getId());
+        softly.assertThat(getAccountTransactions.getTransactions().size()).isZero();
+        CreateAccountResponse account = SessionStorage.getSteps(anotherUserId).getCustomerAccount(createAccountResponse.getId());
         softly.assertThat(account.getBalance()).isZero();
         softly.assertThat(account.getTransactions().size()).isZero();
-        AdminSteps.deleteUserByCreateUserRequest(anotherUserRequest);
     }
 }

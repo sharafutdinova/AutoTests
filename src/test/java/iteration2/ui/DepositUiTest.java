@@ -4,6 +4,7 @@ import api.generators.RandomData;
 import api.models.TransactionTypes;
 import api.models.accounts.CreateAccountResponse;
 import api.models.accounts.GetAccountTransactionsResponse;
+import baseTests.BaseUiTest;
 import common.annotations.UserSession;
 import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
@@ -23,10 +24,10 @@ public class DepositUiTest extends BaseUiTest {
         new DepositPage().performDeposit(createAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(String.format(BankAlert.SUCCESSFULLY_DEPOSITED.getMessage(), amount, createAccountResponse.getAccountNumber()));
 
-        GetAccountTransactionsResponse getAccountTransactionsResponse = SessionStorage.getSteps().getAccountTransactions(createAccountResponse.getId());
-        softly.assertThat(getAccountTransactionsResponse.getTransactions().size()).isEqualTo(1);
-        softly.assertThat(getAccountTransactionsResponse.getTransactions().getFirst().getAmount()).isEqualTo(amount);
-        softly.assertThat(getAccountTransactionsResponse.getTransactions().getFirst().getType()).isEqualTo(TransactionTypes.TRANSACTION_TYPE_FOR_DEPOSIT.getDescription());
+        GetAccountTransactionsResponse accountTransactions = SessionStorage.getSteps().getAccountTransactions(createAccountResponse.getId());
+        softly.assertThat(accountTransactions.getTransactions().size()).isEqualTo(1);
+        softly.assertThat(accountTransactions.getTransactions().getFirst().getAmount()).isEqualTo(amount);
+        softly.assertThat(accountTransactions.getTransactions().getFirst().getType()).isEqualTo(TransactionTypes.TRANSACTION_TYPE_FOR_DEPOSIT.getDescription());
 
         CreateAccountResponse account = SessionStorage.getSteps().getCustomerAccount( createAccountResponse.getId());
         softly.assertThat(account.getBalance()).isEqualTo(amount);
@@ -40,8 +41,8 @@ public class DepositUiTest extends BaseUiTest {
         new DepositPage().open().performDeposit(createAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(BankAlert.DEPOSIT_LESS_OR_EQUAL_5000.getMessage());
 
-        GetAccountTransactionsResponse getAccountTransactionsResponse = SessionStorage.getSteps().getAccountTransactions(createAccountResponse.getId());
-        softly.assertThat(getAccountTransactionsResponse.getTransactions().size()).isZero();
+        GetAccountTransactionsResponse accountTransactions = SessionStorage.getSteps().getAccountTransactions(createAccountResponse.getId());
+        softly.assertThat(accountTransactions.getTransactions().size()).isZero();
         CreateAccountResponse account = SessionStorage.getSteps().getCustomerAccount(createAccountResponse.getId());
         softly.assertThat(account.getBalance()).isZero();
     }
@@ -55,8 +56,8 @@ public class DepositUiTest extends BaseUiTest {
                 .clickToDeposit()
                 .checkAlertMessageAndAccept(BankAlert.ENTER_A_VALID_AMOUNT.getMessage());
 
-        GetAccountTransactionsResponse getAccountTransactionsResponse = SessionStorage.getSteps().getAccountTransactions(createAccountResponse.getId());
-        softly.assertThat(getAccountTransactionsResponse.getTransactions().size()).isZero();
+        GetAccountTransactionsResponse accountTransactions = SessionStorage.getSteps().getAccountTransactions(createAccountResponse.getId());
+        softly.assertThat(accountTransactions.getTransactions().size()).isZero();
         CreateAccountResponse account = SessionStorage.getSteps().getCustomerAccount(createAccountResponse.getId());
         softly.assertThat(account.getBalance()).isZero();
     }

@@ -1,6 +1,7 @@
 package iteration1.ui;
 
 import api.requests.steps.AdminSteps;
+import baseTests.BaseUiTest;
 import com.codeborne.selenide.*;
 import api.generators.RandomData;
 import api.models.UserRole;
@@ -21,7 +22,8 @@ public class CreateUserTest extends BaseUiTest {
     @AdminSession
     public void adminCanCreateUserTest() {
         CreateUserRequest newUser = new CreateUserRequest(RandomData.getUsername(), RandomData.getPassword(), UserRole.USER.toString());
-        UserBage newUserBage = new AdminPanel().open().createUser(newUser.getUsername(), newUser.getPassword())
+        UserBage newUserBage = new AdminPanel().open()
+                .createUser(newUser.getUsername(), newUser.getPassword())
                 .checkAlertMessageAndAccept(BankAlert.USER_CREATED_SUCCESSFULLY.getMessage())
                 .findUserByUsername(newUser.getUsername());
 

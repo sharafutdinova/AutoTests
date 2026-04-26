@@ -1,17 +1,17 @@
-package iteration2.ui;
+package baseTests;
 
 import api.configs.Config;
 import com.codeborne.selenide.Configuration;
+import common.extensions.AdminSessionExtension;
 import common.extensions.BrowserMatchExtension;
 import common.extensions.EnvironmentMatchExtension;
 import common.extensions.UserSessionExtension;
-import iteration2.BaseTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Map;
 
-
+@ExtendWith(AdminSessionExtension.class)
 @ExtendWith(UserSessionExtension.class)
 @ExtendWith(BrowserMatchExtension.class)
 @ExtendWith(EnvironmentMatchExtension.class)

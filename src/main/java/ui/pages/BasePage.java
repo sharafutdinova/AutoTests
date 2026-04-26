@@ -64,4 +64,8 @@ public abstract class BasePage<T extends BasePage> {
     public void sendKeysWithRetry(SelenideElement element, String keysToSend) {
         RetryUtils.sendKeysRetry(element, keysToSend, 3, 500);
     }
+
+    public void selectOption(SelenideElement element, String option) {
+        RetryUtils.selectOptionRetry(element, option, 3, 1000);
+    }
 }

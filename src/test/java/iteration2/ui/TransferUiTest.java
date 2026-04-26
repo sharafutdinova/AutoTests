@@ -4,6 +4,7 @@ import api.generators.RandomData;
 import api.models.Transaction;
 import api.models.TransactionTypes;
 import api.models.accounts.CreateAccountResponse;
+import baseTests.BaseUiTest;
 import common.annotations.UserSession;
 import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
@@ -96,10 +97,10 @@ public class TransferUiTest extends BaseUiTest {
     public void userCanNotTransferWithoutNameIfNameWasChangedTest() {
         CreateAccountResponse createSenderAccountResponse = SessionStorage.getSteps().createAccount();
         CreateAccountResponse createReceiverAccountResponse = SessionStorage.getSteps().createAccount();
-        int maxAmountForDeposit = 5000;
-        SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
         String newName = RandomData.getName();
         SessionStorage.getSteps().changeName(newName);
+        int maxAmountForDeposit = 5000;
+        SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
 
         double amount = RandomData.getTransferAmount();
         new TransferPage().open().performTransfer(createSenderAccountResponse.getAccountNumber(), createReceiverAccountResponse.getAccountNumber(), amount)

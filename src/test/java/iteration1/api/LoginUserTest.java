@@ -3,6 +3,7 @@ package iteration1.api;
 import api.configs.Config;
 import api.models.admin.CreateUserRequest;
 import api.models.authentification.LoginUserRequest;
+import baseTests.BaseTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import api.requests.skeleton.Endpoint;
@@ -12,7 +13,6 @@ import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 
 public class LoginUserTest extends BaseTest {
-
     @Test
     public void adminCanGenerateAuthTokenTest() {
         LoginUserRequest userRequest = LoginUserRequest.builder()

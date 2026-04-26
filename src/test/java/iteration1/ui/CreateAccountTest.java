@@ -1,6 +1,7 @@
 package iteration1.ui;
 
 import api.models.accounts.CreateAccountResponse;
+import baseTests.BaseUiTest;
 import common.annotations.UserSession;
 import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
