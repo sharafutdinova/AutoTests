@@ -26,12 +26,13 @@ public class BaseUiTest extends BaseTest {
         Configuration.browserCapabilities.setCapability("selenoid:options",
                 Map.of("enableVNC", true, "enableLog", true)
         );
-        Configuration.pageLoadTimeout = 60000; // таймаут загрузки страницы
+        Configuration.pageLoadTimeout = 120000; // таймаут загрузки страницы
         Configuration.timeout = 10000; // таймаут ожидания элементов (по умолчанию 4000)
         Configuration.pollingInterval = 500; // интервал опроса (по умолчанию 100 мс)
         Configuration.pageLoadStrategy = "eager"; // ждёт только DOM, не ждёт ресурсы
         ChromeOptions options = new ChromeOptions();
         options.setCapability("unhandledPromptBehavior", "dismiss");
         Configuration.browserCapabilities = options;
+        Configuration.headless = true;
     }
 }

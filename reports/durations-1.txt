@@ -1,0 +1,64 @@
+iteration1.api.userCanCreateAccountTest() test duration 257 ms
+iteration1.api.adminCanCreateUserWithCorrectData() test duration 486 ms
+iteration1.api.[1]    , Password33$, USER, username, [Username cannot be blank, Username must contain only letters, digits, dashes, underscores, and dots] test duration 540 ms
+iteration1.api.[2] ab, Password33$, USER, username, [Username must be between 3 and 15 characters] test duration 99 ms
+iteration1.api.[3] abc$, Password33$, USER, username, [Username must contain only letters, digits, dashes, underscores, and dots] test duration 97 ms
+iteration1.api.[4] abc%, Password33$, USER, username, [Username must contain only letters, digits, dashes, underscores, and dots] test duration 99 ms
+iteration1.api.userCanGenerateAuthTokenTest() test duration 508 ms
+iteration1.api.adminCanGenerateAuthTokenTest() test duration 91 ms
+iteration1.ui.userCanCreateAccountTest() test duration 542 ms
+iteration1.ui.adminCanCreateUserTest() test duration 1948 ms
+iteration1.ui.adminCannotCreateUserWithInvalidDataTest() test duration 1906 ms
+iteration1.ui.userCanLoginWithCorrectDataTest() test duration 2763 ms
+iteration1.ui.adminCanLoginWithCorrectDataTest() test duration 1639 ms
+iteration2.api.userCanChangeNameSeveralTimesTest() test duration 1068 ms
+iteration2.api.[1] Alsu Sharaf test duration 338 ms
+iteration2.api.[2] A S test duration 340 ms
+iteration2.api.[3] Алсу Шараф test duration 250 ms
+iteration2.api.userCannotChangeNameToNullTest() test duration 333 ms
+iteration2.api.userCanChangeNameToTheSameNameTest() test duration 668 ms
+iteration2.api.[1]  test duration 360 ms
+iteration2.api.[2]     test duration 333 ms
+iteration2.api.[3] Alsu1 test2 test duration 376 ms
+iteration2.api.[4] Alsu!@#$%%^&*() test_+/,<>?}{[]';/.! test duration 320 ms
+iteration2.api.[5] Alsutest test duration 346 ms
+iteration2.api.[6] Alsu  test test duration 343 ms
+iteration2.api.[7] Alsu_test test duration 338 ms
+iteration2.api.userCanNotDepositToAnotherUserAccountTest() test duration 899 ms
+iteration2.api.userCanNotDepositToNotExistsAccountTest() test duration 246 ms
+iteration2.api.[1] 0.0, Deposit amount must be at least 0.01 test duration 415 ms
+iteration2.api.[2] -0.01, Deposit amount must be at least 0.01 test duration 439 ms
+iteration2.api.[3] 5000.01, Deposit amount cannot exceed 5000 test duration 412 ms
+iteration2.api.[1] 5000.0 test duration 598 ms
+iteration2.api.[2] 4999.99 test duration 443 ms
+iteration2.api.[3] 0.01 test duration 410 ms
+iteration2.api.userCanNotTransferToNotExistsAccountTest() test duration 612 ms
+iteration2.api.[1] 10000.0 test duration 998 ms
+iteration2.api.[2] 9999.99 test duration 1017 ms
+iteration2.api.[3] 0.01 test duration 989 ms
+iteration2.api.userCanTransferValueEqualToBalanceToAnotherUserAccountTest() test duration 967 ms
+iteration2.api.userCanNotTransferFromNotExistsAccountTest() test duration 410 ms
+iteration2.api.userCanNotTransferValueGreaterThanBalanceTest() test duration 918 ms
+iteration2.api.userCanNotTransferFromAnotherUserAccountTest() test duration 1056 ms
+iteration2.api.userCanNotTransferToTheSameAccountTest() test duration 415 ms
+iteration2.api.[1] 10000.01, Transfer amount cannot exceed 10000 test duration 1081 ms
+iteration2.api.[2] 0.0, Transfer amount must be at least 0.01 test duration 1082 ms
+iteration2.api.[3] -0.01, Transfer amount must be at least 0.01 test duration 1046 ms
+iteration2.ui.userCanChangeNameTest() test duration 4075 ms
+iteration2.ui.userCanNotChangeNameToEmptyValueTest() test duration 3037 ms
+iteration2.ui.userCanNotChangeNameToInvalidValueTest() test duration 4450 ms
+iteration2.ui.userCanNotDepositInvalidValueTest() test duration 1654 ms
+iteration2.ui.userCanNotDepositWithoutSelectingAccountTest() test duration 731 ms
+iteration2.ui.userCanNotDepositWithEmptyValuesTest() test duration 478 ms
+iteration2.ui.userCanDepositTest() test duration 2219 ms
+iteration2.ui.userCanNotDepositWithoutEnteringAmountTest() test duration 1301 ms
+iteration2.ui.userCanTransferWithUsernameTest() test duration 3759 ms
+iteration2.ui.userCanNotTransferWithoutEnteringRecipientAccountTest() test duration 1876 ms
+iteration2.ui.userCanNotTransferWithoutConfirmingTest() test duration 2252 ms
+iteration2.ui.userCanNotTransferWithInvalidAmountTest() test duration 2808 ms
+iteration2.ui.userCanNotTransferWithoutNameIfNameWasChangedTest() test duration 2717 ms
+iteration2.ui.userCanNotTransferWithoutEnteringAmountTest() test duration 2163 ms
+iteration2.ui.userCanNotTransferWithUsernameAfterNameChangingTest() test duration 3411 ms
+iteration2.ui.userCanTransferWithNameAfterNameChangingTest() test duration 3565 ms
+iteration2.ui.userCanTransferWithoutNameIfNameWasNotChangedTest() test duration 3251 ms
+iteration2.ui.userCanNotTransferWithoutSelectingSenderAccountTest() test duration 1561 ms
