@@ -2,12 +2,10 @@ package ui.pages;
 
 import api.models.admin.CreateUserRequest;
 import api.specs.RequestSpecs;
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selectors;
-import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.*;
 import lombok.Getter;
 import org.openqa.selenium.Alert;
+import org.openqa.selenium.TimeoutException;
 import ui.elements.BaseElement;
 
 import java.util.List;
@@ -25,7 +23,16 @@ public abstract class BasePage<T extends BasePage> {
     public abstract String url();
 
     public T open() {
-        return Selenide.open(url(), (Class<T>) this.getClass());
+        int maxAttempts = 3;
+        for (int i = 0; i < maxAttempts; i++) {
+            try {
+                return Selenide.open(url(), (Class<T>) this.getClass());
+            } catch (TimeoutException e) {
+                System.out.println("Retry opening page, attempt " + (i + 1));
+                Selenide.sleep(2000);
+            }
+        }
+        throw new RuntimeException("Retry Failed");
     }
 
     public <T extends BasePage> T getPage(Class<T> pageClass) {
@@ -34,6 +41,7 @@ public abstract class BasePage<T extends BasePage> {
 
     public static void authAsUser(String username, String password) {
         Selenide.open("/");
+        executeJavaScript("localStorage.clear();");
         String userAuthHeader = RequestSpecs.getUserAuthHeader(username, password);
         executeJavaScript("localStorage.setItem('authToken', arguments[0]);", userAuthHeader);
     }
@@ -56,5 +64,10 @@ public abstract class BasePage<T extends BasePage> {
 
     protected <T extends BaseElement> List<T> generatePageElements(ElementsCollection elementsCollection, Function<SelenideElement, T> constructor) {
         return elementsCollection.stream().map(constructor).toList();
+    }
+
+    public void sendKeys(SelenideElement element, String keysToSend) {
+        element.shouldBe(Condition.visible, Condition.enabled).clear();
+        element.sendKeys(String.valueOf(keysToSend));
     }
 }

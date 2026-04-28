@@ -1,17 +1,15 @@
 package api.models.customer;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import api.models.admin.CreateUserResponse;
+import lombok.*;
 import api.models.BaseModel;
-import api.models.Customer;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class UpdateProfileResponse extends BaseModel {
-    private Customer customer;
+    private CreateUserResponse customer;
     private String message;
 }

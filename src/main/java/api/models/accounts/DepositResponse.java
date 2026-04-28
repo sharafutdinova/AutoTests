@@ -1,14 +1,12 @@
 package api.models.accounts;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import api.models.BaseModel;
 import api.models.Transaction;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

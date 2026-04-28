@@ -1,5 +1,6 @@
 package iteration1.ui;
 
+import baseTests.BaseUiTest;
 import com.codeborne.selenide.Condition;
 import api.models.admin.CreateUserRequest;
 import common.annotations.Browsers;
@@ -15,7 +16,8 @@ public class LoginUserTest extends BaseUiTest {
     public void adminCanLoginWithCorrectDataTest() {
         CreateUserRequest admin = CreateUserRequest.getAdmin();
 
-        new LoginPage().open().login(admin.getUsername(), admin.getPassword())
+        new LoginPage().open()
+                .login(admin.getUsername(), admin.getPassword())
                 .getPage(AdminPanel.class).getAdminPanelText().shouldBe(Condition.visible);
     }
 

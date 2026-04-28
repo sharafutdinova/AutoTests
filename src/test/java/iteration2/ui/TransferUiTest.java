@@ -1,14 +1,13 @@
 package iteration2.ui;
 
 import api.generators.RandomData;
-import api.models.Account;
 import api.models.Transaction;
 import api.models.TransactionTypes;
 import api.models.accounts.CreateAccountResponse;
+import baseTests.BaseUiTest;
 import common.annotations.UserSession;
 import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
-import api.requests.steps.UserSteps;
 import ui.pages.BankAlert;
 import ui.pages.TransferPage;
 import ui.pages.UserDashboard;
@@ -22,7 +21,7 @@ public class TransferUiTest extends BaseUiTest {
         for (int i = 0; i < 3; i++) {
             SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
         }
-        Account senderAccountBefore = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountBefore = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         CreateAccountResponse createReceiverAccountResponse = SessionStorage.getSteps().createAccount();
 
         Double amount = RandomData.getTransferAmount();
@@ -31,9 +30,9 @@ public class TransferUiTest extends BaseUiTest {
         new TransferPage().performTransfer(createSenderAccountResponse.getAccountNumber(), username, createReceiverAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(String.format(BankAlert.SUCCESSFULLY_TRANSFERRED.getMessage(), amount, createReceiverAccountResponse.getAccountNumber()));
 
-        Account receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isEqualTo(amount);
-        Account senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(senderAccountBefore.getBalance() - amount);
         Transaction lastReceiverTransaction = SessionStorage.getSteps().getAccountLastTransactions(createReceiverAccountResponse.getId());
         softly.assertThat(lastReceiverTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_IN, amount)).isTrue();
@@ -49,7 +48,7 @@ public class TransferUiTest extends BaseUiTest {
         for (int i = 0; i < 3; i++) {
             SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
         }
-        Account senderAccountBefore = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountBefore = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         CreateAccountResponse createReceiverAccountResponse = SessionStorage.getSteps().createAccount();
         String newName = RandomData.getName();
         SessionStorage.getSteps().changeName(newName);
@@ -58,9 +57,9 @@ public class TransferUiTest extends BaseUiTest {
         new TransferPage().open().performTransfer(createSenderAccountResponse.getAccountNumber(), newName, createReceiverAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(String.format(BankAlert.SUCCESSFULLY_TRANSFERRED.getMessage(), amount, createReceiverAccountResponse.getAccountNumber()));
 
-        Account receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isEqualTo(amount);
-        Account senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(senderAccountBefore.getBalance() - amount);
         Transaction lastReceiverTransaction = SessionStorage.getSteps().getAccountLastTransactions(createReceiverAccountResponse.getId());
         softly.assertThat(lastReceiverTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_IN, amount)).isTrue();
@@ -77,15 +76,15 @@ public class TransferUiTest extends BaseUiTest {
         for (int i = 0; i < 3; i++) {
             SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
         }
-        Account senderAccountBefore = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountBefore = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
 
         Double amount = RandomData.getTransferAmount();
         new TransferPage().open().performTransfer(createSenderAccountResponse.getAccountNumber(), createReceiverAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(String.format(BankAlert.SUCCESSFULLY_TRANSFERRED.getMessage(), amount, createReceiverAccountResponse.getAccountNumber()));
 
-        Account receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isEqualTo(amount);
-        Account senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(senderAccountBefore.getBalance() - amount);
         Transaction lastReceiverTransaction = SessionStorage.getSteps().getAccountLastTransactions(createReceiverAccountResponse.getId());
         softly.assertThat(lastReceiverTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_IN, amount)).isTrue();
@@ -98,18 +97,18 @@ public class TransferUiTest extends BaseUiTest {
     public void userCanNotTransferWithoutNameIfNameWasChangedTest() {
         CreateAccountResponse createSenderAccountResponse = SessionStorage.getSteps().createAccount();
         CreateAccountResponse createReceiverAccountResponse = SessionStorage.getSteps().createAccount();
-        int maxAmountForDeposit = 5000;
-        SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
         String newName = RandomData.getName();
         SessionStorage.getSteps().changeName(newName);
+        int maxAmountForDeposit = 5000;
+        SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
 
-        Double amount = RandomData.getTransferAmount();
+        double amount = RandomData.getTransferAmount();
         new TransferPage().open().performTransfer(createSenderAccountResponse.getAccountNumber(), createReceiverAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(BankAlert.RECIPIENT_NAME_DOES_NOT_MATCH_THE_REGISTERED_NAME.getMessage());
 
-        Account receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isZero();
-        Account senderAccount = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccount = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccount.getBalance()).isEqualTo(maxAmountForDeposit);
     }
 
@@ -121,19 +120,19 @@ public class TransferUiTest extends BaseUiTest {
         for (int i = 0; i < 3; i++) {
             SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
         }
-        Account senderAccountBefore = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountBefore = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         CreateAccountResponse createReceiverAccountResponse = SessionStorage.getSteps().createAccount();
         String newName = RandomData.getName();
         SessionStorage.getSteps().changeName(newName);
 
-        Double amount = RandomData.getTransferAmount();
+        double amount = RandomData.getTransferAmount();
         String username = SessionStorage.getUser().getUsername();
         new TransferPage().open().performTransfer(createSenderAccountResponse.getAccountNumber(), username, createReceiverAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(BankAlert.RECIPIENT_NAME_DOES_NOT_MATCH_THE_REGISTERED_NAME.getMessage());
 
-        Account receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isZero();
-        Account senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(senderAccountBefore.getBalance());
     }
 
@@ -143,13 +142,13 @@ public class TransferUiTest extends BaseUiTest {
         CreateAccountResponse createSenderAccountResponse = SessionStorage.getSteps().createAccount();
         CreateAccountResponse createReceiverAccountResponse = SessionStorage.getSteps().createAccount();
 
-        Double amount = RandomData.getTransferAmount();
+        double amount = RandomData.getTransferAmount();
         new TransferPage().open().performTransfer(createSenderAccountResponse.getAccountNumber(), SessionStorage.getUser().getUsername(), createReceiverAccountResponse.getAccountNumber(), amount)
                 .checkAlertMessageAndAccept(BankAlert.ERROR_INVALID_TRANSFER.getMessage());
 
-        Account receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isZero();
-        Account senderAccount = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccount = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccount.getBalance()).isZero();
     }
 
@@ -158,7 +157,7 @@ public class TransferUiTest extends BaseUiTest {
     public void userCanNotTransferWithoutSelectingSenderAccountTest() {
         CreateAccountResponse createReceiverAccountResponse = SessionStorage.getSteps().createAccount();
 
-        Double amount = RandomData.getDepositAmount();
+        double amount = RandomData.getDepositAmount();
         new TransferPage().open()
                 .enterRecipientName(SessionStorage.getUser().getUsername())
                 .enterRecipientAccount(createReceiverAccountResponse.getAccountNumber())
@@ -167,7 +166,7 @@ public class TransferUiTest extends BaseUiTest {
                 .clickToTransfer()
                 .checkAlertMessageAndAccept(BankAlert.FILL_ALL_FIELDS_AND_CONFIRM.getMessage());
 
-        Account receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isZero();
     }
 
@@ -178,7 +177,7 @@ public class TransferUiTest extends BaseUiTest {
         int maxAmountForDeposit = 5000;
         SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
 
-        Double amount = RandomData.getDepositAmount();
+        double amount = RandomData.getDepositAmount();
         new TransferPage().open()
                 .selectAccount(createSenderAccountResponse.getAccountNumber())
                 .enterRecipientName(SessionStorage.getUser().getUsername())
@@ -187,7 +186,7 @@ public class TransferUiTest extends BaseUiTest {
                 .clickToTransfer()
                 .checkAlertMessageAndAccept(BankAlert.FILL_ALL_FIELDS_AND_CONFIRM.getMessage());
 
-        Account senderAccount = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccount = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccount.getBalance()).isEqualTo(maxAmountForDeposit);
     }
 
@@ -207,9 +206,9 @@ public class TransferUiTest extends BaseUiTest {
                 .clickToTransfer()
                 .checkAlertMessageAndAccept(BankAlert.FILL_ALL_FIELDS_AND_CONFIRM.getMessage());
 
-        Account receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isZero();
-        Account senderAccount = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccount = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccount.getBalance()).isEqualTo(maxAmountForDeposit);
     }
 
@@ -221,7 +220,7 @@ public class TransferUiTest extends BaseUiTest {
         int maxAmountForDeposit = 5000;
         SessionStorage.getSteps().deposit(createSenderAccountResponse.getId(), maxAmountForDeposit);
 
-        Double amount = RandomData.getDepositAmount();
+        double amount = RandomData.getDepositAmount();
         new TransferPage().open()
                 .selectAccount(createSenderAccountResponse.getAccountNumber())
                 .enterRecipientName(SessionStorage.getUser().getUsername())
@@ -230,9 +229,9 @@ public class TransferUiTest extends BaseUiTest {
                 .clickToTransfer()
                 .checkAlertMessageAndAccept(BankAlert.FILL_ALL_FIELDS_AND_CONFIRM.getMessage());
 
-        Account receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
+        CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isZero();
-        Account senderAccount = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
+        CreateAccountResponse senderAccount = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
         softly.assertThat(senderAccount.getBalance()).isEqualTo(maxAmountForDeposit);
     }
 }

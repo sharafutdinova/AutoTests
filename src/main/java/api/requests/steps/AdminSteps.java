@@ -41,14 +41,14 @@ public class AdminSteps {
     }
 
     public static void deleteUserByCreateUserRequest(CreateUserRequest createUserRequest) {
-        long id = UserSteps.getUserResponse(createUserRequest).getId();
+        long id = new UserSteps(createUserRequest).getUserResponse().getId();
         deleteUserById(id);
     }
 
     public static List<CreateUserResponse> getAllUsers() {
         return new ValidatedCrudRequester<CreateUserResponse>(
                 RequestSpecs.adminSpec(),
-                Endpoint.ADMIN_USER,
+                Endpoint.ADMIN_USERS,
                 ResponseSpecs.requestReturnsOK()).getAll(CreateUserResponse[].class);
     }
 }

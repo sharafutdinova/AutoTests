@@ -1,18 +1,15 @@
 package api.models.accounts;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import api.models.BaseModel;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class GetAccountTransactionsRequest extends BaseModel {
     private Map<String, Long> params = new HashMap<>();
     public GetAccountTransactionsRequest(Long accountId) {

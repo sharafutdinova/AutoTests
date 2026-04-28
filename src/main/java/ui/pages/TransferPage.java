@@ -1,9 +1,14 @@
 package ui.pages;
 
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Selectors;
-import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.*;
+import common.utils.RetryUtils;
 import lombok.Getter;
+import org.openqa.selenium.NoAlertPresentException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 import static com.codeborne.selenide.Selenide.$;
 
@@ -22,59 +27,69 @@ public class TransferPage extends BasePage<TransferPage> {
     }
 
     public TransferPage performTransfer(String senderAccount, String recipientName, String recipientAccount, double amount) {
-        accountSelect.selectOptionContainingText(senderAccount);
-        recipientNameInput.shouldBe(Condition.enabled).clear();
-        recipientNameInput.sendKeys(recipientName);
-        accountNumberInput.shouldBe(Condition.enabled).clear();
-        accountNumberInput.sendKeys(recipientAccount);
-        amountInput.shouldBe(Condition.enabled).clear();
-        amountInput.sendKeys(String.valueOf(amount));
-        confirmCheckbox.click();
-        transferButton.click();
+        RetryUtils.selectOptionRetry(accountSelect, senderAccount, 3, 1000);
+        sendKeys(recipientNameInput, recipientName);
+        sendKeys(accountNumberInput, recipientAccount);
+        sendKeys(amountInput, String.valueOf(amount));
+        confirmCheckbox.shouldBe(Condition.enabled).click();
+        clickToTransferWithRetry();
         return this;
     }
 
     public TransferPage performTransfer(String senderAccount, String recipientAccount, double amount) {
-        accountSelect.selectOptionContainingText(senderAccount);
-        accountNumberInput.shouldBe(Condition.enabled).clear();
-        accountNumberInput.sendKeys(recipientAccount);
-        amountInput.shouldBe(Condition.enabled).clear();
-        amountInput.sendKeys(String.valueOf(amount));
-        confirmCheckbox.click();
-        transferButton.click();
+        RetryUtils.selectOptionRetry(accountSelect, senderAccount, 3, 1000);
+        sendKeys(accountNumberInput, recipientAccount);
+        sendKeys(amountInput, String.valueOf(amount));
+        confirmCheckbox.shouldBe(Condition.enabled).click();
+        clickToTransferWithRetry();
         return this;
     }
 
     public TransferPage selectAccount(String accountNumber) {
-        accountSelect.selectOptionContainingText(accountNumber);
+        RetryUtils.selectOptionRetry(accountSelect, accountNumber, 3, 1000);
         return this;
     }
 
     public TransferPage enterRecipientName(String recipientName) {
-        recipientNameInput.shouldBe(Condition.enabled).clear();
-        recipientNameInput.sendKeys(recipientName);
+        sendKeys(recipientNameInput, recipientName);
         return this;
     }
 
     public TransferPage enterRecipientAccount(String recipientAccount) {
-        accountNumberInput.shouldBe(Condition.enabled).clear();
-        accountNumberInput.sendKeys(recipientAccount);
+        sendKeys(accountNumberInput, recipientAccount);
         return this;
     }
 
     public TransferPage enterAmount(double amount) {
-        amountInput.shouldBe(Condition.enabled).clear();
-        amountInput.sendKeys(String.valueOf(amount));
+        sendKeys(amountInput, String.valueOf(amount));
         return this;
     }
 
     public TransferPage confirm() {
-        confirmCheckbox.click();
+        confirmCheckbox.shouldBe(Condition.enabled).click();
         return this;
     }
 
+    public void clickToTransferWithRetry() {
+        RetryUtils.retry(
+                () -> {
+                    transferButton.click();
+                    try {
+                        WebDriverWait wait = new WebDriverWait(WebDriverRunner.getWebDriver(), Duration.ofMillis(1000));
+                        wait.until(ExpectedConditions.alertIsPresent());
+                        return true;
+                    } catch (NoAlertPresentException | TimeoutException e) {
+                        return false;
+                    }
+                },
+                obj -> obj.equals(true),
+                3,
+                1000
+        );
+    }
+
     public TransferPage clickToTransfer() {
-        transferButton.click();
+        clickToTransferWithRetry();
         return this;
     }
 }
