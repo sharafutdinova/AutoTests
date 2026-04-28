@@ -36,6 +36,8 @@ public class CreateUserTest extends BaseTest {
                 .post(createUserRequest);
 
         ModelAssertions.assertThatModels(createUserRequest, createUserResponse).match();
+        List<CreateUserResponse> createdUsers = AdminSteps.getAllUsers();
+        softly.assertThat(createdUsers.contains(createUserResponse)).isTrue();
         AdminSteps.deleteUserByCreateUserRequest(createUserRequest);
     }
 
@@ -62,5 +64,9 @@ public class CreateUserTest extends BaseTest {
                 Endpoint.ADMIN_USER,
                 ResponseSpecs.requestReturnsBadRequest(errorKey, errorValues))
                 .post(createUserRequest);
+        List<CreateUserResponse> usersWithSameName = AdminSteps.getAllUsers().stream()
+                .filter(user -> user.getUsername().equals(username) && user.getRole().equals(role))
+                .toList();
+        softly.assertThat(usersWithSameName).hasSize(0);
     }
 }
