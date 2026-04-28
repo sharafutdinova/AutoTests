@@ -1,0 +1,222 @@
+Thread ForkJoinPool-1-worker-3: Test started iteration1.api.[1]    , Password33$, USER, username, [Username cannot be blank, Username must contain only letters, digits, dashes, underscores, and dots]
+Thread ForkJoinPool-1-worker-4: Test started iteration1.api.adminCanGenerateAuthTokenTest()
+Thread ForkJoinPool-1-worker-4: Test finished iteration1.api.adminCanGenerateAuthTokenTest(), test duration 1799 ms
+Thread ForkJoinPool-1-worker-4: Test started iteration1.api.userCanGenerateAuthTokenTest()
+Thread ForkJoinPool-1-worker-2: Test started iteration1.api.userCanCreateAccountTest()
+Thread ForkJoinPool-1-worker-7: Test started iteration1.api.adminCanCreateUserWithCorrectData()
+Thread ForkJoinPool-1-worker-8: Test started iteration1.api.[4] abc%, Password33$, USER, username, [Username must contain only letters, digits, dashes, underscores, and dots]
+Thread ForkJoinPool-1-worker-2: Test finished iteration1.api.userCanCreateAccountTest(), test duration 316 ms
+Thread ForkJoinPool-1-worker-2: Test started iteration1.ui.adminCanLoginWithCorrectDataTest()
+Thread ForkJoinPool-1-worker-9: Test started iteration1.ui.userCanLoginWithCorrectDataTest()
+Thread ForkJoinPool-1-worker-8: Test finished iteration1.api.[4] abc%, Password33$, USER, username, [Username must contain only letters, digits, dashes, underscores, and dots], test duration 820 ms
+Thread ForkJoinPool-1-worker-3: Test finished iteration1.api.[1]    , Password33$, USER, username, [Username cannot be blank, Username must contain only letters, digits, dashes, underscores, and dots], test duration 2708 ms
+Thread ForkJoinPool-1-worker-8: Test started iteration1.api.[2] ab, Password33$, USER, username, [Username must be between 3 and 15 characters]
+Thread ForkJoinPool-1-worker-11: Test started iteration1.api.[3] abc$, Password33$, USER, username, [Username must contain only letters, digits, dashes, underscores, and dots]
+Thread ForkJoinPool-1-worker-4: Test finished iteration1.api.userCanGenerateAuthTokenTest(), test duration 953 ms
+Thread ForkJoinPool-1-worker-7: Test finished iteration1.api.adminCanCreateUserWithCorrectData(), test duration 952 ms
+Thread ForkJoinPool-1-worker-8: Test finished iteration1.api.[2] ab, Password33$, USER, username, [Username must be between 3 and 15 characters], test duration 144 ms
+Thread ForkJoinPool-1-worker-11: Test finished iteration1.api.[3] abc$, Password33$, USER, username, [Username must contain only letters, digits, dashes, underscores, and dots], test duration 138 ms
+Thread ForkJoinPool-1-worker-4: Test started iteration2.api.[2]    
+Thread ForkJoinPool-1-worker-7: Test started iteration2.api.userCanChangeNameSeveralTimesTest()
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[2] A S
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.[3] 0.01
+Thread ForkJoinPool-1-worker-11: Test started iteration2.api.[1] Alsu Sharaf
+Thread ForkJoinPool-1-worker-4: Test finished iteration2.api.[2]    , test duration 1270 ms
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[2] A S, test duration 1268 ms
+Thread ForkJoinPool-1-worker-11: Test finished iteration2.api.[1] Alsu Sharaf, test duration 1254 ms
+Thread ForkJoinPool-1-worker-7: Test finished iteration2.api.userCanChangeNameSeveralTimesTest(), test duration 1585 ms
+Thread ForkJoinPool-1-worker-11: Test started iteration2.api.userCanNotDepositToAnotherUserAccountTest()
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[3] Алсу Шараф
+Thread ForkJoinPool-1-worker-4: Test started iteration2.api.[5] Alsutest
+Thread ForkJoinPool-1-worker-7: Test started iteration2.api.userCannotChangeNameToNullTest()
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.[3] 0.01, test duration 2228 ms
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[3] Алсу Шараф, test duration 360 ms
+Thread ForkJoinPool-1-worker-4: Test finished iteration2.api.[5] Alsutest, test duration 595 ms
+Thread ForkJoinPool-1-worker-7: Test finished iteration2.api.userCannotChangeNameToNullTest(), test duration 434 ms
+Thread ForkJoinPool-1-worker-6: Test started iteration1.ui.adminCannotCreateUserWithInvalidDataTest()
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.[1] 5000.0
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.userCanChangeNameToTheSameNameTest()
+Thread ForkJoinPool-1-worker-11: Test finished iteration2.api.userCanNotDepositToAnotherUserAccountTest(), test duration 1073 ms
+Thread ForkJoinPool-1-worker-7: Test started iteration2.api.[3] Alsu1 test2
+Thread ForkJoinPool-1-worker-4: Test started iteration2.api.[1] 
+Thread ForkJoinPool-1-worker-1: Test started iteration2.ui.userCanNotTransferWithoutSelectingSenderAccountTest()
+Thread ForkJoinPool-1-worker-5: Test started iteration1.ui.userCanCreateAccountTest()
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.userCanChangeNameToTheSameNameTest(), test duration 648 ms
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.[1] 5000.0, test duration 754 ms
+Thread ForkJoinPool-1-worker-10: Test started iteration1.ui.adminCanCreateUserTest()
+Thread ForkJoinPool-1-worker-4: Test finished iteration2.api.[1] , test duration 739 ms
+Thread ForkJoinPool-1-worker-7: Test finished iteration2.api.[3] Alsu1 test2, test duration 791 ms
+Thread ForkJoinPool-1-worker-11: Test started iteration2.api.userCanNotDepositToNotExistsAccountTest()
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.[2] 4999.99
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[4] Alsu!@#$%%^&*() test_+/,<>?}{[]';/.!
+Thread ForkJoinPool-1-worker-11: Test finished iteration2.api.userCanNotDepositToNotExistsAccountTest(), test duration 586 ms
+Thread ForkJoinPool-1-worker-7: Test started iteration2.api.[6] Alsu  test
+Thread ForkJoinPool-1-worker-5: Test finished iteration1.ui.userCanCreateAccountTest(), test duration 1438 ms
+Thread ForkJoinPool-1-worker-12: Test started iteration2.api.[7] Alsu_test
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[4] Alsu!@#$%%^&*() test_+/,<>?}{[]';/.!, test duration 693 ms
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.[2] 4999.99, test duration 922 ms
+Thread ForkJoinPool-1-worker-11: Test started iteration2.api.[3] 5000.01, Deposit amount cannot exceed 5000
+Thread ForkJoinPool-1-worker-7: Test finished iteration2.api.[6] Alsu  test, test duration 621 ms
+Thread ForkJoinPool-1-worker-5: Test started iteration2.api.[1] 10000.01, Transfer amount cannot exceed 10000
+Thread ForkJoinPool-1-worker-12: Test finished iteration2.api.[7] Alsu_test, test duration 604 ms
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[1] 0.0, Deposit amount must be at least 0.01
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.[2] -0.01, Deposit amount must be at least 0.01
+Thread ForkJoinPool-1-worker-7: Test started iteration2.api.userCanNotTransferToNotExistsAccountTest()
+Thread ForkJoinPool-1-worker-11: Test finished iteration2.api.[3] 5000.01, Deposit amount cannot exceed 5000, test duration 723 ms
+Thread ForkJoinPool-1-worker-2: Test finished iteration1.ui.adminCanLoginWithCorrectDataTest(), test duration 6808 ms
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[1] 0.0, Deposit amount must be at least 0.01, test duration 757 ms
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.[2] -0.01, Deposit amount must be at least 0.01, test duration 775 ms
+Thread ForkJoinPool-1-worker-1: Test finished iteration2.ui.userCanNotTransferWithoutSelectingSenderAccountTest(), test duration 3251 ms
+Thread ForkJoinPool-1-worker-13: Test started iteration2.api.[3] 0.01
+Thread ForkJoinPool-1-worker-6: Test finished iteration1.ui.adminCannotCreateUserWithInvalidDataTest(), test duration 4116 ms
+Thread ForkJoinPool-1-worker-7: Test finished iteration2.api.userCanNotTransferToNotExistsAccountTest(), test duration 1004 ms
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.userCanTransferValueEqualToBalanceToAnotherUserAccountTest()
+Thread ForkJoinPool-1-worker-5: Test finished iteration2.api.[1] 10000.01, Transfer amount cannot exceed 10000, test duration 1795 ms
+Thread ForkJoinPool-1-worker-1: Test started iteration2.ui.userCanTransferWithoutNameIfNameWasNotChangedTest()
+Thread ForkJoinPool-1-worker-7: Test started iteration2.api.userCanNotTransferFromNotExistsAccountTest()
+Thread ForkJoinPool-1-worker-5: Test started iteration2.api.[2] 0.0, Transfer amount must be at least 0.01
+Thread ForkJoinPool-1-worker-7: Test finished iteration2.api.userCanNotTransferFromNotExistsAccountTest(), test duration 547 ms
+Thread ForkJoinPool-1-worker-13: Test finished iteration2.api.[3] 0.01, test duration 1400 ms
+Thread ForkJoinPool-1-worker-7: Test started iteration2.api.userCanNotTransferValueGreaterThanBalanceTest()
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.userCanTransferValueEqualToBalanceToAnotherUserAccountTest(), test duration 1402 ms
+Thread ForkJoinPool-1-worker-13: Test started iteration2.api.[2] 9999.99
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.userCanNotTransferFromAnotherUserAccountTest()
+Thread ForkJoinPool-1-worker-5: Test finished iteration2.api.[2] 0.0, Transfer amount must be at least 0.01, test duration 1311 ms
+Thread ForkJoinPool-1-worker-5: Test started iteration2.api.[3] -0.01, Transfer amount must be at least 0.01
+Thread ForkJoinPool-1-worker-7: Test finished iteration2.api.userCanNotTransferValueGreaterThanBalanceTest(), test duration 932 ms
+Thread ForkJoinPool-1-worker-13: Test finished iteration2.api.[2] 9999.99, test duration 1040 ms
+Thread ForkJoinPool-1-worker-13: Test started iteration2.api.[1] 10000.0
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.userCanNotTransferFromAnotherUserAccountTest(), test duration 1139 ms
+Thread ForkJoinPool-1-worker-1: Test finished iteration2.ui.userCanTransferWithoutNameIfNameWasNotChangedTest(), test duration 3016 ms
+Thread ForkJoinPool-1-worker-5: Test finished iteration2.api.[3] -0.01, Transfer amount must be at least 0.01, test duration 1121 ms
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.userCanNotTransferToTheSameAccountTest()
+Thread ForkJoinPool-1-worker-13: Test finished iteration2.api.[1] 10000.0, test duration 1045 ms
+Thread ForkJoinPool-1-worker-1: Test started iteration2.ui.userCanTransferWithNameAfterNameChangingTest()
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.userCanNotTransferToTheSameAccountTest(), test duration 435 ms
+Thread ForkJoinPool-1-worker-1: Test finished iteration2.ui.userCanTransferWithNameAfterNameChangingTest(), test duration 3100 ms
+Thread ForkJoinPool-1-worker-10: Test finished iteration1.ui.adminCanCreateUserTest(), test duration 13579 ms
+Thread ForkJoinPool-1-worker-12: Test started iteration2.ui.userCanNotChangeNameToInvalidValueTest()
+Thread ForkJoinPool-1-worker-4: Test started iteration2.ui.userCanChangeNameTest()
+Thread ForkJoinPool-1-worker-9: Test finished iteration1.ui.userCanLoginWithCorrectDataTest(), test duration 52779 ms
+Thread ForkJoinPool-1-worker-4: Test finished iteration2.ui.userCanChangeNameTest(), test duration 4390 ms
+Thread ForkJoinPool-1-worker-12: Test finished iteration2.ui.userCanNotChangeNameToInvalidValueTest(), test duration 4562 ms
+Thread ForkJoinPool-1-worker-8: Test started iteration2.ui.userCanNotDepositWithoutEnteringAmountTest()
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.ui.userCanNotDepositWithoutEnteringAmountTest(), test duration 1364 ms
+Thread ForkJoinPool-1-worker-11: Test started iteration2.ui.userCanTransferWithUsernameTest()
+Thread ForkJoinPool-1-worker-11: Test finished iteration2.ui.userCanTransferWithUsernameTest(), test duration 3757 ms
+Thread ForkJoinPool-1-worker-3: Test started iteration1.api.[4] abc%, Password33$, USER, username, [Username must contain only letters, digits, dashes, underscores, and dots]
+Thread ForkJoinPool-1-worker-4: Test started iteration1.api.adminCanGenerateAuthTokenTest()
+Thread ForkJoinPool-1-worker-5: Test started iteration1.api.adminCanCreateUserWithCorrectData()
+Thread ForkJoinPool-1-worker-4: Test finished iteration1.api.adminCanGenerateAuthTokenTest(), test duration 2035 ms
+Thread ForkJoinPool-1-worker-4: Test started iteration1.api.userCanGenerateAuthTokenTest()
+Thread ForkJoinPool-1-worker-2: Test started iteration1.api.userCanCreateAccountTest()
+Thread ForkJoinPool-1-worker-2: Test finished iteration1.api.userCanCreateAccountTest(), test duration 241 ms
+Thread ForkJoinPool-1-worker-5: Test finished iteration1.api.adminCanCreateUserWithCorrectData(), test duration 1329 ms
+Thread ForkJoinPool-1-worker-5: Test started iteration1.api.[1]    , Password33$, USER, username, [Username cannot be blank, Username must contain only letters, digits, dashes, underscores, and dots]
+Thread ForkJoinPool-1-worker-3: Test finished iteration1.api.[4] abc%, Password33$, USER, username, [Username must contain only letters, digits, dashes, underscores, and dots], test duration 2670 ms
+Thread ForkJoinPool-1-worker-6: Test started iteration1.api.[2] ab, Password33$, USER, username, [Username must be between 3 and 15 characters]
+Thread ForkJoinPool-1-worker-5: Test finished iteration1.api.[1]    , Password33$, USER, username, [Username cannot be blank, Username must contain only letters, digits, dashes, underscores, and dots], test duration 149 ms
+Thread ForkJoinPool-1-worker-4: Test finished iteration1.api.userCanGenerateAuthTokenTest(), test duration 738 ms
+Thread ForkJoinPool-1-worker-5: Test started iteration1.api.[3] abc$, Password33$, USER, username, [Username must contain only letters, digits, dashes, underscores, and dots]
+Thread ForkJoinPool-1-worker-7: Test started iteration1.ui.adminCanLoginWithCorrectDataTest()
+Thread ForkJoinPool-1-worker-6: Test finished iteration1.api.[2] ab, Password33$, USER, username, [Username must be between 3 and 15 characters], test duration 159 ms
+Thread ForkJoinPool-1-worker-5: Test finished iteration1.api.[3] abc$, Password33$, USER, username, [Username must contain only letters, digits, dashes, underscores, and dots], test duration 183 ms
+Thread ForkJoinPool-1-worker-5: Test started iteration1.ui.userCanLoginWithCorrectDataTest()
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[1] 
+Thread ForkJoinPool-1-worker-9: Test started iteration2.api.[2] 4999.99
+Thread ForkJoinPool-1-worker-10: Test started iteration2.api.userCanNotDepositToAnotherUserAccountTest()
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.[1] 10000.01, Transfer amount cannot exceed 10000
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[1] , test duration 1514 ms
+Thread ForkJoinPool-1-worker-10: Test finished iteration2.api.userCanNotDepositToAnotherUserAccountTest(), test duration 1914 ms
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[2]    
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.[1] 10000.01, Transfer amount cannot exceed 10000, test duration 2214 ms
+Thread ForkJoinPool-1-worker-9: Test finished iteration2.api.[2] 4999.99, test duration 2391 ms
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[2]    , test duration 591 ms
+Thread ForkJoinPool-1-worker-10: Test started iteration2.api.userCanNotDepositToNotExistsAccountTest()
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.[2] 0.0, Transfer amount must be at least 0.01
+Thread ForkJoinPool-1-worker-9: Test started iteration2.api.[3] 0.01
+Thread ForkJoinPool-1-worker-10: Test finished iteration2.api.userCanNotDepositToNotExistsAccountTest(), test duration 619 ms
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[3] Alsu1 test2
+Thread ForkJoinPool-1-worker-1: Test started iteration2.ui.userCanNotTransferWithoutSelectingSenderAccountTest()
+Thread ForkJoinPool-1-worker-9: Test finished iteration2.api.[3] 0.01, test duration 1082 ms
+Thread ForkJoinPool-1-worker-10: Test started iteration2.api.[3] 5000.01, Deposit amount cannot exceed 5000
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[3] Alsu1 test2, test duration 776 ms
+Thread ForkJoinPool-1-worker-4: Test started iteration1.ui.adminCannotCreateUserWithInvalidDataTest()
+Thread ForkJoinPool-1-worker-6: Test started iteration1.ui.adminCanCreateUserTest()
+Thread ForkJoinPool-1-worker-2: Test started iteration1.ui.userCanCreateAccountTest()
+Thread ForkJoinPool-1-worker-9: Test started iteration2.api.[1] 5000.0
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[4] Alsu!@#$%%^&*() test_+/,<>?}{[]';/.!
+Thread ForkJoinPool-1-worker-10: Test finished iteration2.api.[3] 5000.01, Deposit amount cannot exceed 5000, test duration 1175 ms
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.[2] 0.0, Transfer amount must be at least 0.01, test duration 2610 ms
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[4] Alsu!@#$%%^&*() test_+/,<>?}{[]';/.!, test duration 779 ms
+Thread ForkJoinPool-1-worker-9: Test finished iteration2.api.[1] 5000.0, test duration 995 ms
+Thread ForkJoinPool-1-worker-2: Test finished iteration1.ui.userCanCreateAccountTest(), test duration 1252 ms
+Thread ForkJoinPool-1-worker-10: Test started iteration2.api.[2] -0.01, Deposit amount must be at least 0.01
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.[3] -0.01, Transfer amount must be at least 0.01
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[5] Alsutest
+Thread ForkJoinPool-1-worker-9: Test started iteration2.api.[1] 0.0, Deposit amount must be at least 0.01
+Thread ForkJoinPool-1-worker-10: Test finished iteration2.api.[2] -0.01, Deposit amount must be at least 0.01, test duration 784 ms
+Thread ForkJoinPool-1-worker-2: Test started iteration2.ui.userCanNotChangeNameToInvalidValueTest()
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[5] Alsutest, test duration 622 ms
+Thread ForkJoinPool-1-worker-9: Test finished iteration2.api.[1] 0.0, Deposit amount must be at least 0.01, test duration 766 ms
+Thread ForkJoinPool-1-worker-1: Test finished iteration2.ui.userCanNotTransferWithoutSelectingSenderAccountTest(), test duration 3391 ms
+Thread ForkJoinPool-1-worker-7: Test finished iteration1.ui.adminCanLoginWithCorrectDataTest(), test duration 7747 ms
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[6] Alsu  test
+Thread ForkJoinPool-1-worker-10: Test started iteration2.api.userCanChangeNameSeveralTimesTest()
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.[3] -0.01, Transfer amount must be at least 0.01, test duration 1891 ms
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[6] Alsu  test, test duration 452 ms
+Thread ForkJoinPool-1-worker-4: Test finished iteration1.ui.adminCannotCreateUserWithInvalidDataTest(), test duration 3902 ms
+Thread ForkJoinPool-1-worker-1: Test started iteration2.ui.userCanTransferWithoutNameIfNameWasNotChangedTest()
+Thread ForkJoinPool-1-worker-10: Test finished iteration2.api.userCanChangeNameSeveralTimesTest(), test duration 424 ms
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.userCanNotTransferToTheSameAccountTest()
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.[7] Alsu_test
+Thread ForkJoinPool-1-worker-6: Test finished iteration1.ui.adminCanCreateUserTest(), test duration 3901 ms
+Thread ForkJoinPool-1-worker-10: Test started iteration2.api.[2] A S
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.[7] Alsu_test, test duration 357 ms
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.userCanNotTransferToTheSameAccountTest(), test duration 475 ms
+Thread ForkJoinPool-1-worker-10: Test finished iteration2.api.[2] A S, test duration 275 ms
+Thread ForkJoinPool-1-worker-6: Test started iteration2.ui.userCanNotDepositInvalidValueTest()
+Thread ForkJoinPool-1-worker-4: Test started iteration2.ui.userCanNotChangeNameToEmptyValueTest()
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.userCanChangeNameToTheSameNameTest()
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.userCanNotTransferFromAnotherUserAccountTest()
+Thread ForkJoinPool-1-worker-10: Test started iteration2.api.[3] Алсу Шараф
+Thread ForkJoinPool-1-worker-10: Test finished iteration2.api.[3] Алсу Шараф, test duration 212 ms
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.userCanChangeNameToTheSameNameTest(), test duration 412 ms
+Thread ForkJoinPool-1-worker-10: Test started iteration2.api.[1] Alsu Sharaf
+Thread ForkJoinPool-1-worker-8: Test started iteration2.api.userCannotChangeNameToNullTest()
+Thread ForkJoinPool-1-worker-10: Test finished iteration2.api.[1] Alsu Sharaf, test duration 294 ms
+Thread ForkJoinPool-1-worker-12: Test started iteration2.api.userCanNotTransferToNotExistsAccountTest()
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.api.userCannotChangeNameToNullTest(), test duration 289 ms
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.userCanNotTransferFromAnotherUserAccountTest(), test duration 1194 ms
+Thread ForkJoinPool-1-worker-6: Test finished iteration2.ui.userCanNotDepositInvalidValueTest(), test duration 1614 ms
+Thread ForkJoinPool-1-worker-12: Test finished iteration2.api.userCanNotTransferToNotExistsAccountTest(), test duration 612 ms
+Thread ForkJoinPool-1-worker-13: Test started iteration2.api.[3] 0.01
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.userCanNotTransferValueGreaterThanBalanceTest()
+Thread ForkJoinPool-1-worker-12: Test started iteration2.api.userCanTransferValueEqualToBalanceToAnotherUserAccountTest()
+Thread ForkJoinPool-1-worker-6: Test started iteration2.ui.userCanNotDepositWithEmptyValuesTest()
+Thread ForkJoinPool-1-worker-1: Test finished iteration2.ui.userCanTransferWithoutNameIfNameWasNotChangedTest(), test duration 3113 ms
+Thread ForkJoinPool-1-worker-6: Test finished iteration2.ui.userCanNotDepositWithEmptyValuesTest(), test duration 441 ms
+Thread ForkJoinPool-1-worker-2: Test finished iteration2.ui.userCanNotChangeNameToInvalidValueTest(), test duration 4736 ms
+Thread ForkJoinPool-1-worker-1: Test started iteration2.ui.userCanTransferWithNameAfterNameChangingTest()
+Thread ForkJoinPool-1-worker-4: Test finished iteration2.ui.userCanNotChangeNameToEmptyValueTest(), test duration 2970 ms
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.userCanNotTransferValueGreaterThanBalanceTest(), test duration 1020 ms
+Thread ForkJoinPool-1-worker-13: Test finished iteration2.api.[3] 0.01, test duration 1112 ms
+Thread ForkJoinPool-1-worker-12: Test finished iteration2.api.userCanTransferValueEqualToBalanceToAnotherUserAccountTest(), test duration 1085 ms
+Thread ForkJoinPool-1-worker-6: Test started iteration2.ui.userCanDepositTest()
+Thread ForkJoinPool-1-worker-4: Test started iteration2.api.[1] 10000.0
+Thread ForkJoinPool-1-worker-3: Test started iteration2.api.userCanNotTransferFromNotExistsAccountTest()
+Thread ForkJoinPool-1-worker-13: Test started iteration2.api.[2] 9999.99
+Thread ForkJoinPool-1-worker-3: Test finished iteration2.api.userCanNotTransferFromNotExistsAccountTest(), test duration 612 ms
+Thread ForkJoinPool-1-worker-4: Test finished iteration2.api.[1] 10000.0, test duration 1395 ms
+Thread ForkJoinPool-1-worker-13: Test finished iteration2.api.[2] 9999.99, test duration 1410 ms
+Thread ForkJoinPool-1-worker-6: Test finished iteration2.ui.userCanDepositTest(), test duration 2191 ms
+Thread ForkJoinPool-1-worker-1: Test finished iteration2.ui.userCanTransferWithNameAfterNameChangingTest(), test duration 3331 ms
+Thread ForkJoinPool-1-worker-9: Test started iteration2.ui.userCanNotDepositWithoutEnteringAmountTest()
+Thread ForkJoinPool-1-worker-9: Test finished iteration2.ui.userCanNotDepositWithoutEnteringAmountTest(), test duration 1345 ms
+Thread ForkJoinPool-1-worker-5: Test finished iteration1.ui.userCanLoginWithCorrectDataTest(), test duration 50976 ms
+Thread ForkJoinPool-1-worker-11: Test started iteration2.ui.userCanChangeNameTest()
+Thread ForkJoinPool-1-worker-11: Test finished iteration2.ui.userCanChangeNameTest(), test duration 5310 ms
+Thread ForkJoinPool-1-worker-10: Test started iteration2.ui.userCanNotDepositWithoutSelectingAccountTest()
+Thread ForkJoinPool-1-worker-8: Test started iteration2.ui.userCanTransferWithUsernameTest()
+Thread ForkJoinPool-1-worker-10: Test finished iteration2.ui.userCanNotDepositWithoutSelectingAccountTest(), test duration 947 ms
+Thread ForkJoinPool-1-worker-8: Test finished iteration2.ui.userCanTransferWithUsernameTest(), test duration 3763 ms

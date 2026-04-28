@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public class SessionStorage {
-    private static final SessionStorage INSTANCE = new SessionStorage();
+    private static final ThreadLocal<SessionStorage> INSTANCE = ThreadLocal.withInitial(SessionStorage::new);
     private final LinkedHashMap<CreateUserRequest, UserSteps> userStepMap = new LinkedHashMap<>();
 
     private SessionStorage() {
@@ -16,16 +16,16 @@ public class SessionStorage {
 
     public static void addUsers(List<CreateUserRequest> users) {
         for (CreateUserRequest user : users) {
-            INSTANCE.userStepMap.put(user, new UserSteps(user));
+            INSTANCE.get().userStepMap.put(user, new UserSteps(user));
         }
     }
 
     public static void addUser(CreateUserRequest user) {
-        INSTANCE.userStepMap.put(user, new UserSteps(user));
+        INSTANCE.get().userStepMap.put(user, new UserSteps(user));
     }
 
     public static CreateUserRequest getUser(int index) {
-        return new ArrayList<>(INSTANCE.userStepMap.keySet()).get(index);
+        return new ArrayList<>(INSTANCE.get().userStepMap.keySet()).get(index);
     }
 
     public static CreateUserRequest getUser() {
@@ -33,7 +33,7 @@ public class SessionStorage {
     }
 
     public static UserSteps getSteps(int index) {
-        return new ArrayList<>(INSTANCE.userStepMap.values()).get(index);
+        return new ArrayList<>(INSTANCE.get().userStepMap.values()).get(index);
     }
 
     public static UserSteps getSteps() {
@@ -41,10 +41,10 @@ public class SessionStorage {
     }
 
     public static void clear() {
-        INSTANCE.userStepMap.clear();
+        INSTANCE.get().userStepMap.clear();
     }
 
     public static LinkedHashMap<CreateUserRequest, UserSteps> getUserStepMap() {
-        return INSTANCE.userStepMap;
+        return INSTANCE.get().userStepMap;
     }
 }
