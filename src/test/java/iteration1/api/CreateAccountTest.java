@@ -1,19 +1,21 @@
 package iteration1.api;
 
-import models.admin.CreateUserRequest;
+import api.models.admin.CreateUserRequest;
+import baseTests.BaseTest;
+import common.annotations.UserApiSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
-import requests.skeleton.Endpoint;
-import requests.skeleton.requesters.CrudRequester;
-import requests.steps.AdminSteps;
-import specs.RequestSpecs;
-import specs.ResponseSpecs;
+import api.requests.skeleton.Endpoint;
+import api.requests.skeleton.requesters.CrudRequester;
+import api.specs.RequestSpecs;
+import api.specs.ResponseSpecs;
 
 public class CreateAccountTest extends BaseTest {
     @Test
+    @UserApiSession
     public void userCanCreateAccountTest() {
-        CreateUserRequest userRequest = AdminSteps.createUser();
-
-        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        CreateUserRequest user = SessionStorage.getUser();
+        new CrudRequester(RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
                 Endpoint.ACCOUNTS,
                 ResponseSpecs.entityWasCreated())
                 .post();

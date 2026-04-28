@@ -1,20 +1,23 @@
 package iteration2.api;
 
-import generators.RandomData;
-import models.comparison.UserNameComparing;
-import models.customer.UpdateProfileRequest;
-import models.customer.UpdateProfileResponse;
-import models.customer.GetUserResponse;
+import api.generators.RandomData;
+import api.models.admin.CreateUserRequest;
+import api.models.comparison.UserNameComparing;
+import api.models.customer.UpdateProfileRequest;
+import api.models.customer.UpdateProfileResponse;
+import api.models.customer.GetUserResponse;
+import baseTests.BaseTest;
+import common.annotations.UserApiSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import requests.skeleton.Endpoint;
-import requests.skeleton.requesters.CrudRequester;
-import requests.skeleton.requesters.ValidatedCrudRequester;
-import requests.steps.UserSteps;
-import models.Messages;
-import specs.RequestSpecs;
-import specs.ResponseSpecs;
+import api.requests.skeleton.Endpoint;
+import api.requests.skeleton.requesters.CrudRequester;
+import api.requests.skeleton.requesters.ValidatedCrudRequester;
+import api.models.Messages;
+import api.specs.RequestSpecs;
+import api.specs.ResponseSpecs;
 
 public class ChangeUserNameTest extends BaseTest {
     /*
@@ -24,56 +27,62 @@ public class ChangeUserNameTest extends BaseTest {
      */
     @ParameterizedTest
     @ValueSource(strings = {"Alsu Sharaf", "A S", "Алсу Шараф"})
+    @UserApiSession
     public void userCanChangeNameTest(String name) {
+        CreateUserRequest user = SessionStorage.getUser();
         UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
                 .name(name)
                 .build();
         UpdateProfileResponse updateProfileResponse = new ValidatedCrudRequester<UpdateProfileResponse>
-                (RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                (RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
                         Endpoint.UPDATE_CUSTOMER_PROFILE,
                         ResponseSpecs.requestReturnsOK())
                 .update(updateProfileRequest);
 
-        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
         softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileResponse)).isTrue();
         softly.assertThat(getUserResponse.getName()).isEqualTo(updateProfileRequest.getName());
-        softly.assertThat(getUserResponse.getUsername()).isEqualTo(userRequest.getUsername());
+        softly.assertThat(getUserResponse.getUsername()).isEqualTo(user.getUsername());
     }
 
     @Test
+    @UserApiSession
     public void userCanChangeNameToTheSameNameTest() {
+        CreateUserRequest user = SessionStorage.getUser();
         String newName = RandomData.getName();
         UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
                 .name(newName)
                 .build();
-        UpdateProfileResponse updateProfileResponseFirst = new ValidatedCrudRequester<UpdateProfileResponse>
-                (RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        UpdateProfileResponse updateProfileFirst = new ValidatedCrudRequester<UpdateProfileResponse>
+                (RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
                         Endpoint.UPDATE_CUSTOMER_PROFILE,
                         ResponseSpecs.requestReturnsOK())
                 .update(updateProfileRequest);
 
-        softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileResponseFirst)).isTrue();
+        softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileFirst)).isTrue();
 
-        UpdateProfileResponse updateProfileResponseSecond = new ValidatedCrudRequester<UpdateProfileResponse>
-                (RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        UpdateProfileResponse updateProfileSecond = new ValidatedCrudRequester<UpdateProfileResponse>
+                (RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
                         Endpoint.UPDATE_CUSTOMER_PROFILE,
                         ResponseSpecs.requestReturnsOK())
                 .update(updateProfileRequest);
 
-        softly.assertThat(updateProfileResponseSecond).isEqualTo(updateProfileResponseFirst);
-        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        softly.assertThat(updateProfileSecond).isEqualTo(updateProfileFirst);
+        GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
         softly.assertThat(getUserResponse.getName()).isEqualTo(updateProfileRequest.getName());
-        softly.assertThat(getUserResponse.getUsername()).isEqualTo(userRequest.getUsername());
+        softly.assertThat(getUserResponse.getUsername()).isEqualTo(user.getUsername());
     }
 
     @Test
+    @UserApiSession
     public void userCanChangeNameSeveralTimesTest() {
+        CreateUserRequest user = SessionStorage.getUser();
         String firstName = RandomData.getName();
         UpdateProfileRequest updateProfileRequestFirst = UpdateProfileRequest.builder()
                 .name(firstName)
                 .build();
         UpdateProfileResponse updateProfileResponseFirst = new ValidatedCrudRequester<UpdateProfileResponse>
-                (RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                (RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
                         Endpoint.UPDATE_CUSTOMER_PROFILE,
                         ResponseSpecs.requestReturnsOK())
                 .update(updateProfileRequestFirst);
@@ -85,13 +94,13 @@ public class ChangeUserNameTest extends BaseTest {
                 .name(secondName)
                 .build();
         UpdateProfileResponse updateProfileResponseSecond = new ValidatedCrudRequester<UpdateProfileResponse>
-                (RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                (RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
                         Endpoint.UPDATE_CUSTOMER_PROFILE,
                         ResponseSpecs.requestReturnsOK())
                 .update(updateProfileRequestSecond);
 
         softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequestSecond, updateProfileResponseSecond)).isTrue();
-        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
         softly.assertThat(getUserResponse.getName()).isEqualTo(secondName);
     }
 
@@ -106,34 +115,38 @@ public class ChangeUserNameTest extends BaseTest {
      */
     @ParameterizedTest
     @ValueSource(strings = {"", "   ", "Alsu1 test2", "Alsu!@#$%%^&*() test_+/,<>?}{[]';/.!", "Alsutest", "Alsu  test", "Alsu_test"})
+    @UserApiSession
     public void userCannotChangeNameToInvalidValueTest(String name) {
-        GetUserResponse getUserResponseBefore = UserSteps.getUserResponse(userRequest);
+        CreateUserRequest user = SessionStorage.getUser();
+        GetUserResponse getUserResponseBefore = SessionStorage.getSteps().getUserResponse();
 
         UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
                 .name(name)
                 .build();
-        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
                 Endpoint.UPDATE_CUSTOMER_PROFILE,
                 ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
                 .update(updateProfileRequest);
 
-        GetUserResponse getUserResponseAfter = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponseAfter = SessionStorage.getSteps().getUserResponse();
         softly.assertThat(getUserResponseAfter).isEqualTo(getUserResponseBefore);
     }
 
     @Test
+    @UserApiSession
     public void userCannotChangeNameToNullTest() {
-        GetUserResponse getUserResponseBefore = UserSteps.getUserResponse(userRequest);
+        CreateUserRequest user = SessionStorage.getUser();
+        GetUserResponse getUserResponseBefore = SessionStorage.getSteps().getUserResponse();
 
         UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder()
                 .name(null)
                 .build();
-        new CrudRequester(RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+        new CrudRequester(RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
                 Endpoint.UPDATE_CUSTOMER_PROFILE,
                 ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
                 .update(updateProfileRequest);
 
-        GetUserResponse getUserResponseAfter = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponseAfter = SessionStorage.getSteps().getUserResponse();
         softly.assertThat(getUserResponseAfter).isEqualTo(getUserResponseBefore);
     }
 }
