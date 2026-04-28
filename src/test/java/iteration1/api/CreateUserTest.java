@@ -1,0 +1,72 @@
+package iteration1.api;
+
+import api.generators.RandomData;
+import api.models.admin.CreateUserRequest;
+import api.models.admin.CreateUserResponse;
+import api.models.UserRole;
+import api.models.comparison.ModelAssertions;
+import api.requests.steps.AdminSteps;
+import baseTests.BaseTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import api.requests.skeleton.Endpoint;
+import api.requests.skeleton.requesters.CrudRequester;
+import api.requests.skeleton.requesters.ValidatedCrudRequester;
+import api.specs.RequestSpecs;
+import api.specs.ResponseSpecs;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+public class CreateUserTest extends BaseTest {
+    @Test
+    public void adminCanCreateUserWithCorrectData() {
+        CreateUserRequest createUserRequest = CreateUserRequest.builder()
+                .username(RandomData.getUsername())
+                .password(RandomData.getPassword())
+                .role(UserRole.USER.toString())
+                .build();
+
+        CreateUserResponse createUserResponse = new ValidatedCrudRequester<CreateUserResponse>
+                (RequestSpecs.adminSpec(),
+                        Endpoint.ADMIN_USER,
+                        ResponseSpecs.entityWasCreated())
+                .post(createUserRequest);
+
+        ModelAssertions.assertThatModels(createUserRequest, createUserResponse).match();
+        List<CreateUserResponse> createdUsers = AdminSteps.getAllUsers();
+        softly.assertThat(createdUsers.contains(createUserResponse)).isTrue();
+        AdminSteps.deleteUserByCreateUserRequest(createUserRequest);
+    }
+
+    public static Stream<Arguments> userInvalidData() {
+        return Stream.of(
+                // username field validation
+                Arguments.of("   ", "Password33$", "USER", "username", List.of("Username cannot be blank", "Username must contain only letters, digits, dashes, underscores, and dots")),
+                Arguments.of("ab", "Password33$", "USER", "username", List.of("Username must be between 3 and 15 characters")),
+                Arguments.of("abc$", "Password33$", "USER", "username", List.of("Username must contain only letters, digits, dashes, underscores, and dots")),
+                Arguments.of("abc%", "Password33$", "USER", "username", List.of("Username must contain only letters, digits, dashes, underscores, and dots"))
+        );
+
+    }
+
+    @MethodSource("userInvalidData")
+    @ParameterizedTest
+    public void adminCanNotCreateUserWithInvalidData(String username, String password, String role, String errorKey, List<String> errorValues) {
+        CreateUserRequest createUserRequest = CreateUserRequest.builder()
+                .username(username)
+                .password(password)
+                .role(role)
+                .build();
+        new CrudRequester(RequestSpecs.adminSpec(),
+                Endpoint.ADMIN_USER,
+                ResponseSpecs.requestReturnsBadRequest(errorKey, errorValues))
+                .post(createUserRequest);
+        List<CreateUserResponse> usersWithSameName = AdminSteps.getAllUsers().stream()
+                .filter(user -> user.getUsername().equals(username) && user.getRole().equals(role))
+                .toList();
+        softly.assertThat(usersWithSameName).hasSize(0);
+    }
+}
