@@ -1,6 +1,11 @@
 package iteration1.api;
 
+import api.dao.AccountDao;
+import api.dao.comparison.DaoAndModelAssertions;
+import api.models.accounts.CreateAccountResponse;
 import api.models.admin.CreateUserRequest;
+import api.requests.skeleton.requesters.ValidatedCrudRequester;
+import api.requests.steps.DataBaseSteps;
 import baseTests.BaseTest;
 import common.annotations.UserApiSession;
 import common.storage.SessionStorage;
@@ -15,9 +20,14 @@ public class CreateAccountTest extends BaseTest {
     @UserApiSession
     public void userCanCreateAccountTest() {
         CreateUserRequest user = SessionStorage.getUser();
-        new CrudRequester(RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
-                Endpoint.ACCOUNTS,
-                ResponseSpecs.entityWasCreated())
+        CreateAccountResponse createAccountResponse = new ValidatedCrudRequester<CreateAccountResponse>
+                (RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+                        Endpoint.ACCOUNTS,
+                        ResponseSpecs.entityWasCreated())
                 .post();
+
+        AccountDao accountDao = DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
+
+        DaoAndModelAssertions.assertThat(createAccountResponse, accountDao).match();
     }
 }
