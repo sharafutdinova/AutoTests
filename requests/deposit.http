@@ -1,0 +1,104 @@
+### Positive test User can deposit value 5000
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "id": 1,
+  "balance": 5000
+}
+
+### Checking that deposit successful
+GET http://localhost:4111/api/v1/accounts/1/transactions
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+### Positive test User can deposit value 4999.99 to the same account
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "id": 1,
+  "balance": 4999.99
+}
+
+### Positive test User can deposit value 0.01 to the new created account
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "id": 2,
+  "balance": 0.01
+}
+
+### Negative test User cannot deposit 0
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "id": 2,
+  "balance": 0
+}
+
+### Negative test User cannot deposit negative value
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "id": 2,
+  "balance": -0.01
+}
+
+### Negative test User cannot deposit value more than 5000
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "id": 2,
+  "balance": 5000.01
+}
+
+### Negative test User cannot deposit value with three digits after dot
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "id": 2,
+  "balance": 500.999
+}
+
+### Negative test User cannot deposit to not exists account
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "id": 20,
+  "balance": 400
+}
+
+### Negative test User cannot deposit to another user account
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "id": 3,
+  "balance": 500
+}
+
+### Negative test User cannot deposit with wrong token
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic QWizdTpUZXN0MTIzIQ==
+
+{
+  "id": 1,
+  "balance": 124
+}

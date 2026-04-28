@@ -1,0 +1,136 @@
+### Positive test User can transfer 10000 to self account
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 2,
+  "receiverAccountId": 1,
+  "amount": 10000
+}
+
+### Checking that transfer successful
+GET http://localhost:4111/api/v1/accounts/2/transactions
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+### Positive test User can transfer 9999.99 to another user account
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 1,
+  "receiverAccountId": 3,
+  "amount": 9999.99
+}
+
+### Positive test User can transfer value equals to balance to self account
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 1,
+  "receiverAccountId": 3,
+  "amount": 9999
+}
+
+### Positive test User can transfer 1 to another account (value is less than balance)
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 1,
+  "receiverAccountId": 2,
+  "amount": 0.01
+}
+
+### Negative test User cannot transfer value is more than balance in account
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 1,
+  "receiverAccountId": 2,
+  "amount": 9000
+}
+
+### Negative test User cannot transfer value to the same account
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 1,
+  "receiverAccountId": 1,
+  "amount": 10
+}
+
+### Negative test User cannot transfer 0
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 1,
+  "receiverAccountId": 2,
+  "amount": 0
+}
+
+### Negative test User cannot transfer negative value
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 1,
+  "receiverAccountId": 2,
+  "amount": -0.01
+}
+
+### Negative test User cannot transfer value more than 10000
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 1,
+  "receiverAccountId": 2,
+  "amount": 10000.01
+}
+
+### Negative test User cannot transfer value to not exists account
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 1,
+  "receiverAccountId": 20,
+  "amount": 100
+}
+
+### Negative test User cannot transfer value from not exists account
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 10,
+  "receiverAccountId": 2,
+  "amount": 100
+}
+
+### Negative test User cannot transfer value from another user account
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "senderAccountId": 3,
+  "receiverAccountId": 2,
+  "amount": 100
+}

@@ -1,0 +1,103 @@
+### Positive test User change name to name contains two words
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "name": "Alsu Sharaf"
+}
+
+### Checking that name is changed
+GET http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+### Positive test User change name to name contains two words with length 1 with russian letters
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "name": "а ш"
+}
+
+### Positive test User change name to the same name
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "name": "а ш"
+}
+
+### Negative test User cannot change name to null
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "name": null
+}
+
+### Negative test User cannot change name to empty value
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "name": ""
+}
+
+### Negative test User cannot change name to value contains number
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "name": "Alsu1 test2"
+}
+
+### Negative test User cannot change name to value contains special symbol
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "name": "Alsu!@#$%%^&*() test_+/,<>?}{[]';/.!"
+}
+
+### Negative test User cannot change name to value contains only one word
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "name": "Alsutest"
+}
+
+### Negative test User cannot change name to value separated by two spaces
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "name": "Alsu  test"
+}
+
+### Negative test User cannot change name to value separated by _
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWxzdTpUZXN0MTIzIQ==
+
+{
+  "name": "Alsu_test"
+}
+
+### Negative test User cannot change name with wrong token
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic QWczdTpUZXN0MTIzIQ==
+
+{
+  "name": "Alsu test"
+}
