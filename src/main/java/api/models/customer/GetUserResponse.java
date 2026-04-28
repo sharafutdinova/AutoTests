@@ -1,14 +1,12 @@
 package api.models.customer;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import api.models.Account;
+import api.models.accounts.CreateAccountResponse;
+import lombok.*;
 import api.models.BaseModel;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,5 +17,5 @@ public class GetUserResponse extends BaseModel {
     private String password;
     private String name;
     private String role;
-    private List<Account> accounts;
+    private List<CreateAccountResponse> accounts;
 }

@@ -3,10 +3,10 @@ package ui.pages;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import common.utils.RetryUtils;
 import lombok.Getter;
 
 import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.sleep;
 
 @Getter
 public class EditProfilePage extends BasePage<EditProfilePage> {
@@ -19,10 +19,8 @@ public class EditProfilePage extends BasePage<EditProfilePage> {
     }
 
     public EditProfilePage changeName(String newName) {
-        newNameInput.shouldBe(Condition.visible, Condition.enabled).clear();
-        sleep(500);
-        newNameInput.sendKeys(newName);
-        saveButton.click();
+        RetryUtils.sendKeysRetry(newNameInput, newName, 3, 500);
+        saveButton.shouldBe(Condition.enabled).click();
         return this;
     }
 }

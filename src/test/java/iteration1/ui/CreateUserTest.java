@@ -1,49 +1,51 @@
 package iteration1.ui;
 
 import api.requests.steps.AdminSteps;
+import baseTests.BaseUiTest;
 import com.codeborne.selenide.*;
 import api.generators.RandomData;
 import api.models.UserRole;
 import api.models.admin.CreateUserRequest;
 import api.models.admin.CreateUserResponse;
 import api.models.comparison.ModelAssertions;
+import common.annotations.AdminSession;
 import org.junit.jupiter.api.Test;
+import ui.elements.UserBage;
 import ui.pages.AdminPanel;
 import ui.pages.BankAlert;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CreateUserTest extends BaseUiTest {
     @Test
+    @AdminSession
     public void adminCanCreateUserTest() {
-        CreateUserRequest admin = CreateUserRequest.getAdmin();
-        authAsUser(admin);
-
         CreateUserRequest newUser = new CreateUserRequest(RandomData.getUsername(), RandomData.getPassword(), UserRole.USER.toString());
-        new AdminPanel().open().createUser(newUser.getUsername(), newUser.getPassword())
+        UserBage newUserBage = new AdminPanel().open()
+                .createUser(newUser.getUsername(), newUser.getPassword())
                 .checkAlertMessageAndAccept(BankAlert.USER_CREATED_SUCCESSFULLY.getMessage())
-                .getAllUsers().findBy(Condition.exactText(newUser.getUsername() + "\nUSER")).shouldBe(Condition.visible);
+                .findUserByUsername(newUser.getUsername());
+
+        assertThat(newUserBage)
+                .as("UserBage should exist on Dashboard after user creation").isNotNull();
 
         CreateUserResponse createdUser = AdminSteps.getAllUsers().stream()
                 .filter(user -> user.getUsername().equals(newUser.getUsername()))
-                .findFirst().get();
+                .findFirst().orElse(null);
 
         ModelAssertions.assertThatModels(newUser, createdUser).match();
     }
 
     @Test
+    @AdminSession
     public void adminCannotCreateUserWithInvalidDataTest() {
-        // ШАГ 1: админ залогинился в банке
-        CreateUserRequest admin = CreateUserRequest.getAdmin();
-        authAsUser(admin);
-
         CreateUserRequest newUser = new CreateUserRequest(RandomData.getUsername(), RandomData.getPassword(), UserRole.USER.toString());
         newUser.setUsername("a");
 
-        new AdminPanel().open().createUser(newUser.getUsername(), newUser.getPassword())
+        assertTrue(new AdminPanel().open().createUser(newUser.getUsername(), newUser.getPassword())
                 .checkAlertMessageAndAccept(BankAlert.USERNAME_MUST_BE_BETWEEN_3_AND_15_CHARACTERS.getMessage())
-                .getAllUsers().findBy(Condition.exactText(newUser.getUsername() + "\nUSER")).shouldNotBe(Condition.exist);
-
+                .getAllUsers().stream().noneMatch(userBage -> userBage.getUsername().equals(newUser.getUsername())));
 
         long usersWithSameUsernameAsNewUser = AdminSteps.getAllUsers().stream()
                 .filter(user -> user.getUsername().equals(newUser.getUsername()))

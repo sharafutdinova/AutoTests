@@ -10,7 +10,6 @@ import api.models.authentification.LoginUserRequest;
 import api.models.authentification.LoginUserResponse;
 import api.models.customer.UpdateProfileRequest;
 import api.models.customer.UpdateProfileResponse;
-import api.models.customer.GetAccountsResponse;
 import api.models.customer.GetUserResponse;
 
 @AllArgsConstructor
@@ -23,7 +22,7 @@ public enum Endpoint {
     LOGIN("/auth/login", LoginUserRequest.class, LoginUserResponse.class),
     GET_CUSTOMER_PROFILE("/customer/profile", BaseModel.class, GetUserResponse.class),
     UPDATE_CUSTOMER_PROFILE("/customer/profile", UpdateProfileRequest.class, UpdateProfileResponse.class),
-    CUSTOMER_ACCOUNTS("/customer/accounts", BaseModel.class, GetAccountsResponse.class),
+    CUSTOMER_ACCOUNTS("/customer/accounts", BaseModel.class, CreateAccountResponse.class),
     DEPOSIT("/accounts/deposit", DepositRequest.class, DepositResponse.class),
     TRANSFER("/accounts/transfer", TransferRequest.class, TransferResponse.class),
     ACCOUNT_TRANSACTIONS("/accounts/{accountId}/transactions", GetAccountTransactionsRequest.class, GetAccountTransactionsResponse.class);

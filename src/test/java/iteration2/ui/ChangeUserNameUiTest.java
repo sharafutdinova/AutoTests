@@ -1,11 +1,14 @@
 package iteration2.ui;
 
+import baseTests.BaseUiTest;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import api.generators.RandomData;
 import api.models.customer.GetUserResponse;
+import common.annotations.Environments;
+import common.annotations.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
-import api.requests.steps.UserSteps;
 import ui.pages.BankAlert;
 import ui.pages.EditProfilePage;
 import ui.pages.UserDashboard;
@@ -14,9 +17,10 @@ import static com.codeborne.selenide.Condition.visible;
 
 public class ChangeUserNameUiTest extends BaseUiTest {
     @Test
+    @UserSession
+    @Environments({"1920x1080"})
     public void userCanChangeNameTest() {
         String newName = RandomData.getName();
-        authAsUser(userRequest);
         new EditProfilePage().open()
                 .changeName(newName)
                 .checkAlertMessageAndAccept(BankAlert.NAME_UPDATED_SUCCESSFULLY.getMessage());
@@ -28,14 +32,15 @@ public class ChangeUserNameUiTest extends BaseUiTest {
                 .shouldBe(visible)
                 .shouldHave(Condition.text("Welcome, " + newName + "!"));
 
-        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponse = SessionStorage.getSteps()
+                .getUserResponse();
         softly.assertThat(getUserResponse.getName()).isEqualTo(newName);
     }
 
     @Test
+    @UserSession
     public void userCanNotChangeNameToInvalidValueTest() {
         String newName = RandomData.getUsername();
-        authAsUser(userRequest);
         new UserDashboard().open().getNameInHeader().click();
         String nameBefore = new EditProfilePage().getNameInHeader().getText();
         new EditProfilePage().open()
@@ -49,14 +54,14 @@ public class ChangeUserNameUiTest extends BaseUiTest {
                 .shouldBe(visible)
                 .shouldHave(Condition.text("Welcome, " + nameBefore + "!"));
 
-        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
         softly.assertThat(getUserResponse.getName()).isEqualTo(null);
     }
 
     @Test
+    @UserSession
     public void userCanNotChangeNameToEmptyValueTest() {
-        String newName ="";
-        authAsUser(userRequest);
+        String newName = "";
         new UserDashboard().open().getNameInHeader().click();
         String nameBefore = new EditProfilePage().getNameInHeader().getText();
         new EditProfilePage()
@@ -70,7 +75,7 @@ public class ChangeUserNameUiTest extends BaseUiTest {
                 .shouldBe(visible)
                 .shouldHave(Condition.text("Welcome, " + nameBefore + "!"));
 
-        GetUserResponse getUserResponse = UserSteps.getUserResponse(userRequest);
+        GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
         softly.assertThat(getUserResponse.getName()).isEqualTo(null);
     }
 }

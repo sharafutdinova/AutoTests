@@ -3,6 +3,7 @@ package ui.pages;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import common.utils.RetryUtils;
 import lombok.Getter;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -19,25 +20,24 @@ public class DepositPage extends BasePage<DepositPage> {
     }
 
     public DepositPage performDeposit(String accountNumber, double amount) {
-        accountSelect.selectOptionContainingText(accountNumber);
-        amountInput.shouldBe(Condition.visible, Condition.enabled).clear();
-        amountInput.sendKeys(String.valueOf(amount));
-        depositButton.click();
+        RetryUtils.selectOptionRetry(accountSelect, accountNumber, 3, 1000);
+        sendKeys(amountInput, String.valueOf(amount));
+        depositButton.shouldBe(Condition.enabled).click();
         return this;
     }
 
     public DepositPage selectAccount(String accountNumber) {
-        accountSelect.selectOptionContainingText(accountNumber);
+        RetryUtils.selectOptionRetry(accountSelect, accountNumber, 3, 1000);
         return this;
     }
+
     public DepositPage enterAmount(double amount) {
-        amountInput.shouldBe(Condition.visible, Condition.enabled).clear();
-        amountInput.sendKeys(String.valueOf(amount));
+        sendKeys(amountInput, String.valueOf(amount));
         return this;
     }
 
     public DepositPage clickToDeposit() {
-        depositButton.click();
+        depositButton.shouldBe(Condition.enabled).click();
         return this;
     }
 }
