@@ -11,7 +11,6 @@ import common.annotations.UserApiSession;
 import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import api.requests.skeleton.Endpoint;
-import api.requests.skeleton.requesters.CrudRequester;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 

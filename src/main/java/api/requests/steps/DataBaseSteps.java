@@ -1,16 +1,19 @@
 package api.requests.steps;
 
+import api.dao.TransactionDao;
 import api.database.Condition;
 import api.database.DBRequest;
 import api.dao.UserDao;
 import api.dao.AccountDao;
 import api.configs.Config;
+import api.database.Table;
 import common.helpers.StepLogger;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 public class DataBaseSteps {
 
@@ -18,7 +21,7 @@ public class DataBaseSteps {
         return StepLogger.log("Get user from database by username: " + username, () -> {
             return DBRequest.builder()
                     .requestType(DBRequest.RequestType.SELECT)
-                    .table("customers")
+                    .table(Table.CUSTOMERS)
                     .where(Condition.equalTo("username", username))
                     .extractAs(UserDao.class);
         });
@@ -28,7 +31,7 @@ public class DataBaseSteps {
         return StepLogger.log("Get user from database by ID: " + id, () -> {
             return DBRequest.builder()
                     .requestType(DBRequest.RequestType.SELECT)
-                    .table("customers")
+                    .table(Table.CUSTOMERS)
                     .where(Condition.equalTo("id", id))
                     .extractAs(UserDao.class);
         });
@@ -38,7 +41,7 @@ public class DataBaseSteps {
         return StepLogger.log("Get user from database by role: " + role, () -> {
             return DBRequest.builder()
                     .requestType(DBRequest.RequestType.SELECT)
-                    .table("customers")
+                    .table(Table.CUSTOMERS)
                     .where(Condition.equalTo("role", role))
                     .extractAs(UserDao.class);
         });
@@ -48,7 +51,7 @@ public class DataBaseSteps {
         return StepLogger.log("Get account from database by account number: " + accountNumber, () -> {
             return DBRequest.builder()
                     .requestType(DBRequest.RequestType.SELECT)
-                    .table("accounts")
+                    .table(Table.ACCOUNTS)
                     .where(Condition.equalTo("account_number", accountNumber))
                     .extractAs(AccountDao.class);
         });
@@ -58,7 +61,7 @@ public class DataBaseSteps {
         return StepLogger.log("Get account from database by ID: " + id, () -> {
             return DBRequest.builder()
                     .requestType(DBRequest.RequestType.SELECT)
-                    .table("accounts")
+                    .table(Table.ACCOUNTS)
                     .where(Condition.equalTo("id", id))
                     .extractAs(AccountDao.class);
         });
@@ -68,7 +71,7 @@ public class DataBaseSteps {
         return StepLogger.log("Get account from database by customer ID: " + customerId, () -> {
             return DBRequest.builder()
                     .requestType(DBRequest.RequestType.SELECT)
-                    .table("customers")
+                    .table(Table.ACCOUNTS)
                     .where(Condition.equalTo("customer_id", customerId))
                     .extractAs(AccountDao.class);
         });
@@ -96,6 +99,37 @@ public class DataBaseSteps {
             } catch (SQLException e) {
                 throw new RuntimeException("Failed to update account balance", e);
             }
+        });
+    }
+
+    public static TransactionDao getTransactionById(Long id) {
+        return StepLogger.log("Get transaction from database by ID: " + id, () -> {
+            return DBRequest.builder()
+                    .requestType(DBRequest.RequestType.SELECT)
+                    .table(Table.TRANSACTIONS)
+                    .where(Condition.equalTo("id", id))
+                    .extractAs(TransactionDao.class);
+        });
+    }
+
+    public static List<TransactionDao> getTransactionsByAccountId(Long id) {
+        return StepLogger.log("Get transactions from database by account ID: " + id, () -> {
+            return DBRequest.builder()
+                    .requestType(DBRequest.RequestType.SELECT)
+                    .table(Table.TRANSACTIONS)
+                    .where(Condition.equalTo("account_id", id))
+                    .extractListAs(TransactionDao.class);
+        });
+    }
+
+    public static TransactionDao getLastTransactionByAccountId(Long id) {
+        return StepLogger.log("Get transactions from database by account ID: " + id, () -> {
+            return DBRequest.builder()
+                    .requestType(DBRequest.RequestType.SELECT)
+                    .table(Table.TRANSACTIONS)
+                    .where(Condition.equalTo("account_id", id))
+                    .orderByDesc("id")
+                    .extractAs(TransactionDao.class);
         });
     }
 }
