@@ -1,20 +1,20 @@
 package api.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Transaction {
+@EqualsAndHashCode(callSuper = false)
+public class Transaction extends BaseModel {
     private long id;
     private double amount;
     private String type;
     private String timestamp;
+    private String timestampAsString;
     private long relatedAccountId;
+    private double amountAsDouble;
 
     public boolean validateTransaction(TransactionTypes transactionTypes, double amount) {
         boolean isTypeValid = switch (transactionTypes) {
