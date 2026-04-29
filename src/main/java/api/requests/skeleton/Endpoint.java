@@ -25,7 +25,20 @@ public enum Endpoint {
     CUSTOMER_ACCOUNTS("/customer/accounts", BaseModel.class, CreateAccountResponse.class),
     DEPOSIT("/accounts/deposit", DepositRequest.class, DepositResponse.class),
     TRANSFER("/accounts/transfer", TransferRequest.class, TransferResponse.class),
-    ACCOUNT_TRANSACTIONS("/accounts/{accountId}/transactions", GetAccountTransactionsRequest.class, GetAccountTransactionsResponse.class);
+    ACCOUNT_TRANSACTIONS(
+            "/accounts/{accountId}/transactions",
+            GetAccountTransactionsRequest.class, GetAccountTransactionsResponse.class),
+    DEPOSIT_WITH_FRAUD("/accounts/deposit", DepositRequestForFraud.class, DepositResponseForFraud.class),
+    TRANSFER_WITH_FRAUD_CHECK(
+            "/accounts/transfer-with-fraud-check",
+            TransferRequest.class,
+            TransferResponseForFraud.class
+    ),
+    FRAUD_CHECK_STATUS(
+            "/api/v1/accounts/fraud-check/{transactionId}",
+            BaseModel.class,
+            FraudCheckResponse.class
+    );
 
     private final String url;
     private final Class<? extends BaseModel> requestModel;
