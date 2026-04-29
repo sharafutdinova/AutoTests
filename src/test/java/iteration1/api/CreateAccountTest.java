@@ -14,6 +14,8 @@ import api.requests.skeleton.Endpoint;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 
+import java.util.List;
+
 public class CreateAccountTest extends BaseTest {
     @Test
     @UserApiSession
