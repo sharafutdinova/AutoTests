@@ -87,6 +87,11 @@
             <version>42.7.10</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>3.13.2</version>
+        </dependency>
     </dependencies><build>
     <plugins>
         <plugin>
