@@ -4,55 +4,65 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import common.annotations.FraudCheckMock;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
-public class FraudCheckWireMockExtension implements BeforeEachCallback, AfterEachCallback {
+public class FraudCheckWireMockExtension implements BeforeEachCallback, BeforeAllCallback, AfterAllCallback {
+    private static WireMockServer wireMockServer;
+    private static final Object LOCK = new Object();
+    private static final int WIREMOCK_PORT = 8080;
 
-    private WireMockServer wireMockServer;
+    @Override
+    public void beforeAll(ExtensionContext context) {
+        synchronized (LOCK) {
+            if (wireMockServer == null) {
+                wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig()
+                        .port(WIREMOCK_PORT)
+                        .bindAddress("0.0.0.0")); // важно для доступа из контейнера
+                wireMockServer.start();
+            }
+        }
+    }
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        // Find the FraudCheckMock annotation on the test method or class
         FraudCheckMock mockConfig = context.getTestMethod()
                 .map(method -> method.getAnnotation(FraudCheckMock.class))
                 .orElseGet(() -> context.getTestClass()
                         .map(clazz -> clazz.getAnnotation(FraudCheckMock.class))
                         .orElse(null));
+        if (mockConfig == null) return;
 
-        if (mockConfig != null) {
-            setupWireMock(mockConfig);
+        synchronized (LOCK) {
+            // Очищаем старые стубы перед настройкой новых
+            wireMockServer.resetAll();
+            // Регистрируем стубы для текущего теста
+            setupStubs(mockConfig);
         }
     }
 
-    private void setupWireMock(FraudCheckMock config) {
-        wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().port(config.port()));
-        wireMockServer.start();
-
-        // Локальный клиент, привязанный к запущенному серверу
-        WireMock wireMock = new WireMock("0.0.0.0", wireMockServer.port());
-
+    private void setupStubs(FraudCheckMock config) {
+        WireMock wireMock = new WireMock("0.0.0.0", WIREMOCK_PORT);
         String responseBody = buildBody(config);
         wireMock.stubFor(post(urlPathMatching(config.endpoint()))
                 .willReturn(aResponse()
-                        .withStatus(200)
+                        .withStatus(config.statusCode())
                         .withHeader("Content-Type", "application/json")
                         .withBody(responseBody)));
     }
 
     private String buildBody(FraudCheckMock config) {
         // Create the response body based on annotation parameters
-        return String.format("{\n" +
-                        "  \"status\": \"%s\",\n" +
-                        "  \"decision\": \"%s\",\n" +
-                        "  \"riskScore\": \"%s\",\n" +
-                        "  \"reason\": \"%s\",\n" +
-                        "  \"requiresManualReview\": %s,\n" +
-                        "  \"additionalVerificationRequired\": %s\n" +
-                        "}",
+        return String.format("""
+                        {
+                          "status": "%s",
+                          "decision": "%s",
+                          "riskScore": "%s",
+                          "reason": "%s",
+                          "requiresManualReview": %s,
+                          "additionalVerificationRequired": %s
+                        }""",
                 config.status(),
                 config.decision(),
                 config.riskScore(),
@@ -62,8 +72,9 @@ public class FraudCheckWireMockExtension implements BeforeEachCallback, AfterEac
     }
 
     @Override
-    public void afterEach(ExtensionContext context) {
-        if (wireMockServer != null) {
+    public void afterAll(ExtensionContext context) {
+        // Останавливаем сервер после всех тестов (опционально)
+        if (wireMockServer != null && wireMockServer.isRunning()) {
             wireMockServer.stop();
         }
     }

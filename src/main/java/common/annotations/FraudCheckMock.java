@@ -40,6 +40,11 @@ public @interface FraudCheckMock {
     boolean additionalVerificationRequired() default false;
 
     /**
+     * Response status code
+     */
+    int statusCode() default 200;
+
+    /**
      * The WireMock port to use
      */
     int port() default 8080;
