@@ -12,9 +12,11 @@ import common.extensions.FraudCheckWireMockExtension;
 import common.extensions.TimingExtension;
 import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith({TimingExtension.class, FraudCheckWireMockExtension.class})
+@DisabledIfSystemProperty(named = "withMock", matches = "false")
 public class TransferWithFraudCheckTest extends BaseTest {
     private UserSteps userSteps1;
     private CreateAccountResponse senderAccount;
