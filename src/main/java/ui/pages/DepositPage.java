@@ -1,6 +1,5 @@
 package ui.pages;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import common.utils.RetryUtils;
@@ -21,8 +20,8 @@ public class DepositPage extends BasePage<DepositPage> {
 
     public DepositPage performDeposit(String accountNumber, double amount) {
         RetryUtils.selectOptionRetry(accountSelect, accountNumber, 3, 1000);
-        sendKeys(amountInput, String.valueOf(amount));
-        depositButton.shouldBe(Condition.enabled).click();
+        RetryUtils.sendKeysRetry(amountInput, String.valueOf(amount), 3, 500);
+        clickWithRetry(depositButton);
         return this;
     }
 
@@ -32,12 +31,12 @@ public class DepositPage extends BasePage<DepositPage> {
     }
 
     public DepositPage enterAmount(double amount) {
-        sendKeys(amountInput, String.valueOf(amount));
+        RetryUtils.sendKeysRetry(amountInput, String.valueOf(amount), 3, 500);
         return this;
     }
 
     public DepositPage clickToDeposit() {
-        depositButton.shouldBe(Condition.enabled).click();
+        clickWithRetry(depositButton);
         return this;
     }
 }

@@ -8,7 +8,7 @@ set -euo pipefail
 LOCAL_IMAGE_NAME="nbank-autotests"
 
 # Docker Hub параметры (измените под себя)
-DOCKERHUB_USERNAME="alsushaz"   # <-- поменяйте на свой
+DOCKERHUB_USERNAME="alsushaz"
 IMAGE_NAME="nbank-autotests-alsu"  # имя образа в Docker Hub
 TAG="${1:-latest}"  # тег: первый аргумент или 'latest'
 

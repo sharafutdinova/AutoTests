@@ -23,16 +23,19 @@ public class BaseUiTest extends BaseTest {
         Configuration.baseUrl = Config.getProperty("uiBaseUrl");
         Configuration.browser = Config.getProperty("browser");
         Configuration.browserSize = Config.getProperty("browserSize");
-        Configuration.browserCapabilities.setCapability("selenoid:options",
-                Map.of("enableVNC", true, "enableLog", true)
-        );
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--no-sandbox", "--disable-dev-shm-usage");
+        options.setCapability("selenoid:options", Map.of(
+                "enableVNC", true,
+                "enableLog", true
+        ));
+        options.setCapability("unhandledPromptBehavior", "dismiss");
+        Configuration.browserCapabilities = options;
         Configuration.pageLoadTimeout = 120000; // таймаут загрузки страницы
         Configuration.timeout = 10000; // таймаут ожидания элементов (по умолчанию 4000)
         Configuration.pollingInterval = 500; // интервал опроса (по умолчанию 100 мс)
         Configuration.pageLoadStrategy = "eager"; // ждёт только DOM, не ждёт ресурсы
-        ChromeOptions options = new ChromeOptions();
-        options.setCapability("unhandledPromptBehavior", "dismiss");
-        Configuration.browserCapabilities = options;
         Configuration.headless = true;
+        Configuration.reopenBrowserOnFail = true;
     }
 }

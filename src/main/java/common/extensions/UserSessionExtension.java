@@ -2,6 +2,7 @@ package common.extensions;
 
 import api.models.admin.CreateUserRequest;
 import api.requests.steps.AdminSteps;
+import com.codeborne.selenide.Selenide;
 import common.annotations.UserSession;
 import common.storage.SessionStorage;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class UserSessionExtension implements BeforeEachCallback, AfterEachCallback {
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
+    public void beforeEach(ExtensionContext context) {
         UserSession annotation = context.getRequiredTestMethod().getAnnotation(UserSession.class);
         if (annotation != null) {
             int userCount = annotation.value();
@@ -27,11 +28,12 @@ public class UserSessionExtension implements BeforeEachCallback, AfterEachCallba
             SessionStorage.addUsers(users);
             int auth = annotation.auth();
             BasePage.authAsUser(SessionStorage.getUser(auth));
+            Selenide.refresh();
         }
     }
 
     @Override
-    public void afterEach(ExtensionContext context) throws Exception {
+    public void afterEach(ExtensionContext context) {
         UserSession annotation = context.getRequiredTestMethod().getAnnotation(UserSession.class);
         if (annotation != null) {
             int count = SessionStorage.getUserStepMap().size();

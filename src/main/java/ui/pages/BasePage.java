@@ -3,11 +3,16 @@ package ui.pages;
 import api.models.admin.CreateUserRequest;
 import api.specs.RequestSpecs;
 import com.codeborne.selenide.*;
+import common.utils.RetryUtils;
 import lombok.Getter;
 import org.openqa.selenium.Alert;
+import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import ui.elements.BaseElement;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
 
@@ -69,5 +74,23 @@ public abstract class BasePage<T extends BasePage> {
     public void sendKeys(SelenideElement element, String keysToSend) {
         element.shouldBe(Condition.visible, Condition.enabled).clear();
         element.sendKeys(String.valueOf(keysToSend));
+    }
+
+    public void clickWithRetry(SelenideElement button) {
+        RetryUtils.retry(
+                () -> {
+                    button.click();
+                    try {
+                        WebDriverWait wait = new WebDriverWait(WebDriverRunner.getWebDriver(), Duration.ofMillis(1000));
+                        wait.until(ExpectedConditions.alertIsPresent());
+                        return true;
+                    } catch (NoAlertPresentException | TimeoutException e) {
+                        return false;
+                    }
+                },
+                obj -> obj.equals(true),
+                3,
+                1000
+        );
     }
 }
