@@ -2,6 +2,7 @@ package common.extensions;
 
 import api.models.admin.CreateUserRequest;
 import api.requests.steps.AdminSteps;
+import com.codeborne.selenide.Selenide;
 import common.annotations.UserSession;
 import common.storage.SessionStorage;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -27,6 +28,7 @@ public class UserSessionExtension implements BeforeEachCallback, AfterEachCallba
             SessionStorage.addUsers(users);
             int auth = annotation.auth();
             BasePage.authAsUser(SessionStorage.getUser(auth));
+            Selenide.refresh();
         }
     }
 

@@ -33,7 +33,8 @@ public class TransferUiTest extends BaseUiTest {
         CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isEqualTo(amount);
         CreateAccountResponse senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
-        softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(senderAccountBefore.getBalance() - amount);
+        double expectedSenderAmount = Math.round((senderAccountBefore.getBalance() - amount) * 100) / 100.0;
+        softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(expectedSenderAmount);
         Transaction lastReceiverTransaction = SessionStorage.getSteps().getAccountLastTransactions(createReceiverAccountResponse.getId());
         softly.assertThat(lastReceiverTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_IN, amount)).isTrue();
         Transaction lastSenderTransaction = SessionStorage.getSteps().getAccountLastTransactions(createSenderAccountResponse.getId());
@@ -60,7 +61,8 @@ public class TransferUiTest extends BaseUiTest {
         CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isEqualTo(amount);
         CreateAccountResponse senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
-        softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(senderAccountBefore.getBalance() - amount);
+        double expectedSenderAmount = Math.round((senderAccountBefore.getBalance() - amount) * 100) / 100.0;
+        softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(expectedSenderAmount);
         Transaction lastReceiverTransaction = SessionStorage.getSteps().getAccountLastTransactions(createReceiverAccountResponse.getId());
         softly.assertThat(lastReceiverTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_IN, amount)).isTrue();
         Transaction lastSenderTransaction = SessionStorage.getSteps().getAccountLastTransactions(createSenderAccountResponse.getId());
@@ -85,7 +87,8 @@ public class TransferUiTest extends BaseUiTest {
         CreateAccountResponse receiverAccount = SessionStorage.getSteps().getCustomerAccount(createReceiverAccountResponse.getId());
         softly.assertThat(receiverAccount.getBalance()).isEqualTo(amount);
         CreateAccountResponse senderAccountAfter = SessionStorage.getSteps().getCustomerAccount(createSenderAccountResponse.getId());
-        softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(senderAccountBefore.getBalance() - amount);
+        double expectedSenderAmount = Math.round((senderAccountBefore.getBalance() - amount) * 100) / 100.0;
+        softly.assertThat(senderAccountAfter.getBalance()).isEqualTo(expectedSenderAmount);
         Transaction lastReceiverTransaction = SessionStorage.getSteps().getAccountLastTransactions(createReceiverAccountResponse.getId());
         softly.assertThat(lastReceiverTransaction.validateTransaction(TransactionTypes.TRANSACTION_TYPE_FOR_TRANSFER_IN, amount)).isTrue();
         Transaction lastSenderTransaction = SessionStorage.getSteps().getAccountLastTransactions(createSenderAccountResponse.getId());

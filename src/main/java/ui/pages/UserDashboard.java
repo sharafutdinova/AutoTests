@@ -19,7 +19,7 @@ public class UserDashboard extends BasePage<UserDashboard> {
     }
 
     public UserDashboard createNewAccount() {
-        createNewAccount.click();
+        clickWithRetry(createNewAccount);
         return this;
     }
 
