@@ -15,7 +15,7 @@ import java.util.List;
 
 public class UserSessionExtension implements BeforeEachCallback, AfterEachCallback {
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
+    public void beforeEach(ExtensionContext context) {
         UserSession annotation = context.getRequiredTestMethod().getAnnotation(UserSession.class);
         if (annotation != null) {
             int userCount = annotation.value();
@@ -33,7 +33,7 @@ public class UserSessionExtension implements BeforeEachCallback, AfterEachCallba
     }
 
     @Override
-    public void afterEach(ExtensionContext context) throws Exception {
+    public void afterEach(ExtensionContext context) {
         UserSession annotation = context.getRequiredTestMethod().getAnnotation(UserSession.class);
         if (annotation != null) {
             int count = SessionStorage.getUserStepMap().size();

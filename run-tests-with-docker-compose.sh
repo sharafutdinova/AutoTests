@@ -15,7 +15,7 @@ if [ ! -f "$COMPOSE_FILE" ]; then
 fi
 
 # Имя образа с тестами
-TEST_IMAGE="nbank-autotests"
+TEST_IMAGE="alsushaz/nbank-autotests-alsu:latest"
 
 # -------------------- Функция остановки окружения --------------------
 cleanup() {
@@ -29,8 +29,8 @@ trap cleanup EXIT
 
 # -------------------- Проверка/сборка тестового образа --------------------
 if ! docker image inspect "$TEST_IMAGE" &>/dev/null; then
-    echo "🔨 Образ $TEST_IMAGE не найден. Собираем..."
-    docker build -t "$TEST_IMAGE" .
+    echo "🔨 Образ $TEST_IMAGE не найден. Загружаем..."
+    docker pull "$TEST_IMAGE"
 fi
 
 # -------------------- Запуск тестового окружения --------------------
