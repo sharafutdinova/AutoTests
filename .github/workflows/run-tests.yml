@@ -40,7 +40,7 @@ jobs: # аналог этапов
         run: mvn clean test -Dmock=false -q
         env:
           APIBASEURL: http://localhost:4111
-          UIBASEURL: http://localhost:80
+          UIBASEURL: http://frontend
           APIVERSION: /api/v1
           DB_URL: "jdbc:postgresql://localhost:5433/nbank"
           DB_USERNAME: "postgres"
