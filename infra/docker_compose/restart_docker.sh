@@ -25,4 +25,4 @@ for image in $images; do
 done
 
 echo ">>> Запуск Docker Compose"
-docker compose -f "$COMPOSE_FILE" up
+docker compose -f "$COMPOSE_FILE" up -d

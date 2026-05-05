@@ -12,13 +12,13 @@ jobs: # аналог этапов
         uses: actions/checkout@v4
 
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
-          distribution: 'corretto'
+          distribution: 'oracle'
           java-version: '21'
 
       - name: Cache Maven repository
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -34,38 +34,3 @@ jobs: # аналог этапов
           APIBASEURL: http://localhost:4111
           UIBASEURL: http://frontend
           APIVERSION: /api/v1
-
-      - name: Run Swagger coverage
-        if: always()
-        run: .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
-
-      - name: Load test report history
-        uses: actions/checkout@v2
-        if: always()
-        with:
-          ref: gh-pages
-          path: gh-pages
-
-      - name: Build test report
-        uses: simple-elf/allure-report-action@v1.7
-        if: always()
-        with:
-          gh_pages: gh-pages
-          allure_results: target/allure-results
-          allure_history: allure-history
-
-      - name: Build Swagger coverage report
-        if: always()
-        run: sudo cp swagger-coverage-report.html allure-history/${{ github.run_number }}
-
-      - name: Publish test report
-        uses: peaceiris/actions-gh-pages@v3
-        if: always()
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: allure-history
-
-      - name: Clean up services
-        if: always()
-        run: cd infra/docker_compose && docker compose down

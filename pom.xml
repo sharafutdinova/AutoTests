@@ -92,11 +92,6 @@
             <artifactId>wiremock-standalone</artifactId>
             <version>3.13.2</version>
         </dependency>
-        <dependency>
-            <groupId>org.wiremock</groupId>
-            <artifactId>wiremock-standalone</artifactId>
-            <version>3.13.2</version>
-        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -156,6 +151,9 @@
                             <version>1.18.42</version>
                         </path>
                     </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>
