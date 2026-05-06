@@ -8,8 +8,8 @@ import lombok.*;
 @Builder
 @EqualsAndHashCode(callSuper = false)
 public class AccountDao {
-    private Long id;
-    private String accountNumber;
-    private Double balance;
-    private Long customerId;
+  private Long id;
+  private String accountNumber;
+  private Double balance;
+  private Long customerId;
 }

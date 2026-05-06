@@ -10,15 +10,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(TimingExtension.class)
 @ExtendWith(UserApiSessionExtension.class)
 public class BaseTest {
-    protected SoftAssertions softly;
+  protected SoftAssertions softly;
 
-    @BeforeEach
-    public void setUp() {
-        softly = new SoftAssertions();
-    }
+  @BeforeEach
+  public void setUp() {
+    softly = new SoftAssertions();
+  }
 
-    @AfterEach
-    public void afterTest() {
-        softly.assertAll();
-    }
+  @AfterEach
+  public void afterTest() {
+    softly.assertAll();
+  }
 }

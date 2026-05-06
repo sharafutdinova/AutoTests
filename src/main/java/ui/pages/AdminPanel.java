@@ -1,45 +1,47 @@
 package ui.pages;
 
+import static com.codeborne.selenide.Selenide.$;
+
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import common.utils.RetryUtils;
+import java.util.List;
+import java.util.Objects;
 import lombok.Getter;
 import ui.elements.UserBage;
 
-import java.util.List;
-import java.util.Objects;
-
-import static com.codeborne.selenide.Selenide.$;
-
 @Getter
 public class AdminPanel extends BasePage<AdminPanel> {
-    private SelenideElement adminPanelText = $(Selectors.byText("Admin Panel"));
-    private SelenideElement addUserButton = $(Selectors.byText("Add User"));
+  private SelenideElement adminPanelText = $(Selectors.byText("Admin Panel"));
+  private SelenideElement addUserButton = $(Selectors.byText("Add User"));
 
-    @Override
-    public String url() {
-        return "/admin";
-    }
+  @Override
+  public String url() {
+    return "/admin";
+  }
 
-    public AdminPanel createUser(String username, String password) {
-        sendKeys(usernameInput, username);
-        sendKeys(passwordInput, password);
-        addUserButton.click();
-        return this;
-    }
+  public AdminPanel createUser(String username, String password) {
+    sendKeys(usernameInput, username);
+    sendKeys(passwordInput, password);
+    addUserButton.click();
+    return this;
+  }
 
-    public List<UserBage> getAllUsers() {
-        ElementsCollection elementsCollection = $(Selectors.byText("All Users")).parent().findAll("li");
-        return generatePageElements(elementsCollection, UserBage::new);
-    }
+  public List<UserBage> getAllUsers() {
+    ElementsCollection elementsCollection = $(Selectors.byText("All Users")).parent().findAll("li");
+    return generatePageElements(elementsCollection, UserBage::new);
+  }
 
-    public UserBage findUserByUsername(String username) {
-        return RetryUtils.retry(
-                () -> getAllUsers().stream().filter(it -> it.getUsername().equals(username)).findAny().orElse(null),
-                Objects::nonNull,
-                3,
-                1000
-        );
-    }
+  public UserBage findUserByUsername(String username) {
+    return RetryUtils.retry(
+        () ->
+            getAllUsers().stream()
+                .filter(it -> it.getUsername().equals(username))
+                .findAny()
+                .orElse(null),
+        Objects::nonNull,
+        3,
+        1000);
+  }
 }

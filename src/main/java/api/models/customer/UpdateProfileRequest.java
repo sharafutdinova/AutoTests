@@ -1,7 +1,7 @@
 package api.models.customer;
 
-import lombok.*;
 import api.models.BaseModel;
+import lombok.*;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -9,5 +9,5 @@ import api.models.BaseModel;
 @NoArgsConstructor
 @Builder
 public class UpdateProfileRequest extends BaseModel {
-    private String name;
+  private String name;
 }

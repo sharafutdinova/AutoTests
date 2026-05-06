@@ -3,39 +3,41 @@ package common.helpers;
 import io.qameta.allure.Allure;
 
 /*
- Example of usage:
+Example of usage:
 
- StepLogger.log("Get all users", () -> {
+StepLogger.log("Get all users", () -> {
 
-  click() ->  click log
-  post() -> post log
+ click() ->  click log
+ post() -> post log
 
+ }
+
+ "Get all users" ->
+       "click log"
+       "post log"
+
+*/
+public class StepLogger {
+  @FunctionalInterface
+  public interface ThrowableRunnable<T> {
+    T run() throws Throwable;
   }
 
-  "Get all users" ->
-        "click log"
-        "post log"
+  @FunctionalInterface
+  public interface ThrowableVoidRunnable {
+    void run() throws Throwable;
+  }
 
- */
-public class StepLogger {
-    @FunctionalInterface
-    public interface ThrowableRunnable<T> {
-        T run() throws Throwable;
-    }
+  public static <T> T log(String title, ThrowableRunnable<T> runnable) {
+    return Allure.step(title, () -> runnable.run());
+  }
 
-    @FunctionalInterface
-    public interface ThrowableVoidRunnable {
-        void run() throws Throwable;
-    }
-
-    public static <T> T log(String title, ThrowableRunnable<T> runnable) {
-        return Allure.step(title, () -> runnable.run());
-    }
-
-    public static void log(String title, ThrowableVoidRunnable runnable) {
-        Allure.step(title, () -> {
-            runnable.run();
-            return null;
+  public static void log(String title, ThrowableVoidRunnable runnable) {
+    Allure.step(
+        title,
+        () -> {
+          runnable.run();
+          return null;
         });
-    }
+  }
 }

@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class DepositRequestForFraud extends BaseModel {
-    private long accountId;
-    private double amount;
-    private String description;
+  private long accountId;
+  private double amount;
+  private String description;
 }

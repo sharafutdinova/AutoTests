@@ -1,6 +1,6 @@
 package api.models;
 
 public enum UserRole {
-    USER,
-    ADMIN
+  USER,
+  ADMIN
 }
