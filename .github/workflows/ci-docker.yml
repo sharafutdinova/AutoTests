@@ -3,8 +3,6 @@ name: Docker push v1
 on:
   push:
     branches: [ master, pipeline_for_docker_push ]
-    paths:
-      - 'src/**'                  # только при изменениях в src
   workflow_dispatch:              # ручной запуск
 
 env:
