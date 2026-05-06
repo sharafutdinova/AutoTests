@@ -8,9 +8,9 @@ import lombok.*;
 @Builder
 @EqualsAndHashCode(callSuper = false)
 public class UserDao {
-    private Long id;
-    private String username;
-    private String password;
-    private String role;
-    private String name;
+  private Long id;
+  private String username;
+  private String password;
+  private String role;
+  private String name;
 }

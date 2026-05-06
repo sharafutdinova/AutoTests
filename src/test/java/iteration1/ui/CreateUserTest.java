@@ -1,57 +1,73 @@
 package iteration1.ui;
 
-import api.requests.steps.AdminSteps;
-import baseTests.BaseUiTest;
-import com.codeborne.selenide.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import api.generators.RandomData;
 import api.models.UserRole;
 import api.models.admin.CreateUserRequest;
 import api.models.admin.CreateUserResponse;
 import api.models.comparison.ModelAssertions;
+import api.requests.steps.AdminSteps;
+import baseTests.BaseUiTest;
+import com.codeborne.selenide.*;
 import common.annotations.AdminSession;
 import org.junit.jupiter.api.Test;
 import ui.elements.UserBage;
 import ui.pages.AdminPanel;
 import ui.pages.BankAlert;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 public class CreateUserTest extends BaseUiTest {
-    @Test
-    @AdminSession
-    public void adminCanCreateUserTest() {
-        CreateUserRequest newUser = new CreateUserRequest(RandomData.getUsername(), RandomData.getPassword(), UserRole.USER.toString());
-        UserBage newUserBage = new AdminPanel().open()
+  @Test
+  @AdminSession
+  public void adminCanCreateUserTest() {
+    CreateUserRequest newUser =
+        new CreateUserRequest(
+            RandomData.getUsername(), RandomData.getPassword(), UserRole.USER.toString());
+    UserBage newUserBage =
+        new AdminPanel()
+            .open()
+            .createUser(newUser.getUsername(), newUser.getPassword())
+            .checkAlertMessageAndAccept(BankAlert.USER_CREATED_SUCCESSFULLY.getMessage())
+            .findUserByUsername(newUser.getUsername());
+
+    assertThat(newUserBage)
+        .as("UserBage should exist on Dashboard after user creation")
+        .isNotNull();
+
+    CreateUserResponse createdUser =
+        AdminSteps.getAllUsers().stream()
+            .filter(user -> user.getUsername().equals(newUser.getUsername()))
+            .findFirst()
+            .orElse(null);
+
+    ModelAssertions.assertThatModels(newUser, createdUser).match();
+    AdminSteps.deleteUserByCreateUserRequest(newUser);
+  }
+
+  @Test
+  @AdminSession
+  public void adminCannotCreateUserWithInvalidDataTest() {
+    CreateUserRequest newUser =
+        new CreateUserRequest(
+            RandomData.getUsername(), RandomData.getPassword(), UserRole.USER.toString());
+    newUser.setUsername("a");
+
+    assertTrue(
+        new AdminPanel()
+                .open()
                 .createUser(newUser.getUsername(), newUser.getPassword())
-                .checkAlertMessageAndAccept(BankAlert.USER_CREATED_SUCCESSFULLY.getMessage())
-                .findUserByUsername(newUser.getUsername());
+                .checkAlertMessageAndAccept(
+                    BankAlert.USERNAME_MUST_BE_BETWEEN_3_AND_15_CHARACTERS.getMessage())
+                .getAllUsers()
+                .stream()
+                .noneMatch(userBage -> userBage.getUsername().equals(newUser.getUsername())));
 
-        assertThat(newUserBage)
-                .as("UserBage should exist on Dashboard after user creation").isNotNull();
+    long usersWithSameUsernameAsNewUser =
+        AdminSteps.getAllUsers().stream()
+            .filter(user -> user.getUsername().equals(newUser.getUsername()))
+            .count();
 
-        CreateUserResponse createdUser = AdminSteps.getAllUsers().stream()
-                .filter(user -> user.getUsername().equals(newUser.getUsername()))
-                .findFirst().orElse(null);
-
-        ModelAssertions.assertThatModels(newUser, createdUser).match();
-        AdminSteps.deleteUserByCreateUserRequest(newUser);
-    }
-
-    @Test
-    @AdminSession
-    public void adminCannotCreateUserWithInvalidDataTest() {
-        CreateUserRequest newUser = new CreateUserRequest(RandomData.getUsername(), RandomData.getPassword(), UserRole.USER.toString());
-        newUser.setUsername("a");
-
-        assertTrue(new AdminPanel().open().createUser(newUser.getUsername(), newUser.getPassword())
-                .checkAlertMessageAndAccept(BankAlert.USERNAME_MUST_BE_BETWEEN_3_AND_15_CHARACTERS.getMessage())
-                .getAllUsers().stream().noneMatch(userBage -> userBage.getUsername().equals(newUser.getUsername())));
-
-        long usersWithSameUsernameAsNewUser = AdminSteps.getAllUsers().stream()
-                .filter(user -> user.getUsername().equals(newUser.getUsername()))
-                .count();
-
-        assertThat(usersWithSameUsernameAsNewUser).isZero();
-    }
+    assertThat(usersWithSameUsernameAsNewUser).isZero();
+  }
 }

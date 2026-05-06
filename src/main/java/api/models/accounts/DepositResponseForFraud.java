@@ -11,9 +11,9 @@ import lombok.*;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DepositResponseForFraud extends BaseModel {
-    private long id;
-    private String accountNumber;
-    private double balance;
-//    private double depositAmount;
-    private long transactionId;
+  private long id;
+  private String accountNumber;
+  private double balance;
+  //    private double depositAmount;
+  private long transactionId;
 }

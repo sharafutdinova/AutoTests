@@ -2,49 +2,44 @@ package api.specs;
 
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.specification.ResponseSpecification;
+import java.util.List;
 import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
 
-import java.util.List;
-
 public class ResponseSpecs {
-    private ResponseSpecs() {
-    }
+  private ResponseSpecs() {}
 
-    private static ResponseSpecBuilder defaultResponseBuilder() {
-        return new ResponseSpecBuilder();
-    }
+  private static ResponseSpecBuilder defaultResponseBuilder() {
+    return new ResponseSpecBuilder();
+  }
 
-    public static ResponseSpecification entityWasCreated() {
-        return defaultResponseBuilder()
-                .expectStatusCode(HttpStatus.SC_CREATED)
-                .build();
-    }
+  public static ResponseSpecification entityWasCreated() {
+    return defaultResponseBuilder().expectStatusCode(HttpStatus.SC_CREATED).build();
+  }
 
-    public static ResponseSpecification requestReturnsOK() {
-        return defaultResponseBuilder()
-                .expectStatusCode(HttpStatus.SC_OK)
-                .build();
-    }
+  public static ResponseSpecification requestReturnsOK() {
+    return defaultResponseBuilder().expectStatusCode(HttpStatus.SC_OK).build();
+  }
 
-    public static ResponseSpecification requestReturnsBadRequest(String errorKey, List<String> errorValues) {
-        return defaultResponseBuilder()
-                .expectStatusCode(HttpStatus.SC_BAD_REQUEST)
-                .expectBody(errorKey, Matchers.containsInAnyOrder(errorValues.toArray()))
-                .build();
-    }
+  public static ResponseSpecification requestReturnsBadRequest(
+      String errorKey, List<String> errorValues) {
+    return defaultResponseBuilder()
+        .expectStatusCode(HttpStatus.SC_BAD_REQUEST)
+        .expectBody(errorKey, Matchers.containsInAnyOrder(errorValues.toArray()))
+        .build();
+  }
 
-    public static ResponseSpecification requestReturnsBadRequest(String errorValue) {
-        return defaultResponseBuilder()
-                .expectStatusCode(HttpStatus.SC_BAD_REQUEST)
-                .expectBody(Matchers.equalTo(errorValue))
-                .build();
-    }
+  public static ResponseSpecification requestReturnsBadRequest(String errorValue) {
+    return defaultResponseBuilder()
+        .expectStatusCode(HttpStatus.SC_BAD_REQUEST)
+        .expectBody(Matchers.equalTo(errorValue))
+        .build();
+  }
 
-    public static ResponseSpecification requestReturnsForbidden(String errorValue) {
-        return defaultResponseBuilder()
-                .expectStatusCode(HttpStatus.SC_FORBIDDEN)
-                .expectBody(Matchers.equalTo(errorValue))
-                .build();
-    }
+  public static ResponseSpecification requestReturnsForbidden(String errorValue) {
+    return defaultResponseBuilder()
+        .expectStatusCode(HttpStatus.SC_FORBIDDEN)
+        .expectBody(Matchers.equalTo(errorValue))
+        .build();
+  }
 }

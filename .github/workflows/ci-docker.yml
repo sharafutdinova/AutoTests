@@ -1,0 +1,48 @@
+name: CI / CD (Docker build & push)
+
+on:
+  push:
+    branches: [ main, develop ]   # или ваша целевая ветка
+    paths:
+      - 'src/**'                  # только при изменениях в src
+  workflow_dispatch:              # ручной запуск
+
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  IMAGE_NAME: nbank-tests         # имя вашего образа
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # нужно для получения commit hash
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Build project and run Checkstyle
+        run: mvn clean compile checkstyle:check
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image with commit hash tag
+        run: |
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${COMMIT_HASH} .
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${COMMIT_HASH}

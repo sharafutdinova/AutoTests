@@ -1,7 +1,7 @@
 package api.models.authentification;
 
-import lombok.*;
 import api.models.BaseModel;
+import lombok.*;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -9,6 +9,6 @@ import api.models.BaseModel;
 @NoArgsConstructor
 @Builder
 public class LoginUserResponse extends BaseModel {
-    private String username;
-    private String role;
+  private String username;
+  private String role;
 }

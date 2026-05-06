@@ -1,7 +1,7 @@
 package api.models.accounts;
 
-import lombok.*;
 import api.models.BaseModel;
+import lombok.*;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -9,6 +9,6 @@ import api.models.BaseModel;
 @NoArgsConstructor
 @Builder
 public class DepositRequest extends BaseModel {
-    private long id;
-    private double balance;
+  private long id;
+  private double balance;
 }

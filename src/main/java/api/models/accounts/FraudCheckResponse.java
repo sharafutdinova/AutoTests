@@ -9,9 +9,9 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class FraudCheckResponse extends BaseModel {
-    private String transactionId;
-    private String status;
-    private String message;
-    private String fraudCheckStatus;
-    private String details;
+  private String transactionId;
+  private String status;
+  private String message;
+  private String fraudCheckStatus;
+  private String details;
 }

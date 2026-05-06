@@ -1,9 +1,8 @@
 package api.models.admin;
 
-import lombok.*;
 import api.models.BaseModel;
-
 import java.util.List;
+import lombok.*;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -11,5 +10,5 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class GetUsersResponse extends BaseModel {
-    private List<CreateUserResponse> users;
+  private List<CreateUserResponse> users;
 }
