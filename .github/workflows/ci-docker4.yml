@@ -1,6 +1,11 @@
 name: Docker push v4
 
-on: [ push, workflow_dispatch ]           # ручной запуск
+on:
+  push:
+    #branches: [ master, pipeline_for_docker_push ]
+    paths:
+      - 'src/**'                  # только при изменениях в src
+  workflow_dispatch:              # ручной запуск
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
