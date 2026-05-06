@@ -6,7 +6,7 @@ on:
       - master  # [ master, pipeline_for_docker_push ]
       - pipeline_for_docker_push
     paths:
-      - 'src/**'
+      - src/**
   workflow_dispatch:              # ручной запуск
 
 env:

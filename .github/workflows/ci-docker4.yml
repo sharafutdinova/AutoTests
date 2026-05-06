@@ -3,7 +3,7 @@ name: Docker push v5
 on:
   push:
     paths:
-      - 'src/**'
+      - "src/**"
   workflow_dispatch:
 
 env:
