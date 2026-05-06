@@ -3,16 +3,16 @@ name: Docker push v2
 on:
   push:
     branches:
-      - master  # [ master, pipeline_for_docker_push ]
+      - master
       - pipeline_for_docker_push
     paths:
       - src/**
-  workflow_dispatch:              # ручной запуск
+  workflow_dispatch:
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-  IMAGE_NAME: nbank-autotests-alsu         # имя вашего образа
+  IMAGE_NAME: nbank-autotests-alsu
 
 jobs:
   build-and-push:

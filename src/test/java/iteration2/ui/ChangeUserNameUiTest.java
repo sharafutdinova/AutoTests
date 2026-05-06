@@ -21,7 +21,6 @@ public class ChangeUserNameUiTest extends BaseUiTest {
   @Environments({"1920x1080"})
   public void userCanChangeNameTest() {
     String newName = RandomData.getName();
-
     new EditProfilePage()
         .open()
         .changeName(newName)
