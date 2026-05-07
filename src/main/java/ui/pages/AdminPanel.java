@@ -24,7 +24,7 @@ public class AdminPanel extends BasePage<AdminPanel> {
   }
 
   public AdminPanel createUser(String username, String password) {
-    return StepLogger.log("Creating user " + username + " from admin panel ", () -> {
+    return StepLogger.logWithScreen("Creating user " + username + " from admin panel ", () -> {
       sendKeys(usernameInput, username);
       sendKeys(passwordInput, password);
       addUserButton.click();
@@ -33,7 +33,7 @@ public class AdminPanel extends BasePage<AdminPanel> {
   }
 
   public List<UserBage> getAllUsers() {
-    return StepLogger.log("Get all users from Dashboard", () -> {
+    return StepLogger.logWithScreen("Get all users from Dashboard", () -> {
       ElementsCollection elementsCollection = $(Selectors.byText("All Users")).parent().findAll("li");
       return generatePageElements(elementsCollection, UserBage::new);
     });

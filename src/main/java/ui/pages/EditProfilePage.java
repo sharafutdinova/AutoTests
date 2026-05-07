@@ -20,7 +20,7 @@ public class EditProfilePage extends BasePage<EditProfilePage> {
   }
 
   public EditProfilePage changeName(String newName) {
-    return StepLogger.log("Changing name to " + newName, () -> {
+    return StepLogger.logWithScreen("Changing name to " + newName, () -> {
       RetryUtils.sendKeysRetry(newNameInput, newName, 3, 800);
       clickWithRetry(saveButton);
       return this;

@@ -28,7 +28,7 @@ public class TransferPage extends BasePage<TransferPage> {
 
   public TransferPage performTransfer(
       String senderAccount, String recipientName, String recipientAccount, double amount) {
-    return StepLogger.log("Performing transfer from " + senderAccount + " to " + recipientName + " " + recipientAccount + " with " + amount, () -> {
+    return StepLogger.logWithScreen("Performing transfer from " + senderAccount + " to " + recipientName + " " + recipientAccount + " with " + amount, () -> {
       RetryUtils.selectOptionRetry(accountSelect, senderAccount, 3, 1000);
       sendKeys(recipientNameInput, recipientName);
       sendKeys(accountNumberInput, recipientAccount);
@@ -41,7 +41,7 @@ public class TransferPage extends BasePage<TransferPage> {
 
   public TransferPage performTransfer(
       String senderAccount, String recipientAccount, double amount) {
-    return StepLogger.log("Performing transfer from " + senderAccount + " to " + recipientAccount + " with " + amount, () -> {
+    return StepLogger.logWithScreen("Performing transfer from " + senderAccount + " to " + recipientAccount + " with " + amount, () -> {
       RetryUtils.selectOptionRetry(accountSelect, senderAccount, 3, 1000);
       sendKeys(accountNumberInput, recipientAccount);
       sendKeys(amountInput, String.valueOf(amount));
@@ -72,7 +72,7 @@ public class TransferPage extends BasePage<TransferPage> {
   }
 
   public TransferPage confirm() {
-    return StepLogger.log("Confirming transfer", () -> {
+    return StepLogger.logWithScreen("Confirming transfer", () -> {
       confirmCheckbox.shouldBe(Condition.enabled).click();
       return this;
     });

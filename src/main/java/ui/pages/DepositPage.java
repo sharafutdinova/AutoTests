@@ -21,7 +21,7 @@ public class DepositPage extends BasePage<DepositPage> {
   }
 
   public DepositPage performDeposit(String accountNumber, double amount) {
-    return StepLogger.log("Performing deposit to " + accountNumber + " with " + amount, () -> {
+    return StepLogger.logWithScreen("Performing deposit to " + accountNumber + " with " + amount, () -> {
       RetryUtils.selectOptionRetry(accountSelect, accountNumber, 3, 1000);
       RetryUtils.sendKeysRetry(amountInput, String.valueOf(amount), 3, 500);
       clickWithRetry(depositButton);

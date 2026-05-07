@@ -22,21 +22,21 @@ public class UserDashboard extends BasePage<UserDashboard> {
   }
 
   public UserDashboard createNewAccount() {
-    return StepLogger.log("Creating new account", () -> {
+    return StepLogger.logWithScreen("Creating new account", () -> {
       clickWithRetry(createNewAccount);
       return this;
     });
   }
 
   public UserDashboard goToDepositPage() {
-    return StepLogger.log("Going to deposit page", () -> {
+    return StepLogger.logWithScreen("Going to deposit page", () -> {
       depositButton.click();
       return this;
     });
   }
 
   public UserDashboard goToTransferPage() {
-    return StepLogger.log("Going to transfer page", () -> {
+    return StepLogger.logWithScreen("Going to transfer page", () -> {
       transferButton.click();
       return this;
     });

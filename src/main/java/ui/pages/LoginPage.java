@@ -16,7 +16,7 @@ public class LoginPage extends BasePage<LoginPage> {
   }
 
   public LoginPage login(String username, String password) {
-    return StepLogger.log("Login with username " + username + " and password " + password, () -> {
+    return StepLogger.logWithScreen("Login with username " + username + " and password " + password, () -> {
       executeJavaScript("localStorage.clear();");
       Selenide.refresh();
       sendKeys(usernameInput, username);

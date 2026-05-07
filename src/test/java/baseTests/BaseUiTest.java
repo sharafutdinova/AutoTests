@@ -2,14 +2,18 @@ package baseTests;
 
 import api.configs.Config;
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import common.extensions.AdminSessionExtension;
 import common.extensions.BrowserMatchExtension;
 import common.extensions.EnvironmentMatchExtension;
 import common.extensions.UserSessionExtension;
+import io.qameta.allure.Attachment;
 import io.qameta.allure.selenide.AllureSelenide;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.openqa.selenium.OutputType;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.util.Map;
@@ -42,6 +46,7 @@ public class BaseUiTest extends BaseTest {
     Configuration.reopenBrowserOnFail = true;
     SelenideLogger.addListener("AllureSelenide", new AllureSelenide()
         .screenshots(true)
-        .savePageSource(true));
+        .savePageSource(false)
+        .includeSelenideSteps(true));
   }
 }

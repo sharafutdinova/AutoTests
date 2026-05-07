@@ -18,7 +18,7 @@ public class RetryUtils {
     while (attempts < maxAttempts) {
       attempts++;
       try {
-        T result = StepLogger.log("Attempt " + attempts + ": " + title, action::get);
+        T result = StepLogger.logWithScreen("Attempt " + attempts + ": " + title, action::get);
 
         if (condition.test(result)) {
           return result;
@@ -36,9 +36,11 @@ public class RetryUtils {
     int attempts = 0;
     do {
       attempts++;
-      element.shouldBe(Condition.visible, Condition.enabled).clear();
-      element.sendKeys(value);
-      Selenide.sleep(delayMillis);
+      StepLogger.logWithScreen("Attempt " + attempts + ": to send key " + value, () -> {
+        element.shouldBe(Condition.visible, Condition.enabled).clear();
+        element.sendKeys(value);
+        Selenide.sleep(delayMillis);
+      });
     } while (attempts < maxAttempts && !Objects.equals(element.getValue(), value));
   }
 
@@ -47,7 +49,7 @@ public class RetryUtils {
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         // Пытаемся выбрать опцию, содержащую заданный текст
-        element.selectOptionContainingText(optionValue);
+        StepLogger.logWithScreen("Attempt " + attempt + ": to select option " + optionValue, () -> element.selectOptionContainingText(optionValue));
         return;
       } catch (ElementNotFound | RuntimeException e) {
         if (attempt == maxAttempts) {

@@ -5,9 +5,11 @@ import api.specs.RequestSpecs;
 import com.codeborne.selenide.*;
 import common.helpers.StepLogger;
 import common.utils.RetryUtils;
+import io.qameta.allure.Attachment;
 import lombok.Getter;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.NoAlertPresentException;
+import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -32,7 +34,7 @@ public abstract class BasePage<T extends BasePage> {
     int maxAttempts = 3;
     for (int i = 0; i < maxAttempts; i++) {
       try {
-        return StepLogger.log("Opening page " + url(), () -> Selenide.open(url(), (Class<T>) this.getClass()));
+        return StepLogger.logWithScreen("Opening page " + url(), () -> Selenide.open(url(), (Class<T>) this.getClass()));
       } catch (TimeoutException e) {
         System.out.println("Retry opening page, attempt " + (i + 1));
         Selenide.sleep(2000);
@@ -59,7 +61,7 @@ public abstract class BasePage<T extends BasePage> {
   }
 
   public T checkAlertMessageAndAccept(String bankAlert) {
-    return StepLogger.log("Checking and accepting alert message: " + bankAlert, () -> {
+    return StepLogger.logWithScreen("Checking and accepting alert message: " + bankAlert, () -> {
       Alert alert = switchTo().alert();
       assertThat(alert.getText()).contains(bankAlert);
       alert.accept();
@@ -68,7 +70,7 @@ public abstract class BasePage<T extends BasePage> {
   }
 
   public T goHome() {
-    return StepLogger.log("Going to the main page", () -> {
+    return StepLogger.logWithScreen("Going to the main page", () -> {
       $(Selectors.byXpath("//*[contains(text(),'Home')]")).click();
       return (T) this;
     });
@@ -80,7 +82,7 @@ public abstract class BasePage<T extends BasePage> {
   }
 
   public void sendKeys(SelenideElement element, String keysToSend) {
-    StepLogger.log("Sending " + keysToSend + " to input", () -> {
+    StepLogger.logWithScreen("Sending " + keysToSend + " to input", () -> {
       element.shouldBe(Condition.visible, Condition.enabled).clear();
       element.sendKeys(String.valueOf(keysToSend));
     });

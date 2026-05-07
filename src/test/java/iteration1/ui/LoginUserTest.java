@@ -15,7 +15,6 @@ public class LoginUserTest extends BaseUiTest {
   @Browsers({"chrome"})
   public void adminCanLoginWithCorrectDataTest() {
     CreateUserRequest admin = CreateUserRequest.getAdmin();
-
     new LoginPage()
         .open()
         .login(admin.getUsername(), admin.getPassword())
