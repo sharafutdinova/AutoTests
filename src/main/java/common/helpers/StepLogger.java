@@ -47,18 +47,30 @@ public class StepLogger {
 
   public static <T> T logWithScreen(String title, ThrowableRunnable<T> runnable) {
     return Allure.step(title, () -> {
-      T result = runnable.run();
-      byte[] screenshot = Selenide.screenshot(OutputType.BYTES);
-      Allure.addAttachment(title, "image/png", new ByteArrayInputStream(screenshot), "png");
-      return result;
+      try {
+        T result = runnable.run();
+        byte[] screenshot = Selenide.screenshot(OutputType.BYTES);
+        Allure.addAttachment(title, "image/png", new ByteArrayInputStream(screenshot), "png");
+        return result;
+      } catch (Throwable e) {
+        System.out.println("Error " + e.getMessage());
+        byte[] screenshot = Selenide.screenshot(OutputType.BYTES);
+        Allure.addAttachment(title, "image/png", new ByteArrayInputStream(screenshot), "png");
+        return null;
+      }
     });
   }
 
   public static void logWithScreen(String title, ThrowableVoidRunnable runnable) {
     Allure.step(title, () -> {
-      runnable.run();
-      byte[] screenshot = Selenide.screenshot(OutputType.BYTES);
-      Allure.addAttachment(title, "image/png", new ByteArrayInputStream(screenshot), "png");
+      try {
+        runnable.run();
+      } catch (Throwable e) {
+        System.out.println("Error " + e.getMessage());
+      } finally {
+        byte[] screenshot = Selenide.screenshot(OutputType.BYTES);
+        Allure.addAttachment(title, "image/png", new ByteArrayInputStream(screenshot), "png");
+      }
     });
   }
 }

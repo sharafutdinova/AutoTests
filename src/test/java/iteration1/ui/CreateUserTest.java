@@ -1,8 +1,5 @@
 package iteration1.ui;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import api.generators.RandomData;
 import api.models.UserRole;
 import api.models.admin.CreateUserRequest;
@@ -10,12 +7,14 @@ import api.models.admin.CreateUserResponse;
 import api.models.comparison.ModelAssertions;
 import api.requests.steps.AdminSteps;
 import baseTests.BaseUiTest;
-import com.codeborne.selenide.*;
 import common.annotations.AdminSession;
 import org.junit.jupiter.api.Test;
 import ui.elements.UserBage;
 import ui.pages.AdminPanel;
 import ui.pages.BankAlert;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CreateUserTest extends BaseUiTest {
   @Test
@@ -55,13 +54,13 @@ public class CreateUserTest extends BaseUiTest {
 
     assertTrue(
         new AdminPanel()
-                .open()
-                .createUser(newUser.getUsername(), newUser.getPassword())
-                .checkAlertMessageAndAccept(
-                    BankAlert.USERNAME_MUST_BE_BETWEEN_3_AND_15_CHARACTERS.getMessage())
-                .getAllUsers()
-                .stream()
-                .noneMatch(userBage -> userBage.getUsername().equals(newUser.getUsername())));
+            .open()
+            .createUser(newUser.getUsername(), newUser.getPassword())
+            .checkAlertMessageAndAccept(
+                BankAlert.USERNAME_MUST_BE_BETWEEN_3_AND_15_CHARACTERS.getMessage())
+            .getAllUsers()
+            .stream()
+            .noneMatch(userBage -> userBage.getUsername().equals(newUser.getUsername())));
 
     long usersWithSameUsernameAsNewUser =
         AdminSteps.getAllUsers().stream()
