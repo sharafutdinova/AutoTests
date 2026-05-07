@@ -1,9 +1,5 @@
 package iteration1.api;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import api.dao.UserDao;
-import api.dao.comparison.DaoAndModelAssertions;
 import api.generators.RandomData;
 import api.models.UserRole;
 import api.models.admin.CreateUserRequest;
@@ -13,16 +9,16 @@ import api.requests.skeleton.Endpoint;
 import api.requests.skeleton.requesters.CrudRequester;
 import api.requests.skeleton.requesters.ValidatedCrudRequester;
 import api.requests.steps.AdminSteps;
-import api.requests.steps.DataBaseSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import baseTests.BaseTest;
-import java.util.List;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 public class CreateUserTest extends BaseTest {
   @Test
@@ -36,12 +32,16 @@ public class CreateUserTest extends BaseTest {
 
     CreateUserResponse createUserResponse =
         new ValidatedCrudRequester<CreateUserResponse>(
-                RequestSpecs.adminSpec(), Endpoint.ADMIN_USER, ResponseSpecs.entityWasCreated())
+            RequestSpecs.adminSpec(), Endpoint.ADMIN_USER, ResponseSpecs.entityWasCreated())
             .post(createUserRequest);
 
+//    ModelAssertions.assertThatModels(createUserRequest, createUserResponse).match();
+//    UserDao userDao = DataBaseSteps.getUserByUsername(createUserRequest.getUsername());
+//    DaoAndModelAssertions.assertThat(createUserResponse, userDao).match();
+
     ModelAssertions.assertThatModels(createUserRequest, createUserResponse).match();
-    UserDao userDao = DataBaseSteps.getUserByUsername(createUserRequest.getUsername());
-    DaoAndModelAssertions.assertThat(createUserResponse, userDao).match();
+    List<CreateUserResponse> createdUsers = AdminSteps.getAllUsers();
+    softly.assertThat(createdUsers.contains(createUserResponse)).isTrue();
     AdminSteps.deleteUserByCreateUserRequest(createUserRequest);
   }
 
@@ -83,10 +83,14 @@ public class CreateUserTest extends BaseTest {
     CreateUserRequest createUserRequest =
         CreateUserRequest.builder().username(username).password(password).role(role).build();
     new CrudRequester(
-            RequestSpecs.adminSpec(),
-            Endpoint.ADMIN_USER,
-            ResponseSpecs.requestReturnsBadRequest(errorKey, errorValues))
+        RequestSpecs.adminSpec(),
+        Endpoint.ADMIN_USER,
+        ResponseSpecs.requestReturnsBadRequest(errorKey, errorValues))
         .post(createUserRequest);
-    assertNull(DataBaseSteps.getUserByUsername(createUserRequest.getUsername()));
+//    assertNull(DataBaseSteps.getUserByUsername(createUserRequest.getUsername()));
+    List<CreateUserResponse> usersWithSameName = AdminSteps.getAllUsers().stream()
+        .filter(user -> user.getUsername().equals(username) && user.getRole().equals(role))
+        .toList();
+    softly.assertThat(usersWithSameName).hasSize(0);
   }
 }

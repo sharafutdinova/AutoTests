@@ -77,7 +77,7 @@ public class UserSteps {
             .senderAccountId(senderAccountId)
             .receiverAccountId(receiverAccountId)
             .amount(amount)
-            .description("Test transfer with fraud check")
+//            .description("Test transfer with fraud check")
             .build();
 
     return StepLogger.log("User " + username + " performs deposit from account " + senderAccountId + " to account " + receiverAccountId + " with amount " + amount, () ->

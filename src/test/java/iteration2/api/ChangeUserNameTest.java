@@ -1,16 +1,15 @@
 package iteration2.api;
 
-import api.dao.UserDao;
-import api.dao.comparison.DaoAndModelAssertions;
 import api.generators.RandomData;
 import api.models.Messages;
 import api.models.admin.CreateUserRequest;
+import api.models.comparison.UserNameComparing;
+import api.models.customer.GetUserResponse;
 import api.models.customer.UpdateProfileRequest;
 import api.models.customer.UpdateProfileResponse;
 import api.requests.skeleton.Endpoint;
 import api.requests.skeleton.requesters.CrudRequester;
 import api.requests.skeleton.requesters.ValidatedCrudRequester;
-import api.requests.steps.DataBaseSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import baseTests.BaseTest;
@@ -34,16 +33,20 @@ public class ChangeUserNameTest extends BaseTest {
     UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder().name(name).build();
     UpdateProfileResponse updateProfileResponse =
         new ValidatedCrudRequester<UpdateProfileResponse>(
-                RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
-                Endpoint.UPDATE_CUSTOMER_PROFILE,
-                ResponseSpecs.requestReturnsOK())
+            RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+            Endpoint.UPDATE_CUSTOMER_PROFILE,
+            ResponseSpecs.requestReturnsOK())
             .update(updateProfileRequest);
 
-    UserDao userDao = DataBaseSteps.getUserByUsername(user.getUsername());
-    DaoAndModelAssertions.assertThat(updateProfileResponse.getCustomer(), userDao).match();
-    softly
-        .assertThat(updateProfileResponse.getMessage())
-        .isEqualTo(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
+    GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
+    softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileResponse)).isTrue();
+    softly.assertThat(getUserResponse.getName()).isEqualTo(updateProfileRequest.getName());
+    softly.assertThat(getUserResponse.getUsername()).isEqualTo(user.getUsername());
+//    UserDao userDao = DataBaseSteps.getUserByUsername(user.getUsername());
+//    DaoAndModelAssertions.assertThat(updateProfileResponse.getCustomer(), userDao).match();
+//    softly
+//        .assertThat(updateProfileResponse.getMessage())
+//        .isEqualTo(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
   }
 
   @Test
@@ -55,27 +58,33 @@ public class ChangeUserNameTest extends BaseTest {
         UpdateProfileRequest.builder().name(newName).build();
     UpdateProfileResponse updateProfileFirst =
         new ValidatedCrudRequester<UpdateProfileResponse>(
-                RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
-                Endpoint.UPDATE_CUSTOMER_PROFILE,
-                ResponseSpecs.requestReturnsOK())
+            RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+            Endpoint.UPDATE_CUSTOMER_PROFILE,
+            ResponseSpecs.requestReturnsOK())
             .update(updateProfileRequest);
 
-    UserDao userDao = DataBaseSteps.getUserByUsername(user.getUsername());
-    DaoAndModelAssertions.assertThat(updateProfileFirst.getCustomer(), userDao).match();
+//    UserDao userDao = DataBaseSteps.getUserByUsername(user.getUsername());
+//    DaoAndModelAssertions.assertThat(updateProfileFirst.getCustomer(), userDao).match();
+    softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileFirst)).isTrue();
 
     UpdateProfileResponse updateProfileSecond =
         new ValidatedCrudRequester<UpdateProfileResponse>(
-                RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
-                Endpoint.UPDATE_CUSTOMER_PROFILE,
-                ResponseSpecs.requestReturnsOK())
+            RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+            Endpoint.UPDATE_CUSTOMER_PROFILE,
+            ResponseSpecs.requestReturnsOK())
             .update(updateProfileRequest);
 
-    userDao = DataBaseSteps.getUserByUsername(user.getUsername());
-    DaoAndModelAssertions.assertThat(updateProfileSecond.getCustomer(), userDao).match();
-    softly
-        .assertThat(updateProfileSecond.getMessage())
-        .isEqualTo(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
+//    userDao = DataBaseSteps.getUserByUsername(user.getUsername());
+//    DaoAndModelAssertions.assertThat(updateProfileSecond.getCustomer(), userDao).match();
+//    softly
+//        .assertThat(updateProfileSecond.getMessage())
+//        .isEqualTo(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
+//    softly.assertThat(updateProfileSecond).isEqualTo(updateProfileFirst);
+
     softly.assertThat(updateProfileSecond).isEqualTo(updateProfileFirst);
+    GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
+    softly.assertThat(getUserResponse.getName()).isEqualTo(updateProfileRequest.getName());
+    softly.assertThat(getUserResponse.getUsername()).isEqualTo(user.getUsername());
   }
 
   @Test
@@ -87,31 +96,35 @@ public class ChangeUserNameTest extends BaseTest {
         UpdateProfileRequest.builder().name(firstName).build();
     UpdateProfileResponse updateProfileResponseFirst =
         new ValidatedCrudRequester<UpdateProfileResponse>(
-                RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
-                Endpoint.UPDATE_CUSTOMER_PROFILE,
-                ResponseSpecs.requestReturnsOK())
+            RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+            Endpoint.UPDATE_CUSTOMER_PROFILE,
+            ResponseSpecs.requestReturnsOK())
             .update(updateProfileRequestFirst);
 
-    UserDao userDaoFirst = DataBaseSteps.getUserByUsername(user.getUsername());
-    DaoAndModelAssertions.assertThat(updateProfileResponseFirst.getCustomer(), userDaoFirst)
-        .match();
+//    UserDao userDaoFirst = DataBaseSteps.getUserByUsername(user.getUsername());
+//    DaoAndModelAssertions.assertThat(updateProfileResponseFirst.getCustomer(), userDaoFirst)
+//        .match();
+    softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequestFirst, updateProfileResponseFirst)).isTrue();
 
     String secondName = RandomData.getName();
     UpdateProfileRequest updateProfileRequestSecond =
         UpdateProfileRequest.builder().name(secondName).build();
     UpdateProfileResponse updateProfileResponseSecond =
         new ValidatedCrudRequester<UpdateProfileResponse>(
-                RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
-                Endpoint.UPDATE_CUSTOMER_PROFILE,
-                ResponseSpecs.requestReturnsOK())
+            RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+            Endpoint.UPDATE_CUSTOMER_PROFILE,
+            ResponseSpecs.requestReturnsOK())
             .update(updateProfileRequestSecond);
 
-    UserDao userDaoSecond = DataBaseSteps.getUserByUsername(user.getUsername());
-    DaoAndModelAssertions.assertThat(updateProfileResponseSecond.getCustomer(), userDaoSecond)
-        .match();
-    softly
-        .assertThat(updateProfileResponseSecond.getMessage())
-        .isEqualTo(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
+//    UserDao userDaoSecond = DataBaseSteps.getUserByUsername(user.getUsername());
+//    DaoAndModelAssertions.assertThat(updateProfileResponseSecond.getCustomer(), userDaoSecond)
+//        .match();
+//    softly
+//        .assertThat(updateProfileResponseSecond.getMessage())
+//        .isEqualTo(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
+    softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequestSecond, updateProfileResponseSecond)).isTrue();
+    GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
+    softly.assertThat(getUserResponse.getName()).isEqualTo(secondName);
   }
 
   /*
@@ -126,44 +139,50 @@ public class ChangeUserNameTest extends BaseTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
-        "",
-        "   ",
-        "Alsu1 test2",
-        "Alsu!@#$%%^&*() test_+/,<>?}{[]';/.!",
-        "Alsutest",
-        "Alsu  test",
-        "Alsu_test"
+          "",
+          "   ",
+          "Alsu1 test2",
+          "Alsu!@#$%%^&*() test_+/,<>?}{[]';/.!",
+          "Alsutest",
+          "Alsu  test",
+          "Alsu_test"
       })
   @UserApiSession
   public void userCannotChangeNameToInvalidValueTest(String name) {
     CreateUserRequest user = SessionStorage.getUser();
-    UserDao userDaoBefore = DataBaseSteps.getUserByUsername(user.getUsername());
+    GetUserResponse getUserResponseBefore = SessionStorage.getSteps().getUserResponse();
+//    UserDao userDaoBefore = DataBaseSteps.getUserByUsername(user.getUsername());
 
     UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder().name(name).build();
     new CrudRequester(
-            RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
-            Endpoint.UPDATE_CUSTOMER_PROFILE,
-            ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
+        RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+        Endpoint.UPDATE_CUSTOMER_PROFILE,
+        ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
         .update(updateProfileRequest);
 
-    UserDao userDaoAfter = DataBaseSteps.getUserByUsername(user.getUsername());
-    softly.assertThat(userDaoAfter).isEqualTo(userDaoBefore);
+    GetUserResponse getUserResponseAfter = SessionStorage.getSteps().getUserResponse();
+    softly.assertThat(getUserResponseAfter).isEqualTo(getUserResponseBefore);
+//    UserDao userDaoAfter = DataBaseSteps.getUserByUsername(user.getUsername());
+//    softly.assertThat(userDaoAfter).isEqualTo(userDaoBefore);
   }
 
   @Test
   @UserApiSession
   public void userCannotChangeNameToNullTest() {
     CreateUserRequest user = SessionStorage.getUser();
-    UserDao userDaoBefore = DataBaseSteps.getUserByUsername(user.getUsername());
+    GetUserResponse getUserResponseBefore = SessionStorage.getSteps().getUserResponse();
+//    UserDao userDaoBefore = DataBaseSteps.getUserByUsername(user.getUsername());
 
     UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder().name(null).build();
     new CrudRequester(
-            RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
-            Endpoint.UPDATE_CUSTOMER_PROFILE,
-            ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
+        RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+        Endpoint.UPDATE_CUSTOMER_PROFILE,
+        ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
         .update(updateProfileRequest);
 
-    UserDao userDaoAfter = DataBaseSteps.getUserByUsername(user.getUsername());
-    softly.assertThat(userDaoAfter).isEqualTo(userDaoBefore);
+//    UserDao userDaoAfter = DataBaseSteps.getUserByUsername(user.getUsername());
+//    softly.assertThat(userDaoAfter).isEqualTo(userDaoBefore);
+    GetUserResponse getUserResponseAfter = SessionStorage.getSteps().getUserResponse();
+    softly.assertThat(getUserResponseAfter).isEqualTo(getUserResponseBefore);
   }
 }

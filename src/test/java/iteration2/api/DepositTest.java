@@ -1,34 +1,30 @@
 package iteration2.api;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import api.dao.AccountDao;
-import api.dao.TransactionDao;
-import api.dao.UserDao;
-import api.dao.comparison.DaoAndModelAssertions;
 import api.generators.RandomData;
 import api.models.Messages;
 import api.models.TransactionTypes;
 import api.models.accounts.CreateAccountResponse;
 import api.models.accounts.DepositRequest;
 import api.models.accounts.DepositResponse;
+import api.models.accounts.GetAccountTransactionsResponse;
+import api.models.comparison.TransactionsComparing;
 import api.requests.skeleton.Endpoint;
 import api.requests.skeleton.requesters.CrudRequester;
 import api.requests.skeleton.requesters.ValidatedCrudRequester;
 import api.requests.steps.AdminSteps;
-import api.requests.steps.DataBaseSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import baseTests.BaseTest;
 import common.annotations.UserApiSession;
 import common.storage.SessionStorage;
-import java.util.List;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 public class DepositTest extends BaseTest {
   /*
@@ -46,23 +42,34 @@ public class DepositTest extends BaseTest {
         DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
     DepositResponse depositResponse =
         new ValidatedCrudRequester<DepositResponse>(
-                RequestSpecs.authAsUser(
-                    SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
-                Endpoint.DEPOSIT,
-                ResponseSpecs.requestReturnsOK())
+            RequestSpecs.authAsUser(
+                SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
+            Endpoint.DEPOSIT,
+            ResponseSpecs.requestReturnsOK())
             .post(depositRequest);
-
-    AccountDao accountDao =
-        DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
-    DaoAndModelAssertions.assertThat(depositResponse, accountDao).match();
-    softly.assertThat(depositResponse.getTransactions().size()).isEqualTo(1);
-    TransactionDao transactionDao =
-        DataBaseSteps.getTransactionById(depositResponse.getTransactions().getFirst().getId());
-    DaoAndModelAssertions.assertThat(depositResponse.getTransactions().getFirst(), transactionDao)
-        .match();
-    softly
-        .assertThat(transactionDao.getType())
+    softly.assertThat(TransactionsComparing.validateDepositTransaction(depositRequest, depositResponse)).isTrue();
+    GetAccountTransactionsResponse getAccountTransactions = SessionStorage.getSteps()
+        .getAccountTransactions(createAccountResponse.getId());
+    softly.assertThat(depositResponse.getTransactions()).isEqualTo(getAccountTransactions.getTransactions());
+    softly.assertThat(getAccountTransactions.getTransactions().size()).isEqualTo(1);
+    softly.assertThat(getAccountTransactions.getTransactions().getFirst().getAmount()).isEqualTo(amount);
+    softly.assertThat(getAccountTransactions.getTransactions().getFirst().getType())
         .isEqualTo(TransactionTypes.TRANSACTION_TYPE_FOR_DEPOSIT.getDescription());
+
+    CreateAccountResponse account = SessionStorage.getSteps().getCustomerAccount(createAccountResponse.getId());
+    softly.assertThat(account.getBalance()).isEqualTo(amount);
+    softly.assertThat(account.getTransactions().size()).isEqualTo(1);
+//    AccountDao accountDao =
+//        DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
+//    DaoAndModelAssertions.assertThat(depositResponse, accountDao).match();
+//    softly.assertThat(depositResponse.getTransactions().size()).isEqualTo(1);
+//    TransactionDao transactionDao =
+//        DataBaseSteps.getTransactionById(depositResponse.getTransactions().getFirst().getId());
+//    DaoAndModelAssertions.assertThat(depositResponse.getTransactions().getFirst(), transactionDao)
+//        .match();
+//    softly
+//        .assertThat(transactionDao.getType())
+//        .isEqualTo(TransactionTypes.TRANSACTION_TYPE_FOR_DEPOSIT.getDescription());
   }
 
   /*
@@ -72,9 +79,9 @@ public class DepositTest extends BaseTest {
    */
   public static Stream<Arguments> negativeCasesForDepositTest() {
     return Stream.of(
-        Arguments.of(0.00, "Invalid account or amount"),
-        Arguments.of(-0.01, "Invalid account or amount"),
-        Arguments.of(5000.01, "Deposit amount exceeds the 5000 limit"));
+        Arguments.of(0.00, "Deposit amount must be at least 0.01"),
+        Arguments.of(-0.01, "Deposit amount must be at least 0.01"),
+        Arguments.of(5000.01, "Deposit amount cannot exceed 5000"));
   }
 
   @ParameterizedTest
@@ -86,18 +93,25 @@ public class DepositTest extends BaseTest {
     DepositRequest depositRequest =
         DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
     new CrudRequester(
-            RequestSpecs.authAsUser(
-                SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
-            Endpoint.DEPOSIT,
-            ResponseSpecs.requestReturnsBadRequest(errorMessage))
+        RequestSpecs.authAsUser(
+            SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
+        Endpoint.DEPOSIT,
+        ResponseSpecs.requestReturnsBadRequest(errorMessage))
         .post(depositRequest);
 
-    AccountDao accountDao =
-        DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
-    softly.assertThat(accountDao.getBalance()).isZero();
-    List<TransactionDao> transactions =
-        DataBaseSteps.getTransactionsByAccountId(createAccountResponse.getId());
-    softly.assertThat(transactions.size()).isZero();
+    GetAccountTransactionsResponse getAccountTransactions = SessionStorage.getSteps()
+        .getAccountTransactions(createAccountResponse.getId());
+    softly.assertThat(getAccountTransactions.getTransactions().size()).isZero();
+
+    CreateAccountResponse account = SessionStorage.getSteps().getCustomerAccount(createAccountResponse.getId());
+    softly.assertThat(account.getBalance()).isZero();
+    softly.assertThat(account.getTransactions().size()).isZero();
+//    AccountDao accountDao =
+//        DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
+//    softly.assertThat(accountDao.getBalance()).isZero();
+//    List<TransactionDao> transactions =
+//        DataBaseSteps.getTransactionsByAccountId(createAccountResponse.getId());
+//    softly.assertThat(transactions.size()).isZero();
   }
 
   @Test
@@ -108,15 +122,17 @@ public class DepositTest extends BaseTest {
     DepositRequest depositRequest =
         DepositRequest.builder().id(notExistsAccountId).balance(amount).build();
     new CrudRequester(
-            RequestSpecs.authAsUser(
-                SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
-            Endpoint.DEPOSIT,
-            ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage()))
+        RequestSpecs.authAsUser(
+            SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
+        Endpoint.DEPOSIT,
+        ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage()))
         .post(depositRequest);
 
-    UserDao userDao = DataBaseSteps.getUserByUsername(SessionStorage.getUser().getUsername());
-    AccountDao accountDao = DataBaseSteps.getAccountByCustomerId(userDao.getId());
-    assertNull(accountDao);
+    List<CreateAccountResponse> getAccountsResponse = SessionStorage.getSteps().getCustomerAccounts();
+    softly.assertThat(getAccountsResponse.size()).isZero();
+//    UserDao userDao = DataBaseSteps.getUserByUsername(SessionStorage.getUser().getUsername());
+//    AccountDao accountDao = DataBaseSteps.getAccountByCustomerId(userDao.getId());
+//    assertNull(accountDao);
   }
 
   @Test
@@ -131,17 +147,23 @@ public class DepositTest extends BaseTest {
     DepositRequest depositRequest =
         DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
     new CrudRequester(
-            RequestSpecs.authAsUser(
-                SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
-            Endpoint.DEPOSIT,
-            ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage()))
+        RequestSpecs.authAsUser(
+            SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
+        Endpoint.DEPOSIT,
+        ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage()))
         .post(depositRequest);
 
-    AccountDao accountDao =
-        DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
-    softly.assertThat(accountDao.getBalance()).isZero();
-    List<TransactionDao> transactions =
-        DataBaseSteps.getTransactionsByAccountId(createAccountResponse.getId());
-    softly.assertThat(transactions.size()).isZero();
+//    AccountDao accountDao =
+//        DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
+//    softly.assertThat(accountDao.getBalance()).isZero();
+//    List<TransactionDao> transactions =
+//        DataBaseSteps.getTransactionsByAccountId(createAccountResponse.getId());
+//    softly.assertThat(transactions.size()).isZero();
+    GetAccountTransactionsResponse getAccountTransactions = SessionStorage.getSteps(anotherUserId)
+        .getAccountTransactions(createAccountResponse.getId());
+    softly.assertThat(getAccountTransactions.getTransactions().size()).isZero();
+    CreateAccountResponse account = SessionStorage.getSteps(anotherUserId).getCustomerAccount(createAccountResponse.getId());
+    softly.assertThat(account.getBalance()).isZero();
+    softly.assertThat(account.getTransactions().size()).isZero();
   }
 }
