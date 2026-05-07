@@ -89,4 +89,4 @@ jobs: # аналог этапов
 
       - name: Clean up services
         if: always()
-        run: docker compose down
+        run: cd infra/docker_compose && docker compose down
