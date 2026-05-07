@@ -37,7 +37,7 @@ jobs: # аналог этапов
         run: chmod +x ./mvnw
 
       - name: Run tests
-        run: mvn clean test -DwithMock=false -P api -q
+        run: mvn clean test -DwithMock=false -q
         continue-on-error: true
         env:
           APIBASEURL: http://localhost:4111
@@ -57,7 +57,7 @@ jobs: # аналог этапов
 
       - name: Run Swagger coverage
         if: always()
-        run: .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
+        run: chmod +x .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
 
       - name: Load test report history
         uses: actions/checkout@v4

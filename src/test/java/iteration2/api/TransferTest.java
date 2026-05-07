@@ -269,10 +269,11 @@ public class TransferTest extends BaseTest {
     CreateAccountResponse senderAccount = SessionStorage.getSteps().createAccount();
     double depositAmount = RandomData.getDepositAmount();
     SessionStorage.getSteps().deposit(senderAccount.getId(), depositAmount);
+    GetAccountTransactionsResponse senderTransactionsBefore = SessionStorage.getSteps().getAccountTransactions(senderAccount.getId());
 //    AccountDao senderAccountDaoBefore =
 //        DataBaseSteps.getAccountByAccountNumber(senderAccount.getAccountNumber());
-    List<TransactionDao> senderTransactionsBefore =
-        DataBaseSteps.getTransactionsByAccountId(senderAccount.getId());
+//    List<TransactionDao> senderTransactionsBefore =
+//        DataBaseSteps.getTransactionsByAccountId(senderAccount.getId());
 
     TransferRequest transferRequest =
         TransferRequest.builder()
