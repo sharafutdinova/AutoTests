@@ -42,11 +42,6 @@ public class ChangeUserNameTest extends BaseTest {
     softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileResponse)).isTrue();
     softly.assertThat(getUserResponse.getName()).isEqualTo(updateProfileRequest.getName());
     softly.assertThat(getUserResponse.getUsername()).isEqualTo(user.getUsername());
-//    UserDao userDao = DataBaseSteps.getUserByUsername(user.getUsername());
-//    DaoAndModelAssertions.assertThat(updateProfileResponse.getCustomer(), userDao).match();
-//    softly
-//        .assertThat(updateProfileResponse.getMessage())
-//        .isEqualTo(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
   }
 
   @Test
@@ -63,8 +58,6 @@ public class ChangeUserNameTest extends BaseTest {
             ResponseSpecs.requestReturnsOK())
             .update(updateProfileRequest);
 
-//    UserDao userDao = DataBaseSteps.getUserByUsername(user.getUsername());
-//    DaoAndModelAssertions.assertThat(updateProfileFirst.getCustomer(), userDao).match();
     softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequest, updateProfileFirst)).isTrue();
 
     UpdateProfileResponse updateProfileSecond =
@@ -73,13 +66,6 @@ public class ChangeUserNameTest extends BaseTest {
             Endpoint.UPDATE_CUSTOMER_PROFILE,
             ResponseSpecs.requestReturnsOK())
             .update(updateProfileRequest);
-
-//    userDao = DataBaseSteps.getUserByUsername(user.getUsername());
-//    DaoAndModelAssertions.assertThat(updateProfileSecond.getCustomer(), userDao).match();
-//    softly
-//        .assertThat(updateProfileSecond.getMessage())
-//        .isEqualTo(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
-//    softly.assertThat(updateProfileSecond).isEqualTo(updateProfileFirst);
 
     softly.assertThat(updateProfileSecond).isEqualTo(updateProfileFirst);
     GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
@@ -101,9 +87,6 @@ public class ChangeUserNameTest extends BaseTest {
             ResponseSpecs.requestReturnsOK())
             .update(updateProfileRequestFirst);
 
-//    UserDao userDaoFirst = DataBaseSteps.getUserByUsername(user.getUsername());
-//    DaoAndModelAssertions.assertThat(updateProfileResponseFirst.getCustomer(), userDaoFirst)
-//        .match();
     softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequestFirst, updateProfileResponseFirst)).isTrue();
 
     String secondName = RandomData.getName();
@@ -116,12 +99,6 @@ public class ChangeUserNameTest extends BaseTest {
             ResponseSpecs.requestReturnsOK())
             .update(updateProfileRequestSecond);
 
-//    UserDao userDaoSecond = DataBaseSteps.getUserByUsername(user.getUsername());
-//    DaoAndModelAssertions.assertThat(updateProfileResponseSecond.getCustomer(), userDaoSecond)
-//        .match();
-//    softly
-//        .assertThat(updateProfileResponseSecond.getMessage())
-//        .isEqualTo(Messages.PROFILE_UPDATED_SUCCESSFULLY.getMessage());
     softly.assertThat(UserNameComparing.validateUpdateProfileResponse(updateProfileRequestSecond, updateProfileResponseSecond)).isTrue();
     GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
     softly.assertThat(getUserResponse.getName()).isEqualTo(secondName);
@@ -151,7 +128,6 @@ public class ChangeUserNameTest extends BaseTest {
   public void userCannotChangeNameToInvalidValueTest(String name) {
     CreateUserRequest user = SessionStorage.getUser();
     GetUserResponse getUserResponseBefore = SessionStorage.getSteps().getUserResponse();
-//    UserDao userDaoBefore = DataBaseSteps.getUserByUsername(user.getUsername());
 
     UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder().name(name).build();
     new CrudRequester(
@@ -162,8 +138,6 @@ public class ChangeUserNameTest extends BaseTest {
 
     GetUserResponse getUserResponseAfter = SessionStorage.getSteps().getUserResponse();
     softly.assertThat(getUserResponseAfter).isEqualTo(getUserResponseBefore);
-//    UserDao userDaoAfter = DataBaseSteps.getUserByUsername(user.getUsername());
-//    softly.assertThat(userDaoAfter).isEqualTo(userDaoBefore);
   }
 
   @Test
@@ -171,7 +145,6 @@ public class ChangeUserNameTest extends BaseTest {
   public void userCannotChangeNameToNullTest() {
     CreateUserRequest user = SessionStorage.getUser();
     GetUserResponse getUserResponseBefore = SessionStorage.getSteps().getUserResponse();
-//    UserDao userDaoBefore = DataBaseSteps.getUserByUsername(user.getUsername());
 
     UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder().name(null).build();
     new CrudRequester(
@@ -180,9 +153,32 @@ public class ChangeUserNameTest extends BaseTest {
         ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
         .update(updateProfileRequest);
 
-//    UserDao userDaoAfter = DataBaseSteps.getUserByUsername(user.getUsername());
-//    softly.assertThat(userDaoAfter).isEqualTo(userDaoBefore);
     GetUserResponse getUserResponseAfter = SessionStorage.getSteps().getUserResponse();
     softly.assertThat(getUserResponseAfter).isEqualTo(getUserResponseBefore);
+  }
+
+  @Test
+  public void unauthorizedUserCannotChangeNameTest() {
+    UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder().name(null).build();
+    new CrudRequester(
+        RequestSpecs.unauthSpec(),
+        Endpoint.UPDATE_CUSTOMER_PROFILE,
+        ResponseSpecs.requestReturnsUnauthorized())
+        .update(updateProfileRequest);
+  }
+
+  @Test
+  @UserApiSession
+  public void userCannotChangeNameWithoutRequestBodyTest() {
+    CreateUserRequest user = SessionStorage.getUser();
+    UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder().build();
+    new CrudRequester(
+        RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+        Endpoint.UPDATE_CUSTOMER_PROFILE,
+        ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
+        .update(updateProfileRequest);
+
+    GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
+    softly.assertThat(getUserResponse.getName()).isNull();
   }
 }

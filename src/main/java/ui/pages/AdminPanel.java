@@ -24,12 +24,12 @@ public class AdminPanel extends BasePage<AdminPanel> {
   }
 
   public AdminPanel createUser(String username, String password) {
-    return StepLogger.log("Creating user " + username + " from admin panel ", () -> {
+    StepLogger.logWithScreen("Creating user " + username + " from admin panel ", () -> {
       sendKeys(usernameInput, username);
       sendKeys(passwordInput, password);
-      addUserButton.click();
-      return this;
     });
+      addUserButton.click();
+    return this;
   }
 
   public List<UserBage> getAllUsers() {

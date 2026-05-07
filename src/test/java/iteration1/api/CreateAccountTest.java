@@ -3,6 +3,7 @@ package iteration1.api;
 import api.models.accounts.CreateAccountResponse;
 import api.models.admin.CreateUserRequest;
 import api.requests.skeleton.Endpoint;
+import api.requests.skeleton.requesters.CrudRequester;
 import api.requests.skeleton.requesters.ValidatedCrudRequester;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
@@ -27,9 +28,27 @@ public class CreateAccountTest extends BaseTest {
 
     List<CreateAccountResponse> accounts = SessionStorage.getSteps().getCustomerAccounts();
     softly.assertThat(accounts.contains(createAccountResponse)).isTrue();
-//    AccountDao accountDao =
-//        DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
-//
-//    DaoAndModelAssertions.assertThat(createAccountResponse, accountDao).match();
+  }
+
+  @Test
+  @UserApiSession
+  public void unauthorizedUserCanNotCreateAccountTest() {
+    new CrudRequester(
+        RequestSpecs.unauthSpec(),
+        Endpoint.ACCOUNTS,
+        ResponseSpecs.requestReturnsUnauthorized())
+        .post();
+
+    List<CreateAccountResponse> accounts = SessionStorage.getSteps().getCustomerAccounts();
+    softly.assertThat(accounts).isEmpty();
+  }
+
+  @Test
+  public void adminCanNotCreateAccountTest() {
+    new CrudRequester(
+        RequestSpecs.adminSpec(),
+        Endpoint.ACCOUNTS,
+        ResponseSpecs.requestReturnsForbidden("Forbidden"))
+        .post();
   }
 }

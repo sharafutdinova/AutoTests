@@ -12,6 +12,8 @@ import api.requests.steps.AdminSteps;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
 import baseTests.BaseTest;
+import common.annotations.UserApiSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -34,10 +36,6 @@ public class CreateUserTest extends BaseTest {
         new ValidatedCrudRequester<CreateUserResponse>(
             RequestSpecs.adminSpec(), Endpoint.ADMIN_USER, ResponseSpecs.entityWasCreated())
             .post(createUserRequest);
-
-//    ModelAssertions.assertThatModels(createUserRequest, createUserResponse).match();
-//    UserDao userDao = DataBaseSteps.getUserByUsername(createUserRequest.getUsername());
-//    DaoAndModelAssertions.assertThat(createUserResponse, userDao).match();
 
     ModelAssertions.assertThatModels(createUserRequest, createUserResponse).match();
     List<CreateUserResponse> createdUsers = AdminSteps.getAllUsers();
@@ -87,9 +85,60 @@ public class CreateUserTest extends BaseTest {
         Endpoint.ADMIN_USER,
         ResponseSpecs.requestReturnsBadRequest(errorKey, errorValues))
         .post(createUserRequest);
-//    assertNull(DataBaseSteps.getUserByUsername(createUserRequest.getUsername()));
+
     List<CreateUserResponse> usersWithSameName = AdminSteps.getAllUsers().stream()
         .filter(user -> user.getUsername().equals(username) && user.getRole().equals(role))
+        .toList();
+    softly.assertThat(usersWithSameName).hasSize(0);
+  }
+
+  @Test
+  public void adminCanCreateNewAdminTest() {
+    CreateUserRequest createUserRequest =
+        CreateUserRequest.builder().username(RandomData.getUsername()).password(RandomData.getPassword()).role(UserRole.ADMIN.toString()).build();
+
+    CreateUserResponse createUserResponse =
+        new ValidatedCrudRequester<CreateUserResponse>(
+            RequestSpecs.adminSpec(), Endpoint.ADMIN_USER, ResponseSpecs.entityWasCreated())
+            .post(createUserRequest);
+
+    ModelAssertions.assertThatModels(createUserRequest, createUserResponse).match();
+    List<CreateUserResponse> createdUsers = AdminSteps.getAllUsers();
+    softly.assertThat(createdUsers.contains(createUserResponse)).isTrue();
+  }
+
+  @Test
+  public void unauthorizedAdminCanNotCreateNewUserTest() {
+    CreateUserRequest createUserRequest =
+        CreateUserRequest.builder().username(RandomData.getUsername()).password(RandomData.getPassword()).role(UserRole.USER.toString()).build();
+
+    new CrudRequester(
+        RequestSpecs.unauthSpec(), Endpoint.ADMIN_USER, ResponseSpecs.requestReturnsUnauthorized())
+        .post(createUserRequest);
+
+    List<CreateUserResponse> usersWithSameName = AdminSteps.getAllUsers().stream()
+        .filter(user -> user.getUsername().equals(createUserRequest.getUsername()) && user.getRole().equals(UserRole.USER.toString()))
+        .toList();
+    softly.assertThat(usersWithSameName).hasSize(0);
+  }
+
+  @Test
+  @UserApiSession
+  public void userCanNotCreateUserTest() {
+    CreateUserRequest createUserRequest =
+        CreateUserRequest.builder()
+            .username(RandomData.getUsername())
+            .password(RandomData.getPassword())
+            .role(UserRole.USER.toString())
+            .build();
+
+    new CrudRequester(
+        RequestSpecs.authAsUser(SessionStorage.getUser().getUsername(), SessionStorage.getUser().getPassword()),
+        Endpoint.ADMIN_USER, ResponseSpecs.requestReturnsForbidden("Forbidden"))
+        .post(createUserRequest);
+
+    List<CreateUserResponse> usersWithSameName = AdminSteps.getAllUsers().stream()
+        .filter(user -> user.getUsername().equals(createUserRequest.getUsername()) && user.getRole().equals(UserRole.USER.toString()))
         .toList();
     softly.assertThat(usersWithSameName).hasSize(0);
   }

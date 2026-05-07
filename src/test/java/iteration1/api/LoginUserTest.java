@@ -1,6 +1,7 @@
 package iteration1.api;
 
 import api.configs.Config;
+import api.generators.RandomData;
 import api.models.admin.CreateUserRequest;
 import api.models.authentification.LoginUserRequest;
 import api.requests.skeleton.Endpoint;
@@ -36,6 +37,19 @@ public class LoginUserTest extends BaseTest {
                 .password(userRequest.getPassword())
                 .build())
         .header("Authorization", Matchers.notNullValue());
+    AdminSteps.deleteUserByCreateUserRequest(userRequest);
+  }
+
+  @Test
+  public void userCanNotGenerateAuthTokenWithWrongCredentialsTest() {
+    CreateUserRequest userRequest = AdminSteps.createUser();
+
+    new CrudRequester(RequestSpecs.unauthSpec(), Endpoint.LOGIN, ResponseSpecs.requestReturnsUnauthorized())
+        .post(
+            LoginUserRequest.builder()
+                .username(userRequest.getUsername())
+                .password(RandomData.getPassword())
+                .build());
     AdminSteps.deleteUserByCreateUserRequest(userRequest);
   }
 }

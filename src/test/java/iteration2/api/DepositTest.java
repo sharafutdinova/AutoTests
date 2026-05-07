@@ -59,17 +59,6 @@ public class DepositTest extends BaseTest {
     CreateAccountResponse account = SessionStorage.getSteps().getCustomerAccount(createAccountResponse.getId());
     softly.assertThat(account.getBalance()).isEqualTo(amount);
     softly.assertThat(account.getTransactions().size()).isEqualTo(1);
-//    AccountDao accountDao =
-//        DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
-//    DaoAndModelAssertions.assertThat(depositResponse, accountDao).match();
-//    softly.assertThat(depositResponse.getTransactions().size()).isEqualTo(1);
-//    TransactionDao transactionDao =
-//        DataBaseSteps.getTransactionById(depositResponse.getTransactions().getFirst().getId());
-//    DaoAndModelAssertions.assertThat(depositResponse.getTransactions().getFirst(), transactionDao)
-//        .match();
-//    softly
-//        .assertThat(transactionDao.getType())
-//        .isEqualTo(TransactionTypes.TRANSACTION_TYPE_FOR_DEPOSIT.getDescription());
   }
 
   /*
@@ -106,12 +95,6 @@ public class DepositTest extends BaseTest {
     CreateAccountResponse account = SessionStorage.getSteps().getCustomerAccount(createAccountResponse.getId());
     softly.assertThat(account.getBalance()).isZero();
     softly.assertThat(account.getTransactions().size()).isZero();
-//    AccountDao accountDao =
-//        DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
-//    softly.assertThat(accountDao.getBalance()).isZero();
-//    List<TransactionDao> transactions =
-//        DataBaseSteps.getTransactionsByAccountId(createAccountResponse.getId());
-//    softly.assertThat(transactions.size()).isZero();
   }
 
   @Test
@@ -130,9 +113,6 @@ public class DepositTest extends BaseTest {
 
     List<CreateAccountResponse> getAccountsResponse = SessionStorage.getSteps().getCustomerAccounts();
     softly.assertThat(getAccountsResponse.size()).isZero();
-//    UserDao userDao = DataBaseSteps.getUserByUsername(SessionStorage.getUser().getUsername());
-//    AccountDao accountDao = DataBaseSteps.getAccountByCustomerId(userDao.getId());
-//    assertNull(accountDao);
   }
 
   @Test
@@ -153,16 +133,28 @@ public class DepositTest extends BaseTest {
         ResponseSpecs.requestReturnsForbidden(Messages.FORBIDDEN_ERROR.getMessage()))
         .post(depositRequest);
 
-//    AccountDao accountDao =
-//        DataBaseSteps.getAccountByAccountNumber(createAccountResponse.getAccountNumber());
-//    softly.assertThat(accountDao.getBalance()).isZero();
-//    List<TransactionDao> transactions =
-//        DataBaseSteps.getTransactionsByAccountId(createAccountResponse.getId());
-//    softly.assertThat(transactions.size()).isZero();
     GetAccountTransactionsResponse getAccountTransactions = SessionStorage.getSteps(anotherUserId)
         .getAccountTransactions(createAccountResponse.getId());
     softly.assertThat(getAccountTransactions.getTransactions().size()).isZero();
     CreateAccountResponse account = SessionStorage.getSteps(anotherUserId).getCustomerAccount(createAccountResponse.getId());
+    softly.assertThat(account.getBalance()).isZero();
+    softly.assertThat(account.getTransactions().size()).isZero();
+  }
+
+  @Test
+  @UserApiSession
+  public void unauthorizedUserCannotDepositTest() {
+    CreateAccountResponse createAccountResponse = SessionStorage.getSteps().createAccount();
+    double amount = RandomData.getDepositAmount();
+    DepositRequest depositRequest =
+        DepositRequest.builder().id(createAccountResponse.getId()).balance(amount).build();
+    new CrudRequester(
+        RequestSpecs.unauthSpec(),
+        Endpoint.DEPOSIT,
+        ResponseSpecs.requestReturnsUnauthorized())
+        .post(depositRequest);
+
+    CreateAccountResponse account = SessionStorage.getSteps().getCustomerAccount(createAccountResponse.getId());
     softly.assertThat(account.getBalance()).isZero();
     softly.assertThat(account.getTransactions().size()).isZero();
   }

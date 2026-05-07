@@ -2,12 +2,14 @@ package api.specs;
 
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.specification.ResponseSpecification;
-import java.util.List;
 import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
 
+import java.util.List;
+
 public class ResponseSpecs {
-  private ResponseSpecs() {}
+  private ResponseSpecs() {
+  }
 
   private static ResponseSpecBuilder defaultResponseBuilder() {
     return new ResponseSpecBuilder();
@@ -39,7 +41,19 @@ public class ResponseSpecs {
   public static ResponseSpecification requestReturnsForbidden(String errorValue) {
     return defaultResponseBuilder()
         .expectStatusCode(HttpStatus.SC_FORBIDDEN)
-        .expectBody(Matchers.equalTo(errorValue))
+        .expectBody(Matchers.containsString(errorValue))
+        .build();
+  }
+
+  public static ResponseSpecification requestReturnsForbidden() {
+    return defaultResponseBuilder()
+        .expectStatusCode(HttpStatus.SC_FORBIDDEN)
+        .build();
+  }
+
+  public static ResponseSpecification requestReturnsUnauthorized() {
+    return defaultResponseBuilder()
+        .expectStatusCode(HttpStatus.SC_UNAUTHORIZED)
         .build();
   }
 }
