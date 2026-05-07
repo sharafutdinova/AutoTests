@@ -37,7 +37,7 @@ jobs: # аналог этапов
         run: chmod +x ./mvnw
 
       - name: Run tests
-        run: mvn clean test -DwithMock=false -q
+        run: mvn clean test -DwithMock=false -P api -q
         continue-on-error: true
         env:
           APIBASEURL: http://localhost:4111
