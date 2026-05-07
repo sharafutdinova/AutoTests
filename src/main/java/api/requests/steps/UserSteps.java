@@ -10,6 +10,8 @@ import api.requests.skeleton.requesters.CrudRequester;
 import api.requests.skeleton.requesters.ValidatedCrudRequester;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
+import common.helpers.StepLogger;
+
 import java.util.Comparator;
 import java.util.List;
 
@@ -23,32 +25,33 @@ public class UserSteps {
   }
 
   public GetUserResponse getUserResponse() {
-    return new ValidatedCrudRequester<GetUserResponse>(
-            RequestSpecs.authAsUser(this.username, this.password),
-            Endpoint.GET_CUSTOMER_PROFILE,
-            ResponseSpecs.requestReturnsOK())
-        .get();
+    return StepLogger.log("User " + username + " gets customer profile", () -> new ValidatedCrudRequester<GetUserResponse>(
+        RequestSpecs.authAsUser(this.username, this.password),
+        Endpoint.GET_CUSTOMER_PROFILE,
+        ResponseSpecs.requestReturnsOK())
+        .get());
   }
 
   public CreateAccountResponse createAccount() {
-    return new ValidatedCrudRequester<CreateAccountResponse>(
-            RequestSpecs.authAsUser(this.username, this.password),
-            Endpoint.ACCOUNTS,
-            ResponseSpecs.entityWasCreated())
-        .post();
+    return StepLogger.log("User " + username + " creates new account", () -> new ValidatedCrudRequester<CreateAccountResponse>(
+        RequestSpecs.authAsUser(this.username, this.password),
+        Endpoint.ACCOUNTS,
+        ResponseSpecs.entityWasCreated())
+        .post());
   }
 
   public void deposit(long accountId, double amount) {
     DepositRequest depositRequest = DepositRequest.builder().id(accountId).balance(amount).build();
 
-    new CrudRequester(
+    StepLogger.log("User " + username + " performs deposit to account " + accountId + " with amount " + amount, () ->
+        new CrudRequester(
             RequestSpecs.authAsUser(this.username, this.password),
             Endpoint.DEPOSIT,
             ResponseSpecs.requestReturnsOK())
-        .post(depositRequest)
-        .extract()
-        .body()
-        .as(DepositResponse.class);
+            .post(depositRequest)
+            .extract()
+            .body()
+            .as(DepositResponse.class));
   }
 
   public DepositResponseForFraud depositToAccount(Long accountId, double amount) {
@@ -59,11 +62,12 @@ public class UserSteps {
             .description("Test deposit")
             .build();
 
-    return new ValidatedCrudRequester<DepositResponseForFraud>(
+    return StepLogger.log("User " + username + " performs deposit to account " + accountId + " with amount " + amount, () ->
+        new ValidatedCrudRequester<DepositResponseForFraud>(
             RequestSpecs.authAsUser(username, password),
             Endpoint.DEPOSIT_WITH_FRAUD,
             ResponseSpecs.requestReturnsOK())
-        .post(depositRequest);
+            .post(depositRequest));
   }
 
   public TransferResponseForFraud transferWithFraudCheck(
@@ -76,60 +80,67 @@ public class UserSteps {
             .description("Test transfer with fraud check")
             .build();
 
-    return new ValidatedCrudRequester<TransferResponseForFraud>(
+    return StepLogger.log("User " + username + " performs deposit from account " + senderAccountId + " to account " + receiverAccountId + " with amount " + amount, () ->
+        new ValidatedCrudRequester<TransferResponseForFraud>(
             RequestSpecs.authAsUser(username, password),
             Endpoint.TRANSFER_WITH_FRAUD_CHECK,
             ResponseSpecs.requestReturnsOK())
-        .post(transferRequest);
+            .post(transferRequest));
   }
 
   public GetAccountTransactionsResponse getAccountTransactions(long accountId) {
     GetAccountTransactionsRequest getAccountTransactionsRequest =
         new GetAccountTransactionsRequest(accountId);
-    return new ValidatedCrudRequester<GetAccountTransactionsResponse>(
+    return StepLogger.log("User " + username + " gets transactions for account " + accountId, () ->
+        new ValidatedCrudRequester<GetAccountTransactionsResponse>(
             RequestSpecs.authAsUser(this.username, this.password),
             Endpoint.ACCOUNT_TRANSACTIONS,
             ResponseSpecs.requestReturnsOK())
-        .get(getAccountTransactionsRequest.getParams());
+            .get(getAccountTransactionsRequest.getParams()));
   }
 
   public Transaction getAccountLastTransactions(long accountId) {
     GetAccountTransactionsRequest getAccountTransactionsRequest =
         new GetAccountTransactionsRequest(accountId);
-    GetAccountTransactionsResponse accountTransactionsResponse =
-        new ValidatedCrudRequester<GetAccountTransactionsResponse>(
-                RequestSpecs.authAsUser(this.username, this.password),
-                Endpoint.ACCOUNT_TRANSACTIONS,
-                ResponseSpecs.requestReturnsOK())
-            .get(getAccountTransactionsRequest.getParams());
-    return accountTransactionsResponse.getTransactions().stream()
-        .max(Comparator.comparing(Transaction::getId))
-        .orElse(null);
+    return StepLogger.log("User " + username + " gets last transaction for account " + accountId, () -> {
+      GetAccountTransactionsResponse accountTransactionsResponse =
+          new ValidatedCrudRequester<GetAccountTransactionsResponse>(
+              RequestSpecs.authAsUser(this.username, this.password),
+              Endpoint.ACCOUNT_TRANSACTIONS,
+              ResponseSpecs.requestReturnsOK())
+              .get(getAccountTransactionsRequest.getParams());
+      return accountTransactionsResponse.getTransactions().stream()
+          .max(Comparator.comparing(Transaction::getId))
+          .orElse(null);
+    });
   }
 
   public List<CreateAccountResponse> getCustomerAccounts() {
-    return new ValidatedCrudRequester<CreateAccountResponse>(
+    return StepLogger.log("User " + username + " gets all accounts", () ->
+        new ValidatedCrudRequester<CreateAccountResponse>(
             RequestSpecs.authAsUser(this.username, this.password),
             Endpoint.CUSTOMER_ACCOUNTS,
             ResponseSpecs.requestReturnsOK())
-        .getAll(CreateAccountResponse[].class);
+            .getAll(CreateAccountResponse[].class));
   }
 
   public CreateAccountResponse getCustomerAccount(long id) {
     List<CreateAccountResponse> getAccountsResponse = getCustomerAccounts();
-    return getAccountsResponse.stream()
-        .filter(account1 -> account1.getId() == id)
-        .findFirst()
-        .orElse(null);
+    return StepLogger.log("User " + username + " gets account with id " + id, () ->
+        getAccountsResponse.stream()
+            .filter(account1 -> account1.getId() == id)
+            .findFirst()
+            .orElse(null));
   }
 
   public void changeName(String newName) {
     UpdateProfileRequest updateProfileRequest =
         UpdateProfileRequest.builder().name(newName).build();
-    new CrudRequester(
+    StepLogger.log("User " + username + "change name to " + newName, () ->
+        new CrudRequester(
             RequestSpecs.authAsUser(this.username, this.password),
             Endpoint.UPDATE_CUSTOMER_PROFILE,
             ResponseSpecs.requestReturnsOK())
-        .update(updateProfileRequest);
+            .update(updateProfileRequest));
   }
 }

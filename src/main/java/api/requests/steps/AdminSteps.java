@@ -1,7 +1,5 @@
 package api.requests.steps;
 
-import static org.hamcrest.Matchers.equalTo;
-
 import api.generators.RandomData;
 import api.models.UserRole;
 import api.models.admin.CreateUserRequest;
@@ -11,7 +9,11 @@ import api.requests.skeleton.requesters.CrudRequester;
 import api.requests.skeleton.requesters.ValidatedCrudRequester;
 import api.specs.RequestSpecs;
 import api.specs.ResponseSpecs;
+import common.helpers.StepLogger;
+
 import java.util.List;
+
+import static org.hamcrest.Matchers.equalTo;
 
 public class AdminSteps {
   public static CreateUserRequest createUser() {
@@ -22,18 +24,23 @@ public class AdminSteps {
             .role(UserRole.USER.toString())
             .build();
 
-    new CrudRequester(
-            RequestSpecs.adminSpec(), Endpoint.ADMIN_USER, ResponseSpecs.entityWasCreated())
-        .post(userRequest);
-    return userRequest;
+    return StepLogger.log("Admin creates user with name " + userRequest.getUsername(), () -> {
+          new CrudRequester(
+              RequestSpecs.adminSpec(), Endpoint.ADMIN_USER, ResponseSpecs.entityWasCreated())
+              .post(userRequest);
+          return userRequest;
+        }
+    );
   }
 
   public static void deleteUserById(long id) {
-    new CrudRequester(
-            RequestSpecs.adminSpec(), Endpoint.ADMIN_DELETE_USER, ResponseSpecs.requestReturnsOK())
-        .delete(id)
-        .assertThat()
-        .body(equalTo("User with ID " + id + " deleted successfully."));
+    StepLogger.log("Admin deletes user with id " + id, () -> {
+      new CrudRequester(
+          RequestSpecs.adminSpec(), Endpoint.ADMIN_DELETE_USER, ResponseSpecs.requestReturnsOK())
+          .delete(id)
+          .assertThat()
+          .body(equalTo("User with ID " + id + " deleted successfully."));
+    });
   }
 
   public static void deleteUserByCreateUserRequest(CreateUserRequest createUserRequest) {
@@ -42,8 +49,8 @@ public class AdminSteps {
   }
 
   public static List<CreateUserResponse> getAllUsers() {
-    return new ValidatedCrudRequester<CreateUserResponse>(
-            RequestSpecs.adminSpec(), Endpoint.ADMIN_USERS, ResponseSpecs.requestReturnsOK())
-        .getAll(CreateUserResponse[].class);
+    return StepLogger.log("Admin gets all users", () -> new ValidatedCrudRequester<CreateUserResponse>(
+        RequestSpecs.adminSpec(), Endpoint.ADMIN_USERS, ResponseSpecs.requestReturnsOK())
+        .getAll(CreateUserResponse[].class));
   }
 }

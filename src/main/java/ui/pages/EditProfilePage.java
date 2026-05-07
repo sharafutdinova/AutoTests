@@ -1,11 +1,12 @@
 package ui.pages;
 
-import static com.codeborne.selenide.Selenide.$;
-
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import common.helpers.StepLogger;
 import common.utils.RetryUtils;
 import lombok.Getter;
+
+import static com.codeborne.selenide.Selenide.$;
 
 @Getter
 public class EditProfilePage extends BasePage<EditProfilePage> {
@@ -19,8 +20,10 @@ public class EditProfilePage extends BasePage<EditProfilePage> {
   }
 
   public EditProfilePage changeName(String newName) {
-    RetryUtils.sendKeysRetry(newNameInput, newName, 3, 800);
-    clickWithRetry(saveButton);
-    return this;
+    return StepLogger.log("Changing name to " + newName, () -> {
+      RetryUtils.sendKeysRetry(newNameInput, newName, 3, 800);
+      clickWithRetry(saveButton);
+      return this;
+    });
   }
 }

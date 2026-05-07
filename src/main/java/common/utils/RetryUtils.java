@@ -4,20 +4,27 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.ex.ElementNotFound;
+import common.helpers.StepLogger;
+import org.openqa.selenium.NotFoundException;
+
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import org.openqa.selenium.NotFoundException;
 
 public class RetryUtils {
   public static <T> T retry(
-      Supplier<T> action, Predicate<T> condition, int maxAttempts, long delayMillis) {
+      String title, Supplier<T> action, Predicate<T> condition, int maxAttempts, long delayMillis) {
     int attempts = 0;
     while (attempts < maxAttempts) {
       attempts++;
-      T result = action.get();
-      if (condition.test(result)) {
-        return result;
+      try {
+        T result = StepLogger.log("Attempt " + attempts + ": " + title, action::get);
+
+        if (condition.test(result)) {
+          return result;
+        }
+      } catch (Throwable e) {
+        System.out.println("Exception " + e.getMessage());
       }
       Selenide.sleep(delayMillis);
     }

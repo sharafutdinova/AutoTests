@@ -2,14 +2,17 @@ package baseTests;
 
 import api.configs.Config;
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.logevents.SelenideLogger;
 import common.extensions.AdminSessionExtension;
 import common.extensions.BrowserMatchExtension;
 import common.extensions.EnvironmentMatchExtension;
 import common.extensions.UserSessionExtension;
-import java.util.Map;
+import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.chrome.ChromeOptions;
+
+import java.util.Map;
 
 @ExtendWith(AdminSessionExtension.class)
 @ExtendWith(UserSessionExtension.class)
@@ -37,5 +40,8 @@ public class BaseUiTest extends BaseTest {
     Configuration.pageLoadStrategy = "eager"; // ждёт только DOM, не ждёт ресурсы
     Configuration.headless = true;
     Configuration.reopenBrowserOnFail = true;
+    SelenideLogger.addListener("AllureSelenide", new AllureSelenide()
+        .screenshots(true)
+        .savePageSource(true));
   }
 }

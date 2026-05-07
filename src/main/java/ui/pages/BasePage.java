@@ -1,15 +1,10 @@
 package ui.pages;
 
-import static com.codeborne.selenide.Selenide.*;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import api.models.admin.CreateUserRequest;
 import api.specs.RequestSpecs;
 import com.codeborne.selenide.*;
+import common.helpers.StepLogger;
 import common.utils.RetryUtils;
-import java.time.Duration;
-import java.util.List;
-import java.util.function.Function;
 import lombok.Getter;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.NoAlertPresentException;
@@ -17,6 +12,13 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ui.elements.BaseElement;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.function.Function;
+
+import static com.codeborne.selenide.Selenide.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Getter
 public abstract class BasePage<T extends BasePage> {
@@ -30,7 +32,7 @@ public abstract class BasePage<T extends BasePage> {
     int maxAttempts = 3;
     for (int i = 0; i < maxAttempts; i++) {
       try {
-        return Selenide.open(url(), (Class<T>) this.getClass());
+        return StepLogger.log("Opening page " + url(), () -> Selenide.open(url(), (Class<T>) this.getClass()));
       } catch (TimeoutException e) {
         System.out.println("Retry opening page, attempt " + (i + 1));
         Selenide.sleep(2000);
@@ -44,10 +46,12 @@ public abstract class BasePage<T extends BasePage> {
   }
 
   public static void authAsUser(String username, String password) {
-    Selenide.open("/");
-    executeJavaScript("localStorage.clear();");
-    String userAuthHeader = RequestSpecs.getUserAuthHeader(username, password);
-    executeJavaScript("localStorage.setItem('authToken', arguments[0]);", userAuthHeader);
+    StepLogger.log("Login as user " + username, () -> {
+      Selenide.open("/");
+      executeJavaScript("localStorage.clear();");
+      String userAuthHeader = RequestSpecs.getUserAuthHeader(username, password);
+      executeJavaScript("localStorage.setItem('authToken', arguments[0]);", userAuthHeader);
+    });
   }
 
   public static void authAsUser(CreateUserRequest createUserRequest) {
@@ -55,15 +59,19 @@ public abstract class BasePage<T extends BasePage> {
   }
 
   public T checkAlertMessageAndAccept(String bankAlert) {
-    Alert alert = switchTo().alert();
-    assertThat(alert.getText()).contains(bankAlert);
-    alert.accept();
-    return (T) this;
+    return StepLogger.log("Checking and accepting alert message: " + bankAlert, () -> {
+      Alert alert = switchTo().alert();
+      assertThat(alert.getText()).contains(bankAlert);
+      alert.accept();
+      return (T) this;
+    });
   }
 
   public T goHome() {
-    $(Selectors.byXpath("//*[contains(text(),'Home')]")).click();
-    return (T) this;
+    return StepLogger.log("Going to the main page", () -> {
+      $(Selectors.byXpath("//*[contains(text(),'Home')]")).click();
+      return (T) this;
+    });
   }
 
   protected <T extends BaseElement> List<T> generatePageElements(
@@ -72,12 +80,14 @@ public abstract class BasePage<T extends BasePage> {
   }
 
   public void sendKeys(SelenideElement element, String keysToSend) {
-    element.shouldBe(Condition.visible, Condition.enabled).clear();
-    element.sendKeys(String.valueOf(keysToSend));
+    StepLogger.log("Sending " + keysToSend + " to input", () -> {
+      element.shouldBe(Condition.visible, Condition.enabled).clear();
+      element.sendKeys(String.valueOf(keysToSend));
+    });
   }
 
   public void clickWithRetry(SelenideElement button) {
-    RetryUtils.retry(
+    RetryUtils.retry("Clicking to button with alert expecting",
         () -> {
           button.click();
           try {

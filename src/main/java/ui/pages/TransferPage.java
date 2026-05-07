@@ -1,10 +1,13 @@
 package ui.pages;
 
-import static com.codeborne.selenide.Selenide.$;
-
-import com.codeborne.selenide.*;
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Selectors;
+import com.codeborne.selenide.SelenideElement;
+import common.helpers.StepLogger;
 import common.utils.RetryUtils;
 import lombok.Getter;
+
+import static com.codeborne.selenide.Selenide.$;
 
 @Getter
 public class TransferPage extends BasePage<TransferPage> {
@@ -25,23 +28,27 @@ public class TransferPage extends BasePage<TransferPage> {
 
   public TransferPage performTransfer(
       String senderAccount, String recipientName, String recipientAccount, double amount) {
-    RetryUtils.selectOptionRetry(accountSelect, senderAccount, 3, 1000);
-    sendKeys(recipientNameInput, recipientName);
-    sendKeys(accountNumberInput, recipientAccount);
-    sendKeys(amountInput, String.valueOf(amount));
-    confirmCheckbox.shouldBe(Condition.enabled).click();
-    clickWithRetry(transferButton);
-    return this;
+    return StepLogger.log("Performing transfer from " + senderAccount + " to " + recipientName + " " + recipientAccount + " with " + amount, () -> {
+      RetryUtils.selectOptionRetry(accountSelect, senderAccount, 3, 1000);
+      sendKeys(recipientNameInput, recipientName);
+      sendKeys(accountNumberInput, recipientAccount);
+      sendKeys(amountInput, String.valueOf(amount));
+      confirmCheckbox.shouldBe(Condition.enabled).click();
+      clickWithRetry(transferButton);
+      return this;
+    });
   }
 
   public TransferPage performTransfer(
       String senderAccount, String recipientAccount, double amount) {
-    RetryUtils.selectOptionRetry(accountSelect, senderAccount, 3, 1000);
-    sendKeys(accountNumberInput, recipientAccount);
-    sendKeys(amountInput, String.valueOf(amount));
-    confirmCheckbox.shouldBe(Condition.enabled).click();
-    clickWithRetry(transferButton);
-    return this;
+    return StepLogger.log("Performing transfer from " + senderAccount + " to " + recipientAccount + " with " + amount, () -> {
+      RetryUtils.selectOptionRetry(accountSelect, senderAccount, 3, 1000);
+      sendKeys(accountNumberInput, recipientAccount);
+      sendKeys(amountInput, String.valueOf(amount));
+      confirmCheckbox.shouldBe(Condition.enabled).click();
+      clickWithRetry(transferButton);
+      return this;
+    });
   }
 
   public TransferPage selectAccount(String accountNumber) {
@@ -65,8 +72,10 @@ public class TransferPage extends BasePage<TransferPage> {
   }
 
   public TransferPage confirm() {
-    confirmCheckbox.shouldBe(Condition.enabled).click();
-    return this;
+    return StepLogger.log("Confirming transfer", () -> {
+      confirmCheckbox.shouldBe(Condition.enabled).click();
+      return this;
+    });
   }
 
   public TransferPage clickToTransfer() {

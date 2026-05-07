@@ -1,15 +1,17 @@
 package ui.pages;
 
-import static com.codeborne.selenide.Selenide.$;
-
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import common.helpers.StepLogger;
 import common.utils.RetryUtils;
-import java.util.List;
-import java.util.Objects;
 import lombok.Getter;
 import ui.elements.UserBage;
+
+import java.util.List;
+import java.util.Objects;
+
+import static com.codeborne.selenide.Selenide.$;
 
 @Getter
 public class AdminPanel extends BasePage<AdminPanel> {
@@ -22,19 +24,23 @@ public class AdminPanel extends BasePage<AdminPanel> {
   }
 
   public AdminPanel createUser(String username, String password) {
-    sendKeys(usernameInput, username);
-    sendKeys(passwordInput, password);
-    addUserButton.click();
-    return this;
+    return StepLogger.log("Creating user " + username + " from admin panel ", () -> {
+      sendKeys(usernameInput, username);
+      sendKeys(passwordInput, password);
+      addUserButton.click();
+      return this;
+    });
   }
 
   public List<UserBage> getAllUsers() {
-    ElementsCollection elementsCollection = $(Selectors.byText("All Users")).parent().findAll("li");
-    return generatePageElements(elementsCollection, UserBage::new);
+    return StepLogger.log("Get all users from Dashboard", () -> {
+      ElementsCollection elementsCollection = $(Selectors.byText("All Users")).parent().findAll("li");
+      return generatePageElements(elementsCollection, UserBage::new);
+    });
   }
 
   public UserBage findUserByUsername(String username) {
-    return RetryUtils.retry(
+    return RetryUtils.retry("Find user by username " + username,
         () ->
             getAllUsers().stream()
                 .filter(it -> it.getUsername().equals(username))

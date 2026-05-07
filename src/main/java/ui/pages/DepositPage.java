@@ -1,11 +1,12 @@
 package ui.pages;
 
-import static com.codeborne.selenide.Selenide.$;
-
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import common.helpers.StepLogger;
 import common.utils.RetryUtils;
 import lombok.Getter;
+
+import static com.codeborne.selenide.Selenide.$;
 
 @Getter
 public class DepositPage extends BasePage<DepositPage> {
@@ -20,10 +21,12 @@ public class DepositPage extends BasePage<DepositPage> {
   }
 
   public DepositPage performDeposit(String accountNumber, double amount) {
-    RetryUtils.selectOptionRetry(accountSelect, accountNumber, 3, 1000);
-    RetryUtils.sendKeysRetry(amountInput, String.valueOf(amount), 3, 500);
-    clickWithRetry(depositButton);
-    return this;
+    return StepLogger.log("Performing deposit to " + accountNumber + " with " + amount, () -> {
+      RetryUtils.selectOptionRetry(accountSelect, accountNumber, 3, 1000);
+      RetryUtils.sendKeysRetry(amountInput, String.valueOf(amount), 3, 500);
+      clickWithRetry(depositButton);
+      return this;
+    });
   }
 
   public DepositPage selectAccount(String accountNumber) {
