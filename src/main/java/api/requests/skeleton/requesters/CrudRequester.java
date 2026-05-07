@@ -1,5 +1,6 @@
 package api.requests.skeleton.requesters;
 
+import api.configs.Config;
 import api.models.BaseModel;
 import api.requests.skeleton.Endpoint;
 import api.requests.skeleton.HttpRequest;
@@ -16,6 +17,8 @@ import static io.restassured.RestAssured.given;
 
 public class CrudRequester extends HttpRequest
     implements CrudEndpointInterface, GetAllEndpointInterface {
+  private final static String API_VERSION = Config.getProperty("apiVersion");
+
   public CrudRequester(
       RequestSpecification requestSpecification,
       Endpoint endpoint,
@@ -28,7 +31,7 @@ public class CrudRequester extends HttpRequest
     return StepLogger.log("POST request to " + endpoint.getUrl(), () -> given()
         .spec(requestSpecification)
         .body(model)
-        .post(endpoint.getUrl())
+        .post(API_VERSION + endpoint.getUrl())
         .then()
         .assertThat()
         .spec(responseSpecification));
@@ -37,7 +40,7 @@ public class CrudRequester extends HttpRequest
   public ValidatableResponse post() {
     return StepLogger.log("POST request to " + endpoint.getUrl(), () -> given()
         .spec(requestSpecification)
-        .post(endpoint.getUrl())
+        .post(API_VERSION + endpoint.getUrl())
         .then()
         .assertThat()
         .spec(responseSpecification));
@@ -47,7 +50,7 @@ public class CrudRequester extends HttpRequest
   public ValidatableResponse get() {
     return StepLogger.log("GET request to " + endpoint.getUrl(), () -> given()
         .spec(requestSpecification)
-        .get(endpoint.getUrl())
+        .get(API_VERSION + endpoint.getUrl())
         .then()
         .assertThat()
         .spec(responseSpecification));
@@ -57,7 +60,7 @@ public class CrudRequester extends HttpRequest
     return StepLogger.log("GET request to " + endpoint.getUrl(), () -> given()
         .spec(requestSpecification)
         .pathParams(baseModel)
-        .get(endpoint.getUrl())
+        .get(API_VERSION + endpoint.getUrl())
         .then()
         .assertThat()
         .spec(responseSpecification));
@@ -68,7 +71,7 @@ public class CrudRequester extends HttpRequest
     return StepLogger.log("PUT request to " + endpoint.getUrl(), () -> given()
         .spec(requestSpecification)
         .body(model)
-        .put(endpoint.getUrl())
+        .put(API_VERSION + endpoint.getUrl())
         .then()
         .assertThat()
         .spec(responseSpecification));
@@ -79,7 +82,7 @@ public class CrudRequester extends HttpRequest
     return StepLogger.log("DELETE request to " + endpoint.getUrl() + " with id = " + id, () -> given()
         .spec(requestSpecification)
         .pathParams("id", id)
-        .delete(endpoint.getUrl())
+        .delete(API_VERSION + endpoint.getUrl())
         .then()
         .assertThat()
         .spec(responseSpecification));
@@ -89,7 +92,7 @@ public class CrudRequester extends HttpRequest
   public ValidatableResponse getAll(Class<?> clazz) {
     return StepLogger.log("GET request to " + endpoint.getUrl(), () -> given()
         .spec(requestSpecification)
-        .get(endpoint.getUrl())
+        .get(API_VERSION + endpoint.getUrl())
         .then()
         .assertThat()
         .spec(responseSpecification));
