@@ -31,7 +31,7 @@ jobs: # аналог этапов
           bash restart_docker.sh
           cd ../..
           echo "Waiting for services to be ready..."
-          sleep 15   # или используйте docker-compose exec для проверки healthcheck
+          sleep 15
 
       - name: Make mvnw executable
         run: chmod +x ./mvnw
@@ -47,20 +47,7 @@ jobs: # аналог этапов
           DB_USERNAME: "postgres"
           DB_PASSWORD: "postgres"
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: always()
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: allure-report
-
-      - name: Run Swagger coverage
-        if: always()
-        run: |
-          chmod +x .swagger-coverage-commandline/bin/swagger-coverage-commandline
-          .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
-
+      # Загружаем предыдущий отчёт (историю) из ветки gh-pages
       - name: Load test report history
         uses: actions/checkout@v4
         if: always()
@@ -77,9 +64,23 @@ jobs: # аналог этапов
           allure_history: allure-history
           keep_reports: 20 # Number of previous reports to keep @master
 
-      - name: Build Swagger coverage report
+      # Генерируем Swagger-отчёт в отдельную папку (не внутри allure-history)
+      - name: Run Swagger coverage
         if: always()
-        run: sudo cp swagger-coverage-report.html allure-history/${{ github.run_number }}
+        run: |
+          chmod +x .swagger-coverage-commandline/bin/swagger-coverage-commandline
+          .swagger-coverage-commandline/bin/swagger-coverage-commandline \
+          -s http://localhost:4111/v3/api-docs \
+          -i target/swagger-coverage-output
+          # Создаём отдельную папку для Swagger-отчёта
+          mkdir -p swagger-report
+          cp swagger-coverage-report.html swagger-report/index.html
+
+      # Копируем Swagger-отчёт в корень allure-history (как отдельный файл, не нарушая структуру)
+      - name: Add Swagger report to Allure
+        if: always()
+        run: |
+          cp swagger-coverage-report.html allure-history/swagger-report.html
 
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v3
