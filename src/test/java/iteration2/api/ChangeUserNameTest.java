@@ -168,17 +168,12 @@ public class ChangeUserNameTest extends BaseTest {
   }
 
   @Test
-  @UserApiSession
-  public void userCannotChangeNameWithoutRequestBodyTest() {
-    CreateUserRequest user = SessionStorage.getUser();
-    UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder().build();
+  public void adminCannotChangeNameTest() {
+    UpdateProfileRequest updateProfileRequest = UpdateProfileRequest.builder().name(RandomData.getName()).build();
     new CrudRequester(
-        RequestSpecs.authAsUser(user.getUsername(), user.getPassword()),
+        RequestSpecs.adminSpec(),
         Endpoint.UPDATE_CUSTOMER_PROFILE,
-        ResponseSpecs.requestReturnsBadRequest(Messages.PROFILE_UPDATE_ERROR.getMessage()))
+        ResponseSpecs.requestReturnsForbidden())
         .update(updateProfileRequest);
-
-    GetUserResponse getUserResponse = SessionStorage.getSteps().getUserResponse();
-    softly.assertThat(getUserResponse.getName()).isNull();
   }
 }
