@@ -1,13 +1,12 @@
 name: Run tests
 
-# триггер
 on: [ push, workflow_dispatch ]
 
-jobs: # аналог этапов
+jobs:
   run-tests:
     name: Set up services (review apps) and run tests
     runs-on: ubuntu-latest
-    steps: # шаги конкретной job
+    steps:
       - name: Checkout repository # копируем файлы репозитория внутрь CI агента
         uses: actions/checkout@v4
 
@@ -64,7 +63,6 @@ jobs: # аналог этапов
           allure_history: allure-history
           keep_reports: 20 # Number of previous reports to keep @master
 
-      # Генерируем Swagger-отчёт в отдельную папку (не внутри allure-history)
       - name: Run Swagger coverage
         if: always()
         run: |
@@ -76,12 +74,13 @@ jobs: # аналог этапов
           mkdir -p swagger-report
           cp swagger-coverage-report.html swagger-report/index.html
 
-      # Копируем Swagger-отчёт в корень allure-history (как отдельный файл, не нарушая структуру)
       - name: Add Swagger report to Allure
         if: always()
         run: |
-          sudo cp swagger-coverage-report.html allure-history/swagger-report.html
-          sudo chmod 644 allure-history/swagger-report.html
+          RUN_DIR="allure-history/${{ github.run_number }}"
+          sudo mkdir -p "$RUN_DIR"
+          sudo cp swagger-coverage-report.html "$RUN_DIR/swagger-report.html"
+          sudo chmod 644 "$RUN_DIR/swagger-report.html"
 
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v3
