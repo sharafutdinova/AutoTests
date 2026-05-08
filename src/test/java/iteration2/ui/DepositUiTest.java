@@ -7,11 +7,12 @@ import api.models.accounts.GetAccountTransactionsResponse;
 import baseTests.BaseUiTest;
 import common.annotations.UserSession;
 import common.storage.SessionStorage;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import ui.pages.BankAlert;
 import ui.pages.DepositPage;
 import ui.pages.UserDashboard;
+
+import java.util.List;
 
 public class DepositUiTest extends BaseUiTest {
   @Test

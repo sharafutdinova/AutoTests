@@ -1,7 +1,5 @@
 package iteration2.ui;
 
-import static com.codeborne.selenide.Condition.visible;
-
 import api.generators.RandomData;
 import api.models.customer.GetUserResponse;
 import baseTests.BaseUiTest;
@@ -14,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import ui.pages.BankAlert;
 import ui.pages.EditProfilePage;
 import ui.pages.UserDashboard;
+
+import static com.codeborne.selenide.Condition.visible;
 
 public class ChangeUserNameUiTest extends BaseUiTest {
   @Test

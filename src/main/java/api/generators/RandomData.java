@@ -1,13 +1,15 @@
 package api.generators;
 
-import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+
+import java.util.Random;
 
 public class RandomData {
   private static final String LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-  private RandomData() {}
+  private RandomData() {
+  }
 
   public static String getUsername() {
     return RandomStringUtils.randomAlphabetic(10);

@@ -1,15 +1,16 @@
 package iteration1.ui;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import api.models.accounts.CreateAccountResponse;
 import baseTests.BaseUiTest;
 import common.annotations.UserSession;
 import common.storage.SessionStorage;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import ui.pages.BankAlert;
 import ui.pages.UserDashboard;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CreateAccountTest extends BaseUiTest {
   @Test
