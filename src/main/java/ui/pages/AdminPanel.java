@@ -25,9 +25,9 @@ public class AdminPanel extends BasePage<AdminPanel> {
 
   public AdminPanel createUser(String username, String password) {
     return StepLogger.logWithScreen("Create user with username " + username + " and password " + password, () -> {
-      sendKeys(usernameInput, username);
-      sendKeys(passwordInput, password);
-      addUserButton.click();
+      RetryUtils.sendKeysRetry(usernameInput, username, 3, 500);
+      RetryUtils.sendKeysRetry(passwordInput, password, 3, 500);
+      clickWithRetry(addUserButton);
       return this;
     });
   }

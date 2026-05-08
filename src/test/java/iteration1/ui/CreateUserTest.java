@@ -55,8 +55,7 @@ public class CreateUserTest extends BaseUiTest {
         .open()
         .createUser(newUser.getUsername(), newUser.getPassword())
         .checkAlertMessageAndAccept(
-            BankAlert.USERNAME_MUST_BE_BETWEEN_3_AND_15_CHARACTERS.getMessage())
-        .getAllUsers();
+            BankAlert.USERNAME_MUST_BE_BETWEEN_3_AND_15_CHARACTERS.getMessage());
 
     assertTrue(new AdminPanel().getAllUsers().stream()
         .noneMatch(userBage -> userBage.getUsername().equals(newUser.getUsername())));

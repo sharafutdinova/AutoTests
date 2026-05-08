@@ -80,9 +80,8 @@ jobs: # аналог этапов
       - name: Add Swagger report to Allure
         if: always()
         run: |
-          mkdir -p allure-history
-          chmod u+w allure-history
-          cp swagger-coverage-report.html allure-history/swagger-report.html
+          sudo cp swagger-coverage-report.html allure-history/swagger-report.html
+          sudo chmod 644 allure-history/swagger-report.html
 
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v3
