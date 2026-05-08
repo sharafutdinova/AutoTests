@@ -23,13 +23,12 @@ public class CreateUserTest extends BaseUiTest {
     CreateUserRequest newUser =
         new CreateUserRequest(
             RandomData.getUsername(), RandomData.getPassword(), UserRole.USER.toString());
-    UserBage newUserBage =
-        new AdminPanel()
-            .open()
-            .createUser(newUser.getUsername(), newUser.getPassword())
-            .checkAlertMessageAndAccept(BankAlert.USER_CREATED_SUCCESSFULLY.getMessage())
-            .findUserByUsername(newUser.getUsername());
+    new AdminPanel()
+        .open()
+        .createUser(newUser.getUsername(), newUser.getPassword())
+        .checkAlertMessageAndAccept(BankAlert.USER_CREATED_SUCCESSFULLY.getMessage());
 
+    UserBage newUserBage = new AdminPanel().findUserByUsername(newUser.getUsername());
     assertThat(newUserBage)
         .as("UserBage should exist on Dashboard after user creation")
         .isNotNull();
@@ -52,21 +51,19 @@ public class CreateUserTest extends BaseUiTest {
             RandomData.getUsername(), RandomData.getPassword(), UserRole.USER.toString());
     newUser.setUsername("a");
 
-    assertTrue(
-        new AdminPanel()
-            .open()
-            .createUser(newUser.getUsername(), newUser.getPassword())
-            .checkAlertMessageAndAccept(
-                BankAlert.USERNAME_MUST_BE_BETWEEN_3_AND_15_CHARACTERS.getMessage())
-            .getAllUsers()
-            .stream()
-            .noneMatch(userBage -> userBage.getUsername().equals(newUser.getUsername())));
+    new AdminPanel()
+        .open()
+        .createUser(newUser.getUsername(), newUser.getPassword())
+        .checkAlertMessageAndAccept(
+            BankAlert.USERNAME_MUST_BE_BETWEEN_3_AND_15_CHARACTERS.getMessage())
+        .getAllUsers();
 
+    assertTrue(new AdminPanel().getAllUsers().stream()
+        .noneMatch(userBage -> userBage.getUsername().equals(newUser.getUsername())));
     long usersWithSameUsernameAsNewUser =
         AdminSteps.getAllUsers().stream()
             .filter(user -> user.getUsername().equals(newUser.getUsername()))
             .count();
-
     assertThat(usersWithSameUsernameAsNewUser).isZero();
   }
 }
