@@ -1,5 +1,6 @@
 package iteration1.api;
 
+import api.models.Messages;
 import api.models.admin.CreateUserRequest;
 import api.models.admin.CreateUserResponse;
 import api.models.customer.GetUserResponse;
@@ -28,7 +29,9 @@ public class DeleteUserTest extends BaseTest {
         RequestSpecs.adminSpec(), Endpoint.ADMIN_DELETE_USER, ResponseSpecs.requestReturnsOK())
         .delete(getUserResponse.getId())
         .assertThat()
-        .body(equalTo("User with ID " + getUserResponse.getId() + " deleted successfully."));
+        .body(equalTo(String.format(
+            Messages.USER_DELETED.getMessage(),
+            getUserResponse.getId())));
 
     List<CreateUserResponse> users = AdminSteps.getAllUsers().stream()
         .filter(user -> user.getId() == (getUserResponse.getId()))
@@ -43,7 +46,10 @@ public class DeleteUserTest extends BaseTest {
         .max(Long::compare).orElse(0L);
     Long notExistsUserID = maxUserID + 100;
     new CrudRequester(
-        RequestSpecs.adminSpec(), Endpoint.ADMIN_DELETE_USER, ResponseSpecs.requestReturnsNotFound("Error: User with ID " + notExistsUserID + " not found."))
+        RequestSpecs.adminSpec(), Endpoint.ADMIN_DELETE_USER,
+        ResponseSpecs.requestReturnsNotFound(String.format(
+            Messages.USER_NOT_FOUND.getMessage(),
+            notExistsUserID)))
         .delete(notExistsUserID);
   }
 
