@@ -56,4 +56,10 @@ public class ResponseSpecs {
         .expectStatusCode(HttpStatus.SC_UNAUTHORIZED)
         .build();
   }
+  public static ResponseSpecification requestReturnsNotFound(String errorValue) {
+    return defaultResponseBuilder()
+        .expectStatusCode(HttpStatus.SC_NOT_FOUND)
+        .expectBody(Matchers.equalTo(errorValue))
+        .build();
+  }
 }
