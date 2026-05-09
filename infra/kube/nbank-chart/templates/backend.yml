@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment # указывает, что это ресурс типа Deployment, который управляет созданием и обновлением подов.
+metadata:
+  name: backend # kubectl get deployment backend
+spec:
+  replicas: 1 # количество копий POD
+  selector: # выбирает поды, которые соответствуют метке app: backend.
+    matchLabels:
+      app: backend # связываем Deployment и Pod
+  template: #шаблон, из которого будут создаваться поды, с контейнером, образ которого будет использоваться, и портом для связи.
+    metadata:
+      labels:
+        app: backend # устанавливаем label на Pod
+      annotations:
+        co.elastic.logs/enabled: "true"
+        co.elastic.logs/module: springboot
+        co.elastic.logs/json.keys_under_root: "true"
+        co.elastic.logs/json.add_error_key: "true"
+    spec:
+      containers:
+        - name: backend
+          image: nobugsme/nbank:with_validation_fix
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4111
+---
+apiVersion: v1
+kind: Service # указывает на ресурс Service, который управляет доступом к подам.
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  selector:
+    app: backend # Сервис будет направлять трафик на поды у которых app=backend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 4111 # порт, на котором работает сервис, внешний порт для доступа.
+      targetPort: 4111 # куда пересылать внутри Pod (внутренний порт контейнера.)
+  type: NodePort # ClusterIP (только внутри кластера), NodePort (NodePort — позволяет доступ к сервису снаружи кластера через определённый порт на нодах.)
+
+#  CХЕМА:
+#  [твой браузер или тест] — http://<NODE-IP>:4111 (либо на http://localhost:4111)
+#  |
+#  [NodePort 4111]
+#  |
+#  [Service port 4111]
+#  |
+#  [Pod / Контейнер port 4111]
+#  |
+#  nobugsme/nbank:with_validation_fix
