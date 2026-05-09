@@ -1,0 +1,7 @@
+$ kubectl logs deployment/selenoid
+2026/05/09 07:29:06 [-] [INIT] [Loading configuration files...]
+2026/05/09 07:29:06 [-] [INIT] [Loaded configuration from /etc/selenoid/browsers.json]
+2026/05/09 07:29:06 [-] [INIT] [Video Dir: /opt/selenoid/video]
+2026/05/09 07:29:06 [-] [INIT] [Using Docker API version: 1.44]
+2026/05/09 07:29:06 [-] [INIT] [Timezone: UTC]
+2026/05/09 07:29:06 [-] [INIT] [Listening on :4444]

@@ -1,0 +1,2 @@
+$ kubectl logs deployment/selenoid-ui
+2026/05/09 07:32:16 [INIT] [Listening on :8080]

@@ -1,0 +1,14 @@
+$ kubectl get pods
+NAME                           READY   STATUS    RESTARTS   AGE
+backend-94cf644f5-96kw9        1/1     Running   0          13h
+frontend-8475f7c85-rvnhd       1/1     Running   0          13h
+selenoid-54cdf9ffb7-7t9jj      1/1     Running   0          2m56s
+selenoid-ui-744c5d768b-6whnt   1/1     Running   0          13h
+
+$ kubectl get svc
+NAME          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+backend       NodePort    10.103.181.17    <none>        4111:31777/TCP   17h
+frontend      NodePort    10.110.159.68    <none>        80:30718/TCP     17h
+kubernetes    ClusterIP   10.96.0.1        <none>        443/TCP          20h
+selenoid      NodePort    10.105.85.141    <none>        4444:30798/TCP   17h
+selenoid-ui   NodePort    10.105.211.107   <none>        8080:31717/TCP   17h
