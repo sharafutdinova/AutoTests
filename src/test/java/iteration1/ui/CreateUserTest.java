@@ -25,6 +25,7 @@ public class CreateUserTest extends BaseUiTest {
             RandomData.getUsername(), RandomData.getPassword(), UserRole.USER.toString());
     new AdminPanel()
         .open()
+        .refresh()
         .createUser(newUser.getUsername(), newUser.getPassword())
         .checkAlertMessageAndAccept(BankAlert.USER_CREATED_SUCCESSFULLY.getMessage());
 
@@ -53,6 +54,7 @@ public class CreateUserTest extends BaseUiTest {
 
     new AdminPanel()
         .open()
+        .refresh()
         .createUser(newUser.getUsername(), newUser.getPassword())
         .checkAlertMessageAndAccept(
             BankAlert.USERNAME_MUST_BE_BETWEEN_3_AND_15_CHARACTERS.getMessage());
