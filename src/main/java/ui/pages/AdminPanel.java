@@ -2,6 +2,7 @@ package ui.pages;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selectors;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import common.helpers.StepLogger;
 import common.utils.RetryUtils;
@@ -25,6 +26,8 @@ public class AdminPanel extends BasePage<AdminPanel> {
 
   public AdminPanel createUser(String username, String password) {
     return StepLogger.logWithScreen("Create user with username " + username + " and password " + password, () -> {
+      Selenide.refresh();
+      Selenide.sleep(1000);
       RetryUtils.sendKeysRetry(usernameInput, username, 3, 1000);
       RetryUtils.sendKeysRetry(passwordInput, password, 3, 1000);
       clickWithRetry(addUserButton);

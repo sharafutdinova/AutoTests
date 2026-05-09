@@ -74,13 +74,6 @@ public abstract class BasePage<T extends BasePage> {
     });
   }
 
-  public T refresh() {
-    return StepLogger.logWithScreen("Refresh page", () -> {
-      Selenide.refresh();
-      return (T) this;
-    });
-  }
-
   protected <T extends BaseElement> List<T> generatePageElements(
       ElementsCollection elementsCollection, Function<SelenideElement, T> constructor) {
     return elementsCollection.stream().map(constructor).toList();
