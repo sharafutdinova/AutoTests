@@ -61,9 +61,11 @@ public abstract class BasePage<T extends BasePage> {
   public T checkAlertMessageAndAccept(String bankAlert) {
     return StepLogger.logWithScreen("Checking and accepting alert message: " + bankAlert, () -> {
       Alert alert = switchTo().alert();
-      assertThat(alert.getText()).contains(bankAlert);
-      alert.accept();
-      return (T) this;
+      if (alert != null) {
+        assertThat(alert.getText()).contains(bankAlert);
+        alert.accept();
+        return (T) this;
+      } else throw new NoAlertPresentException();
     });
   }
 
