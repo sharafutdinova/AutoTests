@@ -26,6 +26,7 @@ kubectl get svc
 
 # Все поды в namespace=default
 kubectl get pods
+
 # kubectl delete pod selenoid-7fd45bc68-nz8rs  удаление пода
 # Логи конкретного сервиса
 kubectl logs deployment/backend
