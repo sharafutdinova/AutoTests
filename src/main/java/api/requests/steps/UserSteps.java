@@ -44,6 +44,33 @@ public class UserSteps {
                 ResponseSpecs.requestReturnsOK()).post(depositRequest).extract().body().as(DepositResponse.class);
     }
 
+    public DepositResponseForFraud depositToAccount(Long accountId, double amount) {
+        DepositRequestForFraud depositRequest = DepositRequestForFraud.builder()
+                .accountId(accountId)
+                .amount(amount)
+                .description("Test deposit")
+                .build();
+
+        return new ValidatedCrudRequester<DepositResponseForFraud>(
+                RequestSpecs.authAsUser(username, password),
+                Endpoint.DEPOSIT_WITH_FRAUD,
+                ResponseSpecs.requestReturnsOK()).post(depositRequest);
+    }
+
+    public TransferResponseForFraud transferWithFraudCheck(Long senderAccountId, Long receiverAccountId, double amount) {
+        TransferRequest transferRequest = TransferRequest.builder()
+                .senderAccountId(senderAccountId)
+                .receiverAccountId(receiverAccountId)
+                .amount(amount)
+                .description("Test transfer with fraud check")
+                .build();
+
+        return new ValidatedCrudRequester<TransferResponseForFraud>(
+                RequestSpecs.authAsUser(username, password),
+                Endpoint.TRANSFER_WITH_FRAUD_CHECK,
+                ResponseSpecs.requestReturnsOK()).post(transferRequest);
+    }
+
     public GetAccountTransactionsResponse getAccountTransactions(long accountId) {
         GetAccountTransactionsRequest getAccountTransactionsRequest = new GetAccountTransactionsRequest(accountId);
         return new ValidatedCrudRequester<GetAccountTransactionsResponse>(RequestSpecs.authAsUser(this.username, this.password),
