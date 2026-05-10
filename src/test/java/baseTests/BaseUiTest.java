@@ -26,7 +26,7 @@ public class BaseUiTest extends BaseTest {
     Configuration.browser = Config.getProperty("browser");
     Configuration.browserSize = Config.getProperty("browserSize");
     ChromeOptions options = new ChromeOptions();
-    options.addArguments("--no-sandbox", "--disable-dev-shm-usage");
+    options.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-web-security");
     options.setCapability(
         "selenoid:options",
         Map.of(
@@ -38,7 +38,7 @@ public class BaseUiTest extends BaseTest {
     Configuration.timeout = 10000; // таймаут ожидания элементов (по умолчанию 4000)
     Configuration.pollingInterval = 500; // интервал опроса (по умолчанию 100 мс)
     Configuration.pageLoadStrategy = "eager"; // ждёт только DOM, не ждёт ресурсы
-    Configuration.headless = true;
+    Configuration.headless = false;
     Configuration.reopenBrowserOnFail = true;
     SelenideLogger.addListener("AllureSelenide", new AllureSelenide()
         .screenshots(true)
