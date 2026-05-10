@@ -11,8 +11,12 @@ import common.annotations.UserApiSession;
 import common.extensions.FraudCheckWireMockExtension;
 import common.extensions.TimingExtension;
 import common.storage.SessionStorage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.lang.reflect.Method;
 
 @ExtendWith({TimingExtension.class, FraudCheckWireMockExtension.class})
 public class TransferWithFraudCheckTest extends BaseTest {
@@ -20,6 +24,7 @@ public class TransferWithFraudCheckTest extends BaseTest {
     private CreateAccountResponse senderAccount;
     private CreateAccountResponse receiverAccount;
     private double depositAmount;
+    private FraudCheckMock fraudCheckMock;
 
     public void prepareAccounts() {
         userSteps1 = SessionStorage.getSteps();
@@ -29,6 +34,17 @@ public class TransferWithFraudCheckTest extends BaseTest {
         receiverAccount = SessionStorage.getSteps(secondUserId).createAccount();
         depositAmount = RandomData.getDepositAmount();
         userSteps1.depositToAccount(senderAccount.getId(), depositAmount);
+    }
+
+    public void getAnnotation(TestInfo testInfo) {
+        Method method = testInfo.getTestMethod().orElseThrow();
+        fraudCheckMock = method.getAnnotation(FraudCheckMock.class);
+    }
+
+    @BeforeEach
+    public void setUpTest(TestInfo testInfo) {
+        prepareAccounts();
+        getAnnotation(testInfo);
     }
 
     @Test
@@ -42,9 +58,6 @@ public class TransferWithFraudCheckTest extends BaseTest {
     )
     @UserApiSession
     public void testTransferRiskFraudCheckWithSuccessStatus() {
-        prepareAccounts();
-        // Step 6: Send POST to transfer-with-fraud-check endpoint
-        // Transfer random amount (less than deposit) from account1 to account2
         double transferAmount = RandomData.getRandomAmount(depositAmount);
         TransferResponseForFraud transferResponse = userSteps1.transferWithFraudCheck(
                 senderAccount.getId(),
@@ -52,21 +65,21 @@ public class TransferWithFraudCheckTest extends BaseTest {
                 transferAmount
         );
 
-        // Step 7: Assert that POST returned success using model comparison
+        // Assert that POST returned success using model comparison
         softly.assertThat(transferResponse).isNotNull();
 
         // Create expected response model for comparison
         // Using the same values as configured in @FraudCheckMock annotation
         TransferResponseForFraud expectedResponse = TransferResponseForFraud.builder()
-                .status("APPROVED")
-                .message("Transfer approved and processed immediately")
+                .status(TransferStatus.APPROVED.getDescription())
+                .message(TransferMessage.TRANSFER_APPROVED_AND_PROCESSED_IMMEDIATELY.getDescription())
                 .amount(transferAmount)
                 .senderAccountId(senderAccount.getId())
                 .receiverAccountId(receiverAccount.getId())
-                .fraudRiskScore(0.2)
-                .fraudReason("Low risk transaction")
-                .requiresManualReview(false)
-                .requiresVerification(false)
+                .fraudRiskScore(Double.parseDouble(fraudCheckMock.riskScore()))
+                .fraudReason(fraudCheckMock.reason())
+                .requiresManualReview(fraudCheckMock.requiresManualReview())
+                .requiresVerification(fraudCheckMock.additionalVerificationRequired())
                 .build();
 
         ModelAssertions.assertThatModels(expectedResponse, transferResponse).match();
@@ -83,7 +96,6 @@ public class TransferWithFraudCheckTest extends BaseTest {
     )
     @UserApiSession
     public void testTransferWithFraudCheckVerificationsAndReviewRequired() {
-        prepareAccounts();
         double transferAmount = depositAmount;
         TransferResponseForFraud transferResponse = userSteps1.transferWithFraudCheck(
                 senderAccount.getId(),
@@ -92,13 +104,13 @@ public class TransferWithFraudCheckTest extends BaseTest {
         );
         softly.assertThat(transferResponse).isNotNull();
         TransferResponseForFraud expectedResponse = TransferResponseForFraud.builder()
-                .status("VERIFICATION_REQUIRED")
-                .message("Additional verification required")
+                .status(TransferStatus.VERIFICATION_REQUIRED.getDescription())
+                .message(TransferMessage.ADDITIONAL_VERIFICATION_REQUIRED.getDescription())
                 .amount(transferAmount)
                 .senderAccountId(senderAccount.getId())
                 .receiverAccountId(receiverAccount.getId())
-                .fraudRiskScore(0.8)
-                .fraudReason("High risk transaction")
+                .fraudRiskScore(Double.parseDouble(fraudCheckMock.riskScore()))
+                .fraudReason(fraudCheckMock.reason())
                 .requiresManualReview(true)
                 .requiresVerification(true)
                 .build();
@@ -117,7 +129,6 @@ public class TransferWithFraudCheckTest extends BaseTest {
     )
     @UserApiSession
     public void testTransferWithFraudCheckRequiredManualReview() {
-        prepareAccounts();
         double transferAmount = depositAmount;
         TransferResponseForFraud transferResponse = userSteps1.transferWithFraudCheck(
                 senderAccount.getId(),
@@ -126,15 +137,15 @@ public class TransferWithFraudCheckTest extends BaseTest {
         );
         softly.assertThat(transferResponse).isNotNull();
         TransferResponseForFraud expectedResponse = TransferResponseForFraud.builder()
-                .status("MANUAL_REVIEW_REQUIRED")
-                .message("Transfer requires manual review")
+                .status(TransferStatus.MANUAL_REVIEW_REQUIRED.getDescription())
+                .message(TransferMessage.TRANSFER_REQUIRES_MANUAL_REVIEW.getDescription())
                 .amount(transferAmount)
                 .senderAccountId(senderAccount.getId())
                 .receiverAccountId(receiverAccount.getId())
-                .fraudRiskScore(0.5)
-                .fraudReason("Middle risk transaction")
-                .requiresManualReview(true)
-                .requiresVerification(false)
+                .fraudRiskScore(Double.parseDouble(fraudCheckMock.riskScore()))
+                .fraudReason(fraudCheckMock.reason())
+                .requiresManualReview(fraudCheckMock.requiresManualReview())
+                .requiresVerification(fraudCheckMock.additionalVerificationRequired())
                 .build();
         ModelAssertions.assertThatModels(expectedResponse, transferResponse).match();
     }
@@ -159,15 +170,15 @@ public class TransferWithFraudCheckTest extends BaseTest {
         );
         softly.assertThat(transferResponse).isNotNull();
         TransferResponseForFraud expectedResponse = TransferResponseForFraud.builder()
-                .status("VERIFICATION_REQUIRED")
-                .message("Additional verification required")
+                .status(TransferStatus.VERIFICATION_REQUIRED.getDescription())
+                .message(TransferMessage.ADDITIONAL_VERIFICATION_REQUIRED.getDescription())
                 .amount(transferAmount)
                 .senderAccountId(senderAccount.getId())
                 .receiverAccountId(receiverAccount.getId())
-                .fraudRiskScore(100.5)
-                .fraudReason("High risk transaction")
-                .requiresManualReview(false)
-                .requiresVerification(true)
+                .fraudRiskScore(Double.parseDouble(fraudCheckMock.riskScore()))
+                .fraudReason(fraudCheckMock.reason())
+                .requiresManualReview(fraudCheckMock.requiresManualReview())
+                .requiresVerification(fraudCheckMock.additionalVerificationRequired())
                 .build();
         ModelAssertions.assertThatModels(expectedResponse, transferResponse).match();
     }
@@ -192,15 +203,15 @@ public class TransferWithFraudCheckTest extends BaseTest {
         );
         softly.assertThat(transferResponse).isNotNull();
         TransferResponseForFraud expectedResponse = TransferResponseForFraud.builder()
-                .status("MANUAL_REVIEW_REQUIRED")
-                .message("Transfer requires manual review")
+                .status(TransferStatus.MANUAL_REVIEW_REQUIRED.getDescription())
+                .message(TransferMessage.TRANSFER_REQUIRES_MANUAL_REVIEW.getDescription())
                 .amount(transferAmount)
                 .senderAccountId(senderAccount.getId())
                 .receiverAccountId(receiverAccount.getId())
-                .fraudRiskScore(0.0)
-                .fraudReason("No risk transaction")
-                .requiresManualReview(false)
-                .requiresVerification(false)
+                .fraudRiskScore(Double.parseDouble(fraudCheckMock.riskScore()))
+                .fraudReason(fraudCheckMock.reason())
+                .requiresManualReview(fraudCheckMock.requiresManualReview())
+                .requiresVerification(fraudCheckMock.additionalVerificationRequired())
                 .build();
         ModelAssertions.assertThatModels(expectedResponse, transferResponse).match();
     }
@@ -210,10 +221,10 @@ public class TransferWithFraudCheckTest extends BaseTest {
             statusCode = 500,
             status = "ERROR",
             decision = "ERROR",
-            riskScore = "0",
+            riskScore = "1",
             reason = "undefined",
-            requiresManualReview = false,
-            additionalVerificationRequired = false
+            requiresManualReview = true,
+            additionalVerificationRequired = true
     )
 
     @UserApiSession
@@ -226,17 +237,18 @@ public class TransferWithFraudCheckTest extends BaseTest {
                 transferAmount
         );
         softly.assertThat(transferResponse).isNotNull();
-        String fraudReason = "Unexpected error during fraud check: 500 Server Error: \"{<EOL>  \"status\": \"ERROR\",<EOL>  \"decision\": \"ERROR\",<EOL>  \"riskScore\": \"0\",<EOL>  \"reason\": \"undefined\",<EOL>  \"requiresManualReview\": false,<EOL>  \"additionalVerificationRequired\": false<EOL>}\"";
+        String fraudReason = String.format(FraudReason.UNEXPECTED_ERROR.getDescription(), FraudReason.SERVER_ERROR.getDescription(), fraudCheckMock.status(), fraudCheckMock.decision(),
+                fraudCheckMock.riskScore(), fraudCheckMock.reason(), fraudCheckMock.requiresManualReview(), fraudCheckMock.additionalVerificationRequired());
         TransferResponseForFraud expectedResponse = TransferResponseForFraud.builder()
-                .status("MANUAL_REVIEW_REQUIRED")
-                .message("Transfer requires manual review")
+                .status(TransferStatus.MANUAL_REVIEW_REQUIRED.getDescription())
+                .message(TransferMessage.TRANSFER_REQUIRES_MANUAL_REVIEW.getDescription())
                 .amount(transferAmount)
                 .senderAccountId(senderAccount.getId())
                 .receiverAccountId(receiverAccount.getId())
-                .fraudRiskScore(0.5)
+                .fraudRiskScore(Double.parseDouble(fraudCheckMock.riskScore()))
                 .fraudReason(fraudReason)
-                .requiresManualReview(true)
-                .requiresVerification(false)
+                .requiresManualReview(fraudCheckMock.requiresManualReview())
+                .requiresVerification(fraudCheckMock.additionalVerificationRequired())
                 .build();
         ModelAssertions.assertThatModels(expectedResponse, transferResponse).match();
     }
@@ -246,9 +258,9 @@ public class TransferWithFraudCheckTest extends BaseTest {
             statusCode = 400,
             status = "ERROR",
             decision = "ERROR",
-            riskScore = "0",
+            riskScore = "0.5",
             reason = "undefined",
-            requiresManualReview = false,
+            requiresManualReview = true,
             additionalVerificationRequired = false
     )
 
@@ -262,17 +274,18 @@ public class TransferWithFraudCheckTest extends BaseTest {
                 transferAmount
         );
         softly.assertThat(transferResponse).isNotNull();
-        String fraudReason = "Unexpected error during fraud check: 400 Bad Request: \"{<EOL>  \"status\": \"ERROR\",<EOL>  \"decision\": \"ERROR\",<EOL>  \"riskScore\": \"0\",<EOL>  \"reason\": \"undefined\",<EOL>  \"requiresManualReview\": false,<EOL>  \"additionalVerificationRequired\": false<EOL>}\"";
+        String fraudReason = String.format(FraudReason.UNEXPECTED_ERROR.getDescription(), FraudReason.BAD_REQUEST.getDescription(), fraudCheckMock.status(), fraudCheckMock.decision(),
+                fraudCheckMock.riskScore(), fraudCheckMock.reason(), fraudCheckMock.requiresManualReview(), fraudCheckMock.additionalVerificationRequired());
         TransferResponseForFraud expectedResponse = TransferResponseForFraud.builder()
-                .status("MANUAL_REVIEW_REQUIRED")
-                .message("Transfer requires manual review")
+                .status(TransferStatus.MANUAL_REVIEW_REQUIRED.getDescription())
+                .message(TransferMessage.TRANSFER_REQUIRES_MANUAL_REVIEW.getDescription())
                 .amount(transferAmount)
                 .senderAccountId(senderAccount.getId())
                 .receiverAccountId(receiverAccount.getId())
-                .fraudRiskScore(0.5)
+                .fraudRiskScore(Double.parseDouble(fraudCheckMock.riskScore()))
                 .fraudReason(fraudReason)
-                .requiresManualReview(true)
-                .requiresVerification(false)
+                .requiresManualReview(fraudCheckMock.requiresManualReview())
+                .requiresVerification(fraudCheckMock.additionalVerificationRequired())
                 .build();
         ModelAssertions.assertThatModels(expectedResponse, transferResponse).match();
     }
