@@ -1,12 +1,13 @@
 package api.database;
 
 import api.configs.Config;
+import lombok.Builder;
+import lombok.Data;
+
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Builder;
-import lombok.Data;
 
 @Data
 @Builder
@@ -114,7 +115,7 @@ public class DBRequest {
     String sql = buildSQL();
 
     try (Connection conn = getConnection();
-        PreparedStatement stmt = conn.prepareStatement(sql)) {
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
 
       setParameters(stmt);
 
@@ -130,7 +131,7 @@ public class DBRequest {
     String sql = buildSQL();
 
     try (Connection conn = getConnection();
-        PreparedStatement stmt = conn.prepareStatement(sql)) {
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
 
       setParameters(stmt);
 
