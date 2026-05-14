@@ -1,0 +1,25 @@
+$ kubectl logs deployment/backend
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+{"timestamp":"2026-05-09T05:47:27.51497345Z","logger_name":"me.nobugs.bank.BankApplication","thread_name":"main","level":"INFO","message":"Starting BankApplication v0.0.1-SNAPSHOT using Java 17.0.16 with PID 1 (/app/app.jar started by root in /app)"}
+{"timestamp":"2026-05-09T05:47:27.539165918Z","logger_name":"me.nobugs.bank.BankApplication","thread_name":"main","level":"INFO","message":"No active profile set, falling back to 1 default profile: \"default\""}
+{"timestamp":"2026-05-09T05:47:35.131750679Z","logger_name":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer","thread_name":"main","level":"INFO","message":"Tomcat initialized with port 4111 (http)"}
+{"timestamp":"2026-05-09T05:47:35.226011023Z","logger_name":"org.apache.catalina.core.StandardService","thread_name":"main","level":"INFO","message":"Starting service [Tomcat]"}
+{"timestamp":"2026-05-09T05:47:35.226688812Z","logger_name":"org.apache.catalina.core.StandardEngine","thread_name":"main","level":"INFO","message":"Starting Servlet engine: [Apache Tomcat/10.1.20]"}
+{"timestamp":"2026-05-09T05:47:35.426529981Z","logger_name":"org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/]","thread_name":"main","level":"INFO","message":"Initializing Spring embedded WebApplicationContext"}
+{"timestamp":"2026-05-09T05:47:35.429863517Z","logger_name":"org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext","thread_name":"main","level":"INFO","message":"Root WebApplicationContext: initialization completed in 7512 ms"}
+🧪 MeterRegistry class = io.micrometer.prometheus.PrometheusMeterRegistry
+{"timestamp":"2026-05-09T05:47:41.926861104Z","logger_name":"org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver","thread_name":"main","level":"INFO","message":"Exposing 3 endpoint(s) beneath base path '/actuator'"}
+{"timestamp":"2026-05-09T05:47:42.407151296Z","logger_name":"org.springframework.security.web.DefaultSecurityFilterChain","thread_name":"main","level":"INFO","message":"Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4cfcac13, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5c25d0d1, org.springframework.security.web.context.SecurityContextHolderFilter@506aa618, org.springframework.security.web.header.HeaderWriterFilter@203765b2, org.springframework.web.filter.CorsFilter@22c8ee48, org.springframework.security.web.authentication.logout.LogoutFilter@17884d, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@456aa471, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1d6713dd, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@3b39e79b, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7845b21a, org.springframework.security.web.access.ExceptionTranslationFilter@6d0114c0, org.springframework.security.web.access.intercept.AuthorizationFilter@40f1aa95]"}
+{"timestamp":"2026-05-09T05:47:45.304936753Z","logger_name":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer","thread_name":"main","level":"INFO","message":"Tomcat started on port 4111 (http) with context path ''"}
+{"timestamp":"2026-05-09T05:47:45.420642104Z","logger_name":"me.nobugs.bank.BankApplication","thread_name":"main","level":"INFO","message":"Started BankApplication in 20.888 seconds (process running for 23.138)"}
+{"timestamp":"2026-05-09T05:49:59.094812337Z","logger_name":"org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/]","thread_name":"http-nio-4111-exec-1","level":"INFO","message":"Initializing Spring DispatcherServlet 'dispatcherServlet'"}
+{"timestamp":"2026-05-09T05:49:59.095731957Z","logger_name":"org.springframework.web.servlet.DispatcherServlet","thread_name":"http-nio-4111-exec-1","level":"INFO","message":"Initializing Servlet 'dispatcherServlet'"}
+{"timestamp":"2026-05-09T05:49:59.098419208Z","logger_name":"org.springframework.web.servlet.DispatcherServlet","thread_name":"http-nio-4111-exec-1","level":"INFO","message":"Completed initialization in 3 ms"}
